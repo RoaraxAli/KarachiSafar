@@ -133,30 +133,38 @@ export const MapView: React.FC<MapViewProps> = ({
 
     // 2. If a single route is being explored from Route Explorer
     if (selectedRoute && !selectedPlan) {
-      selectedRoute.stops.forEach((sId, idx) => {
+      selectedRoute.stops.forEach((sId) => {
         const stop = STOPS[sId];
         if (stop) {
           bounds.extend([stop.lat, stop.lng]);
-
-          // Marker for each stop in route
-          const markerIcon = L.divIcon({
-            className: 'custom-stop-marker',
-            html: `<div style="background-color: ${selectedRoute.color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.4)"></div>`,
-            iconSize: [14, 14],
-            iconAnchor: [7, 7],
-          });
-
-          L.marker([stop.lat, stop.lng], { icon: markerIcon })
-            .bindPopup(`
-              <div style="font-family: sans-serif; color: #0f172a; padding: 4px;">
-                <div style="font-size: 11px; font-weight: bold; color: ${selectedRoute.color};">${selectedRoute.code} • Stop ${idx + 1}</div>
-                <div style="font-size: 13px; font-weight: 700;">${stop.name}</div>
-                <div style="font-size: 11px; margin-top: 4px; color: #475569;">${stop.area}</div>
-              </div>
-            `)
-            .addTo(layerGroup);
         }
       });
+
+      // Show clean Start and Terminus pins only (no dots on every stop)
+      const firstStop = STOPS[selectedRoute.stops[0]];
+      const lastStop = STOPS[selectedRoute.stops[selectedRoute.stops.length - 1]];
+      if (firstStop) {
+        const startIcon = L.divIcon({
+          className: 'custom-stop-marker',
+          html: `<div style="background-color: #059669; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.4)">A</div>`,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
+        });
+        L.marker([firstStop.lat, firstStop.lng], { icon: startIcon })
+          .bindPopup(`<div style="font-weight: 700; font-size: 12px; color: #0f172a;">${selectedRoute.code} Origin: ${firstStop.name}</div>`)
+          .addTo(layerGroup);
+      }
+      if (lastStop && lastStop.id !== firstStop?.id) {
+        const endIcon = L.divIcon({
+          className: 'custom-stop-marker',
+          html: `<div style="background-color: #dc2626; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: white; box-shadow: 0 2px 8px rgba(220,38,38,0.5)">🏁</div>`,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
+        });
+        L.marker([lastStop.lat, lastStop.lng], { icon: endIcon })
+          .bindPopup(`<div style="font-weight: 700; font-size: 12px; color: #0f172a;">${selectedRoute.code} Terminus: ${lastStop.name}</div>`)
+          .addTo(layerGroup);
+      }
 
       const roadPoly = ROAD_POLYLINES[selectedRoute.id];
       const routeLatLngs: [number, number][] =
@@ -243,24 +251,6 @@ export const MapView: React.FC<MapViewProps> = ({
               `)
               .addTo(layerGroup);
           }
-
-          // Intermediate Stop Dots
-          leg.intermediateStops.forEach((iStop) => {
-            const intermediateIcon = L.divIcon({
-              className: 'custom-stop-marker',
-              html: `<div style="background-color: ${leg.color}; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid white;"></div>`,
-              iconSize: [8, 8],
-              iconAnchor: [4, 4],
-            });
-
-            L.marker([iStop.lat, iStop.lng], { icon: intermediateIcon })
-              .bindPopup(`
-                <div style="font-family: sans-serif; color: #0f172a; padding: 2px;">
-                  <div style="font-size: 12px; font-weight: 600;">${iStop.name}</div>
-                </div>
-              `)
-              .addTo(layerGroup);
-          });
         }
       });
 
@@ -268,65 +258,7 @@ export const MapView: React.FC<MapViewProps> = ({
         map.fitBounds(bounds, { padding: [40, 40] });
       }
     } else {
-      // 4. Render all interactive transit stops across Karachi
-      Object.values(STOPS).forEach((stop) => {
-        const isBRT = stop.isBRTStation;
-        const isHub = stop.isHub;
-        const isOrig = stop.id === originStopId;
-        const isDest = stop.id === destStopId;
-
-        // Skip origin & destination here - rendered as prominent pins below
-        if (isOrig || isDest) return;
-
-        const circle = L.circleMarker([stop.lat, stop.lng], {
-          radius: isBRT ? 6 : isHub ? 5 : 3.5,
-          fillColor: isBRT ? '#16a34a' : isHub ? '#0f172a' : '#64748b',
-          color: '#ffffff',
-          weight: isBRT || isHub ? 2 : 1.5,
-          fillOpacity: 0.85,
-        });
-
-        const popupDiv = document.createElement('div');
-        popupDiv.style.cssText = 'font-family: sans-serif; min-width: 170px; padding: 2px;';
-        popupDiv.innerHTML = `
-          <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: ${isBRT ? '#16a34a' : '#64748b'}; margin-bottom: 2px;">
-            ${isBRT ? '🟢 BRT Station' : isHub ? '⭐ Transit Hub' : '🚏 Bus Stop'}
-          </div>
-          <div style="font-size: 13px; font-weight: 700; color: #0f172a;">${stop.name}</div>
-          <div style="font-size: 11px; color: #475569; margin-top: 2px;">${stop.area} • <span class="urdu-font">${stop.urduName}</span></div>
-          <div style="display: flex; gap: 6px; margin-top: 8px;">
-            <button id="pop-orig-${stop.id}" style="flex: 1; padding: 5px 8px; font-size: 11px; font-weight: 700; background: #059669; color: white; border: none; border-radius: 6px; cursor: pointer;">
-              Set Origin (A)
-            </button>
-            <button id="pop-dest-${stop.id}" style="flex: 1; padding: 5px 8px; font-size: 11px; font-weight: 700; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer;">
-              Set Dest (🏁)
-            </button>
-          </div>
-        `;
-
-        circle.bindPopup(popupDiv);
-
-        circle.on('popupopen', () => {
-          const btnOrig = popupDiv.querySelector(`#pop-orig-${CSS.escape(stop.id)}`);
-          const btnDest = popupDiv.querySelector(`#pop-dest-${CSS.escape(stop.id)}`);
-          if (btnOrig && onSelectOrigin) {
-            btnOrig.addEventListener('click', () => {
-              onSelectOrigin(stop.id);
-              map.closePopup();
-            });
-          }
-          if (btnDest && onSelectDest) {
-            btnDest.addEventListener('click', () => {
-              onSelectDest(stop.id);
-              map.closePopup();
-            });
-          }
-        });
-
-        circle.addTo(layerGroup);
-      });
-
-      // Clean custom SVG pins for selected origin and destination
+      // Clean custom pins only when origin and destination are selected
       const orig = STOPS[originStopId];
       const dst = STOPS[destStopId];
       if (orig) {

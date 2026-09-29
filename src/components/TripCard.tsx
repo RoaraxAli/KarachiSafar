@@ -24,7 +24,7 @@ export const TripCard: React.FC<TripCardProps> = ({
       case 'RED_BUS':
         return 'bg-red-50 text-red-800 border-red-200';
       case 'EV_BUS':
-        return 'bg-cyan-50 text-cyan-800 border-cyan-200';
+        return 'bg-teal-50 text-teal-800 border-teal-200';
       case 'LOCAL_BUS':
         return 'bg-amber-50 text-amber-900 border-amber-200';
       case 'WALK':
