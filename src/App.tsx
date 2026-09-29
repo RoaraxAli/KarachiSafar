@@ -162,8 +162,8 @@ export function App() {
                     )}
                   </>
                 ) : (
-                  /* Clean Production-Ready Empty State */
-                  <div className="p-8 text-center bg-white border border-slate-200 rounded-xl space-y-3 shadow-sm">
+                  /* Clean Production-Ready Empty State with 1-Click Popular Commutes */
+                  <div className="p-4 sm:p-5 text-center bg-white border border-slate-200 rounded-xl space-y-4 shadow-sm">
                     <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-800 mx-auto flex items-center justify-center border border-slate-200">
                       <Compass className="w-5 h-5" />
                     </div>
@@ -172,8 +172,37 @@ export function App() {
                         Find Fastest Public Transit
                       </h3>
                       <p className="text-[11px] text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
-                        Select an origin and destination to calculate the fastest public transit connection across Karachi.
+                        Select an origin and destination above, tap any stop on the map, or try a popular commute below.
                       </p>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 text-left">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                        Popular Commutes (1-Click)
+                      </div>
+                      <div className="space-y-1.5">
+                        {[
+                          { name: 'Surjani ➔ Capri Cinema', orig: 'abdullah-chowrangi', dest: 'capri-cinema', badge: 'Green Line BRT' },
+                          { name: '4K Chowrangi ➔ Tower', orig: '4k-chowrangi', dest: 'merewether-tower', badge: '4-K / 1-C' },
+                          { name: 'Nagan Chowrangi ➔ Saddar', orig: 'nagan-chowrangi', dest: 'empress-market', badge: 'W-11 / R-4' },
+                          { name: 'Sohrab Goth ➔ Tower', orig: 'sohrab-goth', dest: 'merewether-tower', badge: 'Burki Coach' },
+                          { name: 'Malir Halt ➔ Cantt Station', orig: 'malir-halt', dest: 'cantt-station', badge: 'Marwat Coach' },
+                        ].map((q) => (
+                          <button
+                            key={q.name}
+                            onClick={() => {
+                              setOriginStopId(q.orig);
+                              setDestStopId(q.dest);
+                            }}
+                            className="w-full flex items-center justify-between p-2 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-800 transition cursor-pointer text-left"
+                          >
+                            <span>{q.name}</span>
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white text-slate-600 border border-slate-200">
+                              {q.badge}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -207,6 +236,14 @@ export function App() {
           selectedRoute={activeTab === 'EXPLORER' ? selectedExplorerRoute : null}
           originStopId={originStopId}
           destStopId={destStopId}
+          onSelectOrigin={(stopId) => {
+            setOriginStopId(stopId);
+            setActiveTab('PLANNER');
+          }}
+          onSelectDest={(stopId) => {
+            setDestStopId(stopId);
+            setActiveTab('PLANNER');
+          }}
           className="w-full h-full relative"
         />
 
@@ -223,13 +260,18 @@ export function App() {
         )}
 
         {/* Floating Active Route Information Pill (Top-Center of Map) */}
-        {selectedPlan && (
+        {selectedPlan ? (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[400] hidden md:flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/95 border border-slate-200 shadow-md text-xs text-slate-800">
             <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
             <span className="font-bold text-slate-900 truncate max-w-xs">{selectedPlan.title}</span>
             <span className="text-slate-500 font-mono text-[11px]">
               {selectedPlan.totalDurationMinutes} mins • {selectedPlan.totalDistanceKm} km
             </span>
+          </div>
+        ) : (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[400] hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 border border-slate-200 shadow-md text-xs text-slate-700">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="font-medium text-[11px]">Click any stop on map or choose origin & destination</span>
           </div>
         )}
       </main>

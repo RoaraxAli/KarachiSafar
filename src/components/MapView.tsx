@@ -9,7 +9,8 @@ interface MapViewProps {
   selectedRoute: TransitRoute | null;
   originStopId: string;
   destStopId: string;
-  onSelectStop?: (stopId: string) => void;
+  onSelectOrigin?: (stopId: string) => void;
+  onSelectDest?: (stopId: string) => void;
   className?: string;
 }
 
@@ -18,6 +19,8 @@ export const MapView: React.FC<MapViewProps> = ({
   selectedRoute,
   originStopId,
   destStopId,
+  onSelectOrigin,
+  onSelectDest,
   className,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -262,6 +265,64 @@ export const MapView: React.FC<MapViewProps> = ({
         map.fitBounds(bounds, { padding: [40, 40] });
       }
     } else {
+      // 4. Render all interactive transit stops across Karachi
+      Object.values(STOPS).forEach((stop) => {
+        const isBRT = stop.isBRTStation;
+        const isHub = stop.isHub;
+        const isOrig = stop.id === originStopId;
+        const isDest = stop.id === destStopId;
+
+        // Skip origin & destination here - rendered as prominent pins below
+        if (isOrig || isDest) return;
+
+        const circle = L.circleMarker([stop.lat, stop.lng], {
+          radius: isBRT ? 6 : isHub ? 5 : 3.5,
+          fillColor: isBRT ? '#16a34a' : isHub ? '#0f172a' : '#64748b',
+          color: '#ffffff',
+          weight: isBRT || isHub ? 2 : 1.5,
+          fillOpacity: 0.85,
+        });
+
+        const popupDiv = document.createElement('div');
+        popupDiv.style.cssText = 'font-family: sans-serif; min-width: 170px; padding: 2px;';
+        popupDiv.innerHTML = `
+          <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: ${isBRT ? '#16a34a' : '#64748b'}; margin-bottom: 2px;">
+            ${isBRT ? '🟢 BRT Station' : isHub ? '⭐ Transit Hub' : '🚏 Bus Stop'}
+          </div>
+          <div style="font-size: 13px; font-weight: 700; color: #0f172a;">${stop.name}</div>
+          <div style="font-size: 11px; color: #475569; margin-top: 2px;">${stop.area} • <span class="urdu-font">${stop.urduName}</span></div>
+          <div style="display: flex; gap: 6px; margin-top: 8px;">
+            <button id="pop-orig-${stop.id}" style="flex: 1; padding: 5px 8px; font-size: 11px; font-weight: 700; background: #059669; color: white; border: none; border-radius: 6px; cursor: pointer;">
+              Set Origin (A)
+            </button>
+            <button id="pop-dest-${stop.id}" style="flex: 1; padding: 5px 8px; font-size: 11px; font-weight: 700; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer;">
+              Set Dest (🏁)
+            </button>
+          </div>
+        `;
+
+        circle.bindPopup(popupDiv);
+
+        circle.on('popupopen', () => {
+          const btnOrig = popupDiv.querySelector(`#pop-orig-${CSS.escape(stop.id)}`);
+          const btnDest = popupDiv.querySelector(`#pop-dest-${CSS.escape(stop.id)}`);
+          if (btnOrig && onSelectOrigin) {
+            btnOrig.addEventListener('click', () => {
+              onSelectOrigin(stop.id);
+              map.closePopup();
+            });
+          }
+          if (btnDest && onSelectDest) {
+            btnDest.addEventListener('click', () => {
+              onSelectDest(stop.id);
+              map.closePopup();
+            });
+          }
+        });
+
+        circle.addTo(layerGroup);
+      });
+
       // Clean custom SVG pins for selected origin and destination
       const orig = STOPS[originStopId];
       const dst = STOPS[destStopId];
@@ -273,7 +334,7 @@ export const MapView: React.FC<MapViewProps> = ({
           iconSize: [24, 24],
           iconAnchor: [12, 12],
         });
-        L.marker([orig.lat, orig.lng], { icon: origIcon })
+        L.marker([orig.lat, orig.lng], { icon: origIcon, zIndexOffset: 1000 })
           .bindPopup(`<div style="font-weight: 700; font-size: 12px; color: #0f172a;">Origin: ${orig.name}</div>`)
           .addTo(layerGroup);
       }
@@ -285,7 +346,7 @@ export const MapView: React.FC<MapViewProps> = ({
           iconSize: [24, 24],
           iconAnchor: [12, 12],
         });
-        L.marker([dst.lat, dst.lng], { icon: dstIcon })
+        L.marker([dst.lat, dst.lng], { icon: dstIcon, zIndexOffset: 1000 })
           .bindPopup(`<div style="font-weight: 700; font-size: 12px; color: #0f172a;">Destination: ${dst.name}</div>`)
           .addTo(layerGroup);
       }
@@ -293,7 +354,7 @@ export const MapView: React.FC<MapViewProps> = ({
         map.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
       }
     }
-  }, [selectedPlan, selectedRoute, showAllCorridors, originStopId, destStopId]);
+  }, [selectedPlan, selectedRoute, showAllCorridors, originStopId, destStopId, onSelectOrigin, onSelectDest]);
 
   // Recalculate size on expansion
   useEffect(() => {
