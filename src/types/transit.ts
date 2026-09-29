@@ -1,5 +1,4 @@
-export type TransitMode = 
-  | 'CHINGCHI'
+export type TransitMode =
   | 'BRT'
   | 'RED_BUS'
   | 'EV_BUS'
@@ -18,7 +17,6 @@ export interface TransitStop {
   area: string;
   isHub?: boolean;
   isBRTStation?: boolean;
-  isChingchiAdda?: boolean;
 }
 
 export interface TransitRoute {
@@ -27,9 +25,9 @@ export interface TransitRoute {
   name: string;
   urduName: string;
   category: TransitMode;
-  vehicleType: string; // e.g. '6-Seater Qingqi', 'Articulated BRT Bus', '12m Air-Conditioned Bus', 'Minibus', 'Heavy Coach'
+  vehicleType: string; // e.g. 'Articulated BRT Bus', '12m Air-Conditioned Bus', 'Minibus', 'Heavy Coach'
   color: string;
-  fleetCategory: 'CHINGCHI' | 'BRT' | 'RED_BUS' | 'EV_BUS' | 'LOCAL_BUS';
+  fleetCategory: 'BRT' | 'RED_BUS' | 'EV_BUS' | 'LOCAL_BUS';
   fare: number | { min: number; max: number };
   intervalMinutes: number | { min: number; max: number };
   operatingHours: string;
@@ -82,15 +80,4 @@ export interface TripPlan {
   }[];
 }
 
-export type FilterCategory = 'ALL' | 'FASTEST' | 'CHEAPEST' | 'COMFORTABLE' | 'CHINGCHI';
-
-export interface ChingchiAdda {
-  id: string;
-  name: string;
-  urduName: string;
-  location: string;
-  lat: number;
-  lng: number;
-  destinations: { routeCode: string; destination: string; fare: number; time: string }[];
-  riderTip: string;
-}
+export type FilterCategory = 'ALL' | 'FASTEST' | 'COMFORTABLE' | 'LOCAL_BUS';

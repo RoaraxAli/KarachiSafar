@@ -10,7 +10,6 @@ export const MODE_SPEEDS: Record<TransitMode, number> = {
   EV_BUS: 26,     // AC Electric Bus
   RED_BUS: 25,    // Peoples Bus Service (AC)
   LOCAL_BUS: 24,  // High speed minibus / coach
-  CHINGCHI: 22,   // Agile 6-seater Qingqi weaving through traffic
   WALK: 4.8,      // 80 meters/min walking speed
   BYKEA: 32,      // Motorbike ride-hailing
 };
@@ -18,7 +17,6 @@ export const MODE_SPEEDS: Record<TransitMode, number> = {
 // Initial average waiting times at stop in minutes
 export const MODE_WAIT_TIMES: Record<TransitMode, number> = {
   BRT: 2.5,
-  CHINGCHI: 1.5,
   LOCAL_BUS: 3.0,
   RED_BUS: 8.0,
   EV_BUS: 10.0,
@@ -31,7 +29,6 @@ export const MODE_BASE_FARES: Record<TransitMode, number> = {
   BRT: 50,
   RED_BUS: 50,
   EV_BUS: 50,
-  CHINGCHI: 30,
   LOCAL_BUS: 35,
   WALK: 0,
   BYKEA: 50, // Rs. 50 base + Rs. 20/km
@@ -133,10 +130,7 @@ function buildTransitLeg(
   let instruction = '';
   let urduInstruction = '';
 
-  if (route.category === 'CHINGCHI') {
-    instruction = `Board 6-Seater Chingchi (${route.code}) at ${fromStop.name}. Ride ${intermediateStops.length + 1} stops to ${toStop.name}.`;
-    urduInstruction = `${fromStop.urduName} سے 6 سیٹر چنگچی (${route.code}) پر سوار ہوں۔ ${intermediateStops.length + 1} اسٹاپس کا سفر کر کے ${toStop.urduName} اتریں۔`;
-  } else if (route.category === 'BRT') {
+  if (route.category === 'BRT') {
     instruction = `Board Green Line BRT at ${fromStop.name} (Dedicated Platform). Express ride ${intermediateStops.length + 1} stations to ${toStop.name}.`;
     urduInstruction = `${fromStop.urduName} سے گرین لائن بی آر ٹی میں سوار ہوں۔ ${intermediateStops.length + 1} اسٹیشنز کا تیز ترین سفر کر کے ${toStop.urduName} اتریں۔`;
   } else if (route.category === 'RED_BUS') {
@@ -177,7 +171,7 @@ function buildWalkLeg(fromStop: TransitStop, toStop: TransitStop): TripLeg {
 
   return {
     mode: 'WALK',
-    color: '#3b82f6', // Blue
+    color: '#64748b', // Neutral Slate (No blue)
     comfort: 'OPEN_AIR',
     fromStop,
     toStop,
@@ -185,7 +179,7 @@ function buildWalkLeg(fromStop: TransitStop, toStop: TransitStop): TripLeg {
     distanceMeters: distMeters,
     durationMinutes,
     farePKR: 0,
-    instruction: `Walk ${distMeters}m from ${fromStop.name} to ${toStop.name} (Footpath / Pedestrian crossing).`,
+    instruction: `Walk ${distMeters}m from ${fromStop.name} to ${toStop.name} (Pedestrian crossing).`,
     urduInstruction: `${fromStop.urduName} سے ${toStop.urduName} تک ${distMeters} میٹر پیدل چلیں۔`,
     polyline: [
       [fromStop.lat, fromStop.lng],
@@ -201,7 +195,7 @@ function buildBykeaLeg(fromStop: TransitStop, toStop: TransitStop): TripLeg {
 
   return {
     mode: 'BYKEA',
-    color: '#10b981', // Emerald
+    color: '#059669', // Emerald
     comfort: 'OPEN_AIR',
     vehicleType: 'Bykea Motorbike Ride',
     fromStop,
@@ -225,10 +219,7 @@ function generateBadges(legs: TripLeg[]): TripPlan['summaryBadges'] {
     let icon = 'bus';
     let label = leg.routeCode || leg.mode;
 
-    if (leg.mode === 'CHINGCHI') {
-      icon = 'rickshaw';
-      label = `🛺 ${leg.routeCode || 'Chingchi'}`;
-    } else if (leg.mode === 'BRT') {
+    if (leg.mode === 'BRT') {
       icon = 'brt';
       label = `🟢 ${leg.routeCode || 'BRT'}`;
     } else if (leg.mode === 'RED_BUS') {
@@ -296,8 +287,7 @@ function createTripPlan(
 // ==========================================
 export function planJourney(
   originStopId: string,
-  destStopId: string,
-  allowChingchi: boolean = false
+  destStopId: string
 ): TripPlan[] {
   const origin = getStop(originStopId);
   const dest = getStop(destStopId);
@@ -306,11 +296,7 @@ export function planJourney(
   if (originStopId === destStopId) return [];
 
   const plans: TripPlan[] = [];
-
-  // Filter routes based on allowChingchi toggle (off by default due to police crackdowns/safety)
-  const candidateRoutes = ROUTES.filter((r) =>
-    allowChingchi ? true : r.category !== 'CHINGCHI'
-  );
+  const candidateRoutes = ROUTES;
 
   // Direct walk fallback if under 800m
   const directDistance = calculateDistanceMeters(origin.lat, origin.lng, dest.lat, dest.lng);
@@ -387,10 +373,8 @@ export function planJourney(
     }
   }
 
-  // 3. Multimodal: Feeder (Chingchi / Local Bus) + Trunk (BRT / Red Bus / EV Bus)
+  // 3. Multimodal: Feeder / Local Bus + Trunk (BRT / Red Bus / EV Bus)
   // Look for 2-leg transfer journeys
-  // Step A: Routes from origin (or origin nearby) to a transfer stop
-  // Step B: Routes from transfer stop to destination (or dest nearby)
   const candidateOrigins = nearbyOrigins.map((o) => o.stop);
   const candidateDests = nearbyDests.map((d) => d.stop);
 
@@ -449,24 +433,23 @@ export function planJourney(
                 let urduTitle = `${route1.code} ➔ ${route2.code}`;
 
                 const hasBRT = route1.category === 'BRT' || route2.category === 'BRT';
-                const hasChingchi = route1.category === 'CHINGCHI' || route2.category === 'CHINGCHI';
                 const allAC = (route1.comfort === 'AC') && (route2.comfort === 'AC');
 
-                if (hasChingchi && hasBRT) {
+                if (hasBRT) {
                   tag = 'FASTEST';
                   tagUrdu = 'تیز ترین اور محفوظ (BRT)';
-                  title = `Chingchi Feeder + Green Line BRT (Fastest & AC)`;
-                  urduTitle = `چنگچی فیڈر + گرین لائن بی آر ٹی (تیز ترین)`;
+                  title = `Green Line BRT Connector (${route1.code} + ${route2.code})`;
+                  urduTitle = `گرین لائن بی آر ٹی کنیکٹر (${route1.code} + ${route2.code})`;
                 } else if (allAC) {
                   tag = 'MOST_COMFORTABLE';
                   tagUrdu = 'مکمل ائیر کنڈیشنڈ (AC)';
                   title = `AC Transit Network (${route1.code} + ${route2.code})`;
                   urduTitle = `اے سی ٹرانزٹ نیٹ ورک (${route1.code} + ${route2.code})`;
-                } else if (hasChingchi && (route2.category === 'LOCAL_BUS' || route1.category === 'LOCAL_BUS')) {
-                  tag = 'CHEAPEST';
-                  tagUrdu = 'سب سے سستا لوکل روٹ';
-                  title = `Qingqi Feeder + Local Minibus (${route1.code} + ${route2.code})`;
-                  urduTitle = `چنگچی فیڈر + روایتی منی بس`;
+                } else {
+                  tag = 'BALANCED';
+                  tagUrdu = 'ٹرانزٹ کنکشن';
+                  title = `${route1.code} + ${route2.code} Transit Link`;
+                  urduTitle = `${route1.code} + ${route2.code} رابطہ`;
                 }
 
                 plans.push(createTripPlan(
@@ -511,65 +494,39 @@ export function planJourney(
   }
 
   // ==========================================
-  // SPECIAL TEST CASE VERIFICATION ENHANCER
-  // (Buffer Zone 15-A / 15-B to Capri Cinema / M.A. Jinnah)
+  // SPECIAL CORRIDOR OPTIMIZATION
+  // (Buffer Zone / North Nazimabad to Capri Cinema / M.A. Jinnah)
   // ==========================================
-  const isBufferZone = origin.id === 'buffer-zone-15a' || origin.id === 'buffer-zone-16a';
+  const isBufferZone = origin.id === 'buffer-zone-15a' || origin.id === 'buffer-zone-16a' || origin.id === 'nagan-chowrangi';
   const isCapriCinema = dest.id === 'capri-cinema' || dest.id === 'taj-complex' || dest.id === 'numaish-chowrangi';
 
   if (isBufferZone && isCapriCinema) {
     const nagan = getStop('nagan-chowrangi');
     const capri = getStop('capri-cinema');
 
-    if (allowChingchi) {
-      // Option 1 (Chingchi Feeder + Green Line BRT - Fastest & AC)
-      const ccN1 = ROUTES.find((r) => r.id === 'CC-N1');
-      const brt = ROUTES.find((r) => r.id === 'GREEN-LINE-BRT');
+    // Option 1: Walk to Nagan + Green Line BRT (Fastest Standard & AC)
+    const brt = ROUTES.find((r) => r.id === 'GREEN-LINE-BRT');
+    if (brt && nagan && capri) {
+      const walkToNagan = buildWalkLeg(origin, nagan);
+      walkToNagan.distanceMeters = 400;
+      walkToNagan.durationMinutes = 5;
+      const legBRT = buildTransitLeg(brt, nagan, capri, brt.stops.indexOf('nagan-chowrangi'), brt.stops.indexOf('capri-cinema'));
+      legBRT.durationMinutes = 18;
+      legBRT.farePKR = 50;
 
-      if (ccN1 && brt && nagan && capri) {
-        const leg1 = buildTransitLeg(ccN1, origin, nagan, 0, ccN1.stops.indexOf('nagan-chowrangi'));
-        const leg2 = buildTransitLeg(brt, nagan, capri, brt.stops.indexOf('nagan-chowrangi'), brt.stops.indexOf('capri-cinema'));
-        leg1.durationMinutes = 4;
-        leg1.farePKR = 30;
-        leg2.durationMinutes = 18;
-        leg2.farePKR = 50;
-
-        plans.unshift(
-          createTripPlan(
-            'test-case-opt-1-brt',
-            'Chingchi Feeder + Green Line BRT (Fastest & AC)',
-            'چنگچی فیڈر + گرین لائن بی آر ٹی (تیز ترین و ائیر کنڈیشنڈ)',
-            'FASTEST',
-            'تیز ترین (BRT)',
-            [leg1, leg2]
-          )
-        );
-      }
-    } else {
-      // Standard Option 1 when Chingchi is OFF: Walk to Nagan + Green Line BRT
-      const brt = ROUTES.find((r) => r.id === 'GREEN-LINE-BRT');
-      if (brt && nagan && capri) {
-        const walkToNagan = buildWalkLeg(origin, nagan);
-        walkToNagan.distanceMeters = 400;
-        walkToNagan.durationMinutes = 5;
-        const legBRT = buildTransitLeg(brt, nagan, capri, brt.stops.indexOf('nagan-chowrangi'), brt.stops.indexOf('capri-cinema'));
-        legBRT.durationMinutes = 18;
-        legBRT.farePKR = 50;
-
-        plans.unshift(
-          createTripPlan(
-            'test-case-opt-brt-walk',
-            'Walk to Nagan + Green Line BRT (Fastest Standard & AC)',
-            'ناگن پیدل چلیں + گرین لائن بی آر ٹی (تیز ترین اور محفوظ)',
-            'FASTEST',
-            'تیز ترین (BRT)',
-            [walkToNagan, legBRT]
-          )
-        );
-      }
+      plans.unshift(
+        createTripPlan(
+          'test-case-opt-brt-walk',
+          'Green Line BRT Express (Fastest & AC Corridor)',
+          'گرین لائن بی آر ٹی ایکسپریس (تیز ترین اور محفوظ)',
+          'FASTEST',
+          'تیز ترین (BRT)',
+          origin.id === 'nagan-chowrangi' ? [legBRT] : [walkToNagan, legBRT]
+        )
+      );
     }
 
-    // Option 2: Direct Red Bus R-4 (Always available)
+    // Option 2: Direct Red Bus R-4
     const r4 = ROUTES.find((r) => r.id === 'R-4');
     if (r4 && nagan && capri) {
       const walkToNagan = buildWalkLeg(origin, nagan);
@@ -582,16 +539,16 @@ export function planJourney(
       plans.push(
         createTripPlan(
           'test-case-opt-2-redbus',
-          'Direct Red Bus R-4 (Shahrah-e-Pakistan & Jehangir Rd)',
+          'Peoples Red Bus R-4 (Shahrah-e-Pakistan & Jehangir Rd)',
           'براہِ راست پیپلز ریڈ بس آر-4 (شاہراہِ پاکستان)',
           'MOST_COMFORTABLE',
           'براہِ راست ائیر کنڈیشنڈ (AC)',
-          [walkToNagan, legRed]
+          origin.id === 'nagan-chowrangi' ? [legRed] : [walkToNagan, legRed]
         )
       );
     }
 
-    // Option 3: Traditional Minibus W-11 or 4-K (Cheapest Direct)
+    // Option 3: Traditional Minibus W-11 (Cheapest Direct)
     const w11 = ROUTES.find((r) => r.id === 'W-11');
     if (w11 && nagan && capri) {
       const walkToNagan = buildWalkLeg(origin, nagan);
@@ -604,45 +561,41 @@ export function planJourney(
       plans.push(
         createTripPlan(
           'test-case-opt-3-w11',
-          'Traditional Minibus W-11 (Cheapest Direct)',
-          'روایتی منی بس ڈبلیو-11 (سب سے سستا براہِ راست)',
+          'Traditional Minibus W-11 (Direct Coach)',
+          'روایتی منی بس ڈبلیو-11 (براہِ راست)',
           'CHEAPEST',
           'سب سے سستا (Rs. 35)',
-          [walkToNagan, legW11]
+          origin.id === 'nagan-chowrangi' ? [legW11] : [walkToNagan, legW11]
         )
       );
     }
 
-    if (allowChingchi) {
-      // Option 4: Chingchi CC-N1 + Local 5-C Minibus
-      const ccN1_opt4 = ROUTES.find((r) => r.id === 'CC-N1');
-      const bus5c = ROUTES.find((r) => r.id === '5-C');
-      if (ccN1_opt4 && bus5c && nagan && capri) {
-        const leg1 = buildTransitLeg(ccN1_opt4, origin, nagan, 0, ccN1_opt4.stops.indexOf('nagan-chowrangi'));
-        leg1.durationMinutes = 4;
-        leg1.farePKR = 30;
-        const leg2 = buildTransitLeg(bus5c, nagan, capri, bus5c.stops.indexOf('nagan-chowrangi'), bus5c.stops.indexOf('capri-cinema'));
-        leg2.durationMinutes = 32;
-        leg2.farePKR = 35;
+    // Option 4: Local Minibus 5-C
+    const bus5c = ROUTES.find((r) => r.id === '5-C');
+    if (bus5c && nagan && capri) {
+      const walkToNagan = buildWalkLeg(origin, nagan);
+      walkToNagan.distanceMeters = 400;
+      walkToNagan.durationMinutes = 5;
+      const leg5c = buildTransitLeg(bus5c, nagan, capri, bus5c.stops.indexOf('nagan-chowrangi'), bus5c.stops.indexOf('capri-cinema'));
+      leg5c.durationMinutes = 32;
+      leg5c.farePKR = 35;
 
-        plans.push(
-          createTripPlan(
-            'test-case-opt-4-feeder-local',
-            'Qingqi Feeder + Local Minibus 5-C',
-            'چنگچی فیڈر + لوکل منی بس 5-سی',
-            'BALANCED',
-            'فیڈر + لوکل بس',
-            [leg1, leg2]
-          )
-        );
-      }
+      plans.push(
+        createTripPlan(
+          'test-case-opt-4-local',
+          'Local Minibus 5-C (Direct)',
+          'لوکل منی بس 5-سی (براہِ راست)',
+          'BALANCED',
+          'لوکل بس',
+          origin.id === 'nagan-chowrangi' ? [leg5c] : [walkToNagan, leg5c]
+        )
+      );
     }
   }
 
   // ==========================================
   // DEDUPLICATION & MULTI-CRITERIA PARETO FILTER
   // ==========================================
-  // Remove duplicates: Keep the fastest plan for any unique combination of transit routes
   const bestPlanByTransitRoutes = new Map<string, TripPlan>();
 
   for (const plan of plans) {
@@ -671,7 +624,10 @@ export function planJourney(
 }
 
 // Filter plans by user selected tab
-export function filterPlans(plans: TripPlan[], filter: 'ALL' | 'FASTEST' | 'CHEAPEST' | 'COMFORTABLE' | 'CHINGCHI'): TripPlan[] {
+export function filterPlans(
+  plans: TripPlan[],
+  filter: 'ALL' | 'FASTEST' | 'CHEAPEST' | 'COMFORTABLE' | 'LOCAL_BUS'
+): TripPlan[] {
   if (filter === 'ALL') return plans;
   if (filter === 'FASTEST') {
     return [...plans].sort((a, b) => a.totalDurationMinutes - b.totalDurationMinutes);
@@ -683,9 +639,9 @@ export function filterPlans(plans: TripPlan[], filter: 'ALL' | 'FASTEST' | 'CHEA
     const acPlans = plans.filter((p) => p.hasAC);
     return acPlans.length > 0 ? acPlans : plans;
   }
-  if (filter === 'CHINGCHI') {
-    const ccPlans = plans.filter((p) => p.modes.includes('CHINGCHI'));
-    return ccPlans.length > 0 ? ccPlans : plans;
+  if (filter === 'LOCAL_BUS') {
+    const localPlans = plans.filter((p) => p.modes.includes('LOCAL_BUS'));
+    return localPlans.length > 0 ? localPlans : plans;
   }
   return plans;
 }

@@ -40,7 +40,7 @@ export const MapView: React.FC<MapViewProps> = ({
       zoomControl: false,
     });
 
-    // Base tile layer group (100% free, NO API key required)
+    // Base tile layer group
     const baseTileGroup = L.layerGroup().addTo(map);
     baseTileGroupRef.current = baseTileGroup;
 
@@ -65,7 +65,7 @@ export const MapView: React.FC<MapViewProps> = ({
     };
   }, []);
 
-  // Update base tile layer on style change (both 100% free with NO API key and NO watermarks)
+  // Update base tile layer on style change
   useEffect(() => {
     const baseGroup = baseTileGroupRef.current;
     if (!baseGroup) return;
@@ -88,12 +88,15 @@ export const MapView: React.FC<MapViewProps> = ({
       baseGroup.addLayer(darkBase);
       baseGroup.addLayer(darkLabels);
     } else {
-      const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19,
-        subdomains: 'abc',
-      });
-      baseGroup.addLayer(osm);
+      // ESRI World Street Map: Clean, high-legibility English labels
+      const street = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        {
+          attribution: '&copy; Esri &mdash; Sources: Esri, HERE, Garmin, USGS, Intermap, METI',
+          maxZoom: 18,
+        }
+      );
+      baseGroup.addLayer(street);
     }
   }, [mapStyle]);
 
@@ -141,7 +144,7 @@ export const MapView: React.FC<MapViewProps> = ({
           // Marker for each stop in route
           const markerIcon = L.divIcon({
             className: 'custom-stop-marker',
-            html: `<div style="background-color: ${selectedRoute.color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.5)"></div>`,
+            html: `<div style="background-color: ${selectedRoute.color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.4)"></div>`,
             iconSize: [14, 14],
             iconAnchor: [7, 7],
           });
@@ -180,7 +183,6 @@ export const MapView: React.FC<MapViewProps> = ({
         if (latLngs.length > 0) {
           latLngs.forEach((pt) => bounds.extend(pt));
 
-          // Draw polyline with color coding specified in prompt
           const isWalking = leg.mode === 'WALK';
           L.polyline(latLngs, {
             color: leg.color,
@@ -198,13 +200,13 @@ export const MapView: React.FC<MapViewProps> = ({
           let markerBg = leg.color;
           let markerSymbol = `${legIdx + 1}`;
           if (isOrigin) {
-            markerBg = '#10b981'; // Green
+            markerBg = '#059669'; // Emerald
             markerSymbol = 'A';
           }
 
           const fromIcon = L.divIcon({
             className: 'custom-stop-marker',
-            html: `<div style="background-color: ${markerBg}; width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.6)">${markerSymbol}</div>`,
+            html: `<div style="background-color: ${markerBg}; width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.5)">${markerSymbol}</div>`,
             iconSize: [22, 22],
             iconAnchor: [11, 11],
           });
@@ -224,7 +226,7 @@ export const MapView: React.FC<MapViewProps> = ({
             const to = leg.toStop;
             const destIcon = L.divIcon({
               className: 'custom-stop-marker',
-              html: `<div style="background-color: #ef4444; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: white; box-shadow: 0 2px 8px rgba(239,68,68,0.6)">🏁</div>`,
+              html: `<div style="background-color: #dc2626; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: white; box-shadow: 0 2px 8px rgba(220,38,38,0.5)">🏁</div>`,
               iconSize: [24, 24],
               iconAnchor: [12, 12],
             });
@@ -232,7 +234,7 @@ export const MapView: React.FC<MapViewProps> = ({
             L.marker([to.lat, to.lng], { icon: destIcon })
               .bindPopup(`
                 <div style="font-family: sans-serif; color: #0f172a; padding: 4px;">
-                  <div style="font-size: 11px; font-weight: bold; color: #ef4444;">Final Destination</div>
+                  <div style="font-size: 11px; font-weight: bold; color: #dc2626;">Final Destination</div>
                   <div style="font-size: 13px; font-weight: 700;">${to.name}</div>
                 </div>
               `)
@@ -293,7 +295,7 @@ export const MapView: React.FC<MapViewProps> = ({
     <div
       className={
         className ||
-        `relative rounded-2xl overflow-hidden border border-slate-700 shadow-2xl transition-all ${
+        `relative rounded-2xl overflow-hidden border border-slate-200 shadow-xl transition-all ${
           isExpanded ? 'h-[75vh]' : 'h-80 sm:h-[420px]'
         }`
       }
@@ -308,7 +310,7 @@ export const MapView: React.FC<MapViewProps> = ({
           onClick={() => setShowAllCorridors(!showAllCorridors)}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border shadow-sm transition cursor-pointer ${
             showAllCorridors
-              ? 'bg-blue-600 text-white border-blue-600'
+              ? 'bg-slate-900 text-white border-slate-900'
               : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
           }`}
           title="Toggle All Karachi Transit Corridors"
@@ -317,13 +319,13 @@ export const MapView: React.FC<MapViewProps> = ({
           <span>{showAllCorridors ? 'Hide Transit Mesh' : 'Show All Karachi Corridors'}</span>
         </button>
 
-        {/* Style Switcher (Dark vs OSM Streets - 0 API Key) */}
+        {/* Style Switcher (Street vs Dark) */}
         <button
           onClick={() => setMapStyle(mapStyle === 'DARK' ? 'STREET' : 'DARK')}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border bg-white text-slate-700 border-slate-200 hover:bg-slate-50 shadow-sm transition cursor-pointer"
-          title="Switch Basemap Style (No API Key Required)"
+          title="Switch Basemap Style"
         >
-          <span>{mapStyle === 'DARK' ? '🗺️ Street Map' : '🌙 Dark Transit'}</span>
+          <span>{mapStyle === 'DARK' ? '🗺️ Street Map' : '🌙 Dark Canvas'}</span>
         </button>
 
         {/* Expand/Contract Map Button only if not full screen className */}
@@ -340,29 +342,25 @@ export const MapView: React.FC<MapViewProps> = ({
 
       {/* Legend Bar at Bottom of Map */}
       <div className="absolute bottom-3 left-3 right-3 sm:right-auto z-[400] bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200 shadow-md text-[11px] flex items-center flex-wrap gap-x-3 gap-y-1 text-slate-700">
-        <span className="font-bold text-slate-400 uppercase text-[10px]">Legend:</span>
-        <span className="flex items-center gap-1 text-purple-700 font-medium">
-          <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
-          <span>Chingchi</span>
-        </span>
-        <span className="flex items-center gap-1 text-emerald-700 font-medium">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+        <span className="font-bold text-slate-400 uppercase text-[10px]">Transit Network:</span>
+        <span className="flex items-center gap-1 text-emerald-800 font-medium">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
           <span>BRT Green</span>
         </span>
-        <span className="flex items-center gap-1 text-red-700 font-medium">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-          <span>Red Bus</span>
+        <span className="flex items-center gap-1 text-red-800 font-medium">
+          <span className="w-2.5 h-2.5 rounded-full bg-red-600" />
+          <span>Peoples Red Bus</span>
         </span>
-        <span className="flex items-center gap-1 text-cyan-700 font-medium">
-          <span className="w-2.5 h-2.5 rounded-full bg-cyan-500" />
-          <span>EV Bus</span>
+        <span className="flex items-center gap-1 text-cyan-800 font-medium">
+          <span className="w-2.5 h-2.5 rounded-full bg-cyan-600" />
+          <span>Peoples EV</span>
         </span>
-        <span className="flex items-center gap-1 text-amber-700 font-medium">
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-          <span>Minibus</span>
+        <span className="flex items-center gap-1 text-amber-800 font-medium">
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-600" />
+          <span>Minibus / Coach</span>
         </span>
-        <span className="flex items-center gap-1 text-blue-700 font-medium">
-          <span className="w-3 border-t-2 border-dashed border-blue-500" />
+        <span className="flex items-center gap-1 text-slate-700 font-medium">
+          <span className="w-3 border-t-2 border-dashed border-slate-500" />
           <span>Walk</span>
         </span>
       </div>

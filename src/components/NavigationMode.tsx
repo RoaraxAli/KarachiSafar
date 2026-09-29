@@ -56,8 +56,6 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit }) 
 
   const getLegBadge = (mode: string) => {
     switch (mode) {
-      case 'CHINGCHI':
-        return '🛺 Qingqi';
       case 'BRT':
         return '🟢 Green Line BRT';
       case 'RED_BUS':
@@ -77,11 +75,11 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit }) 
     return (
       <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-xl">
-          <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 mx-auto flex items-center justify-center text-3xl border border-blue-200">
+          <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center text-3xl border border-emerald-200">
             ✓
           </div>
           <div>
-            <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+            <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
               Journey Completed
             </span>
             <h2 className="text-xl font-bold text-slate-900 mt-2">
@@ -105,7 +103,7 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit }) 
 
           <button
             onClick={onExit}
-            className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition cursor-pointer shadow-sm"
+            className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm transition cursor-pointer shadow-sm"
           >
             Close Navigation
           </button>
@@ -119,15 +117,15 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit }) 
       {/* Top Header Bar */}
       <div className="max-w-2xl mx-auto w-full bg-white border border-slate-200 rounded-xl p-3 shadow-md flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+          <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-800">
             <Navigation className="w-4 h-4 fill-current" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-bold text-slate-900">
-                Live Transit Navigation
+                Live Transit Guidance
               </span>
-              <span className="w-2 h-2 rounded-full bg-blue-600" />
+              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
             </div>
             <div className="text-[11px] text-slate-500">
               Leg {currentLegIndex + 1} of {plan.legs.length} • {getLegBadge(currentLeg.mode)}
@@ -147,8 +145,8 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit }) 
       {/* Center Guidance Cockpit */}
       <div className="max-w-lg mx-auto w-full my-auto space-y-3">
         {/* Next Stop Announcement Card */}
-        <div className="bg-white border-2 border-blue-600 rounded-2xl p-6 shadow-xl text-center space-y-3 relative">
-          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-bold bg-blue-50 border border-blue-200 text-blue-700">
+        <div className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-xl text-center space-y-3 relative">
+          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-bold bg-slate-100 border border-slate-300 text-slate-800">
             <span>{currentLeg.routeCode || currentLeg.mode}</span>
           </div>
 
@@ -167,7 +165,7 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit }) 
 
           {/* Audio Feedback toast */}
           {audioFeedback && (
-            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold animate-pulse border border-blue-200">
+            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-semibold animate-pulse border border-slate-300">
               <Volume2 className="w-3.5 h-3.5" />
               <span>{audioFeedback}</span>
             </div>
@@ -177,14 +175,14 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit }) 
           <div className="pt-2">
             <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
               <span>{currentStop.name}</span>
-              <span className="font-semibold text-blue-600">
+              <span className="font-semibold text-slate-900">
                 Stop {currentStopIndex + 1} of {legStops.length}
               </span>
               <span>{currentLeg.toStop.name}</span>
             </div>
             <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
               <div
-                className="bg-blue-600 h-full transition-all duration-300 rounded-full"
+                className="bg-slate-900 h-full transition-all duration-300 rounded-full"
                 style={{
                   width: `${((currentStopIndex + 1) / legStops.length) * 100}%`,
                 }}
@@ -197,7 +195,7 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit }) 
         <div className="flex items-center gap-2">
           <button
             onClick={handleAdvanceStop}
-            className="flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md transition cursor-pointer flex items-center justify-center gap-2"
+            className="flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm bg-slate-900 hover:bg-slate-800 text-white shadow-md transition cursor-pointer flex items-center justify-center gap-2"
           >
             <span>{isLastStopInLeg && isFinalLeg ? 'Complete Trip' : 'Advance to Next Stop'}</span>
             <ArrowRight className="w-4 h-4" />

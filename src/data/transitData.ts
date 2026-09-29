@@ -1,5 +1,4 @@
-import type { TransitStop, TransitRoute, ChingchiAdda } from '../types/transit';
-import { ADDITIONAL_STOPS, ADDITIONAL_CHINGCHI_ROUTES } from './additionalChingchiData';
+import type { TransitStop, TransitRoute } from '../types/transit';
 
 // ==========================================
 // 1. COMPREHENSIVE KARACHI TRANSIT STOPS
@@ -14,7 +13,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0482,
     area: 'Surjani Town',
     isBRTStation: true,
-    isChingchiAdda: true,
   },
   'khuda-ki-basti': {
     id: 'khuda-ki-basti',
@@ -74,7 +72,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     area: 'North Karachi',
     isHub: true,
     isBRTStation: true,
-    isChingchiAdda: true,
   },
   'karimi-chowrangi': {
     id: 'karimi-chowrangi',
@@ -93,7 +90,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0612,
     area: 'North Karachi',
     isHub: true,
-    isChingchiAdda: true,
   },
   'sector-11b': {
     id: 'sector-11b',
@@ -144,7 +140,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     area: 'North Karachi',
     isHub: true,
     isBRTStation: true,
-    isChingchiAdda: true,
   },
   'sindhi-hotel': {
     id: 'sindhi-hotel',
@@ -153,7 +148,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lat: 24.9880,
     lng: 67.0710,
     area: 'New Karachi',
-    isChingchiAdda: true,
   },
   'godhra-camp': {
     id: 'godhra-camp',
@@ -180,7 +174,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lat: 24.9665,
     lng: 67.0735,
     area: 'Buffer Zone',
-    isChingchiAdda: true,
   },
   'buffer-zone-16a': {
     id: 'buffer-zone-16a',
@@ -189,7 +182,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lat: 24.9580,
     lng: 67.0690,
     area: 'Buffer Zone',
-    isChingchiAdda: true,
   },
   'ziauddin-chowrangi': {
     id: 'ziauddin-chowrangi',
@@ -217,7 +209,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     area: 'North Nazimabad',
     isHub: true,
     isBRTStation: true,
-    isChingchiAdda: true,
   },
   'nagan-chowrangi': {
     id: 'nagan-chowrangi',
@@ -228,7 +219,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     area: 'North Karachi / Buffer Zone',
     isHub: true,
     isBRTStation: true,
-    isChingchiAdda: true,
   },
   'five-star': {
     id: 'five-star',
@@ -239,7 +229,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     area: 'North Nazimabad',
     isHub: true,
     isBRTStation: true,
-    isChingchiAdda: true,
   },
   'kda-hyderi': {
     id: 'kda-hyderi',
@@ -250,7 +239,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     area: 'North Nazimabad',
     isHub: true,
     isBRTStation: true,
-    isChingchiAdda: true,
   },
   'jumma-bazar': {
     id: 'jumma-bazar',
@@ -270,7 +258,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     area: 'North Nazimabad',
     isHub: true,
     isBRTStation: true,
-    isChingchiAdda: true,
   },
   'abdullah-college': {
     id: 'abdullah-college',
@@ -333,7 +320,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lat: 24.8935,
     lng: 67.0240,
     area: 'Golimar',
-    isChingchiAdda: true,
   },
   'bara-board': {
     id: 'bara-board',
@@ -351,7 +337,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0050,
     area: 'SITE Area',
     isHub: true,
-    isChingchiAdda: true,
   },
   'valika-mills': {
     id: 'valika-mills',
@@ -377,7 +362,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 66.9920,
     area: 'Orangi / SITE',
     isHub: true,
-    isChingchiAdda: true,
   },
   'orangi-5': {
     id: 'orangi-5',
@@ -530,7 +514,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0620,
     area: 'Federal B Area',
     isHub: true,
-    isChingchiAdda: true,
   },
   'tahir-villa': {
     id: 'tahir-villa',
@@ -548,7 +531,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0760,
     area: 'Federal B Area',
     isHub: true,
-    isChingchiAdda: true,
   },
   'dastagir-colony': {
     id: 'dastagir-colony',
@@ -574,7 +556,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0585,
     area: 'Federal B Area',
     isHub: true,
-    isChingchiAdda: true,
   },
   'liaquatabad-10': {
     id: 'liaquatabad-10',
@@ -584,7 +565,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0460,
     area: 'Liaquatabad',
     isHub: true,
-    isChingchiAdda: true,
   },
   'lalookhet-dak-khana': {
     id: 'lalookhet-dak-khana',
@@ -620,7 +600,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     area: 'Central / Soldier Bazar',
     isHub: true,
     isBRTStation: true,
-    isChingchiAdda: true,
   },
   'patel-para': {
     id: 'patel-para',
@@ -640,7 +619,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     area: 'M.A. Jinnah Road',
     isHub: true,
     isBRTStation: true,
-    isChingchiAdda: true,
   },
   'soldier-bazar': {
     id: 'soldier-bazar',
@@ -683,7 +661,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     area: 'M.A. Jinnah Road',
     isHub: true,
     isBRTStation: true,
-    isChingchiAdda: true,
   },
   'taj-complex': {
     id: 'taj-complex',
@@ -718,7 +695,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0305,
     area: 'Saddar',
     isHub: true,
-    isChingchiAdda: true,
   },
   'lucky-star': {
     id: 'lucky-star',
@@ -728,7 +704,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0345,
     area: 'Saddar',
     isHub: true,
-    isChingchiAdda: true,
   },
   'saddar-mobile': {
     id: 'saddar-mobile',
@@ -828,7 +803,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 66.9990,
     area: 'Old City / Kharadar',
     isHub: true,
-    isChingchiAdda: true,
   },
   'kharadar': {
     id: 'kharadar',
@@ -920,7 +894,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 66.9790,
     area: 'Keamari',
     isHub: true,
-    isChingchiAdda: true,
   },
   'fish-harbour': {
     id: 'fish-harbour',
@@ -982,7 +955,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0397,
     area: 'Cantt / Saddar',
     isHub: true,
-    isChingchiAdda: true,
   },
   'jpmc': {
     id: 'jpmc',
@@ -1320,7 +1292,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.1720,
     area: 'Malir',
     isHub: true,
-    isChingchiAdda: true,
   },
   'kala-board': {
     id: 'kala-board',
@@ -1371,7 +1342,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lat: 24.8990,
     lng: 67.1740,
     area: 'Model Colony',
-    isChingchiAdda: true,
   },
   'model-colony': {
     id: 'model-colony',
@@ -1406,7 +1376,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.1780,
     area: 'Malir Cantt',
     isHub: true,
-    isChingchiAdda: true,
   },
   'cantt-bazar': {
     id: 'cantt-bazar',
@@ -1415,7 +1384,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lat: 24.9350,
     lng: 67.1860,
     area: 'Malir Cantt',
-    isChingchiAdda: true,
   },
   'cmh-malir': {
     id: 'cmh-malir',
@@ -1495,7 +1463,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0860,
     area: 'Sohrab Goth',
     isHub: true,
-    isChingchiAdda: true,
   },
   'al-asif-square': {
     id: 'al-asif-square',
@@ -1504,7 +1471,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lat: 24.9480,
     lng: 67.0890,
     area: 'Sohrab Goth',
-    isChingchiAdda: true,
   },
   'moti-mahal': {
     id: 'moti-mahal',
@@ -1522,7 +1488,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0940,
     area: 'Gulshan-e-Iqbal',
     isHub: true,
-    isChingchiAdda: true,
   },
   'nipa-chowrangi': {
     id: 'nipa-chowrangi',
@@ -1532,7 +1497,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0970,
     area: 'Gulshan-e-Iqbal',
     isHub: true,
-    isChingchiAdda: true,
   },
   'urdu-university': {
     id: 'urdu-university',
@@ -1583,7 +1547,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lat: 24.9380,
     lng: 67.1040,
     area: 'Gulshan-e-Iqbal Block 7',
-    isChingchiAdda: true,
   },
   'disco-bakery': {
     id: 'disco-bakery',
@@ -1618,7 +1581,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.1470,
     area: 'Safoora Goth',
     isHub: true,
-    isChingchiAdda: true,
   },
   'kiran-hospital': {
     id: 'kiran-hospital',
@@ -1748,7 +1710,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.1150,
     area: 'Gulistan-e-Johar',
     isHub: true,
-    isChingchiAdda: true,
   },
   'darul-sehat': {
     id: 'darul-sehat',
@@ -1766,7 +1727,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.1320,
     area: 'Gulistan-e-Johar',
     isHub: true,
-    isChingchiAdda: true,
   },
   'kamran-chowrangi': {
     id: 'kamran-chowrangi',
@@ -1776,7 +1736,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.1390,
     area: 'Gulistan-e-Johar',
     isHub: true,
-    isChingchiAdda: true,
   },
   'pehalwan-goth': {
     id: 'pehalwan-goth',
@@ -1837,7 +1796,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0780,
     area: 'Gulshan-e-Iqbal',
     isHub: true,
-    isChingchiAdda: true,
   },
   'new-town': {
     id: 'new-town',
@@ -1907,7 +1865,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.0850,
     area: 'Qayyumabad',
     isHub: true,
-    isChingchiAdda: true,
   },
   'jam-sadiq-bridge': {
     id: 'jam-sadiq-bridge',
@@ -1925,7 +1882,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.1080,
     area: 'Korangi',
     isHub: true,
-    isChingchiAdda: true,
   },
   'chamra-chowrangi': {
     id: 'chamra-chowrangi',
@@ -1934,7 +1890,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lat: 24.8390,
     lng: 67.1220,
     area: 'Korangi Industrial Area',
-    isChingchiAdda: true,
   },
   'vita-chowrangi': {
     id: 'vita-chowrangi',
@@ -1952,7 +1907,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.1480,
     area: 'Korangi Industrial Area',
     isHub: true,
-    isChingchiAdda: true,
   },
   'nasir-jump': {
     id: 'nasir-jump',
@@ -1970,7 +1924,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.1320,
     area: 'Korangi',
     isHub: true,
-    isChingchiAdda: true,
   },
   'korangi-5': {
     id: 'korangi-5',
@@ -1980,7 +1933,6 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.1450,
     area: 'Korangi',
     isHub: true,
-    isChingchiAdda: true,
   },
   'khaddi-stop': {
     id: 'khaddi-stop',
@@ -2216,394 +2168,12 @@ const BASE_STOPS: Record<string, TransitStop> = {
   },
 };
 
-export const STOPS: Record<string, TransitStop> = {
-  ...BASE_STOPS,
-  ...ADDITIONAL_STOPS,
-};
+export const STOPS: Record<string, TransitStop> = BASE_STOPS;
 
 // ==========================================
 // 2. VERIFIED TRANSIT ROUTES DATASET
 // ==========================================
 const BASE_ROUTES: TransitRoute[] = [
-  // ----------------------------------------------------
-  // A. FIXED CHINGCHI (6-SEATER QINGQI) FEEDER CORRIDORS (22)
-  // ----------------------------------------------------
-  {
-    id: 'CC-N1',
-    code: 'CC-N1',
-    name: 'Buffer Zone Inner Feeder (15-A to Nagan)',
-    urduName: 'بفر زون فیڈر (15-اے تا ناگن چورنگی)',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6', // Violet
-    fleetCategory: 'CHINGCHI',
-    fare: 30,
-    intervalMinutes: { min: 1, max: 3 },
-    operatingHours: '05:30 - 00:30',
-    comfort: 'OPEN_AIR',
-    description: 'High-frequency residential feeder shuttling commuters from Buffer Zone sectors to Sakhi Hassan and Nagan BRT hub.',
-    urduDescription: 'بفر زون سیکٹر 15 سے ارم شاپنگ سینٹر، سخی حسن اور ناگن چورنگی گرین لائن اسٹیشن تک تیز رفتار کنیکٹر۔',
-    stops: ['buffer-zone-15a', 'erum-shopping', 'sakhi-hassan', 'nagan-chowrangi'],
-  },
-  {
-    id: 'CC-N2',
-    code: 'CC-N2',
-    name: 'Nagan to Sohrab Goth Trunk',
-    urduName: 'ناگن چورنگی تا سہراب گوٹھ ٹرنک',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 40,
-    intervalMinutes: { min: 2, max: 3 },
-    operatingHours: '05:00 - 01:00',
-    comfort: 'OPEN_AIR',
-    description: 'Vital cross-town shuttle connecting Green Line BRT at Nagan to Super Highway bus terminals at Sohrab Goth.',
-    urduDescription: 'ناگن چورنگی سے شفیق موڑ، گودھرا اور ال آصف اسکوائر / سہراب گوٹھ تک۔',
-    stops: ['nagan-chowrangi', 'shafiq-mor', 'godhra-camp', 'al-asif-square', 'sohrab-goth'],
-  },
-  {
-    id: 'CC-N3',
-    code: 'CC-N3',
-    name: 'Power House to UP Mor & Godhra',
-    urduName: 'پاور ہاؤس تا یو پی موڑ و سندھی ہوٹل',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 30,
-    intervalMinutes: { min: 1, max: 2 },
-    operatingHours: '05:30 - 00:00',
-    comfort: 'OPEN_AIR',
-    description: 'Local North Karachi spine linking residential 11-B to major commercial hubs.',
-    urduDescription: 'پاور ہاؤس چورنگی، دو منٹ چورنگی، یو پی موڑ اور سندھی ہوٹل گودھرا کنیکٹر۔',
-    stops: ['power-house', 'sector-11b', 'two-minute-chowrangi', 'up-mor', 'sindhi-hotel'],
-  },
-  {
-    id: 'CC-N4',
-    code: 'CC-N4',
-    name: 'Surjani Feeder Shuttle',
-    urduName: 'سرجانی فیڈر شٹل',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: { min: 30, max: 40 },
-    intervalMinutes: { min: 2, max: 4 },
-    operatingHours: '05:30 - 23:30',
-    comfort: 'OPEN_AIR',
-    description: 'Surjani inner-block feeder connecting deep residential sectors to 4K and Abdullah Chowrangi BRT.',
-    urduDescription: '4 کے چورنگی تا سرجانی سیکٹر 4، 7، خدا کی بستی اور عبداللہ چورنگی۔',
-    stops: ['4k-chowrangi', 'surjani-sec-4', 'surjani-sec-7', 'khuda-ki-basti', 'abdullah-chowrangi'],
-  },
-  {
-    id: 'CC-N5',
-    code: 'CC-N5',
-    name: 'Buffer Zone to North Nazimabad Link',
-    urduName: 'بفر زون تا نارتھ ناظم آباد لنک',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 35,
-    intervalMinutes: { min: 2, max: 4 },
-    operatingHours: '06:00 - 23:00',
-    comfort: 'OPEN_AIR',
-    description: 'Connects Buffer Zone 16-A across Ziauddin to Hyderi shopping market and Green Line.',
-    urduDescription: 'پیپلز چورنگی بفر زون سے ضیاء الدین چورنگی اور حیدری مارکیٹ۔',
-    stops: ['buffer-zone-16a', 'ziauddin-chowrangi', 'kda-hyderi'],
-  },
-  {
-    id: 'CC-C1',
-    code: 'CC-C1',
-    name: 'Five Star to Ayesha Manzil Cross-link',
-    urduName: 'فائیو اسٹار تا عائشہ منزل کراس لنک',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 30,
-    intervalMinutes: { min: 2, max: 3 },
-    operatingHours: '06:00 - 00:00',
-    comfort: 'OPEN_AIR',
-    description: 'High traffic cross-town link from North Nazimabad Green Line to Shahrah-e-Pakistan FB Area spine.',
-    urduDescription: 'فائیو اسٹار چورنگی سے لانڈھی کوتل، عائشہ منزل اور کریم آباد۔',
-    stops: ['five-star', 'landhi-kotal', 'ayesha-manzil', 'karimabad'],
-  },
-  {
-    id: 'CC-C2',
-    code: 'CC-C2',
-    name: 'Hyderi to Water Pump Link',
-    urduName: 'حیدری مارکیٹ تا واٹر پمپ لنک',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 35,
-    intervalMinutes: { min: 2, max: 3 },
-    operatingHours: '06:00 - 23:30',
-    comfort: 'OPEN_AIR',
-    description: 'Direct link between Hyderi commercial center and Water Pump FB Area market.',
-    urduDescription: 'حیدری مارکیٹ سے سخی حسن، طاہر ولا اور واٹر پمپ فیڈرل بی ایریا۔',
-    stops: ['kda-hyderi', 'sakhi-hassan', 'tahir-villa', 'water-pump'],
-  },
-  {
-    id: 'CC-C3',
-    code: 'CC-C3',
-    name: 'Board Office to Banaras & SITE Link',
-    urduName: 'بورڈ آفس تا بنارس و سائٹ لنک',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 35,
-    intervalMinutes: { min: 2, max: 4 },
-    operatingHours: '06:00 - 23:00',
-    comfort: 'OPEN_AIR',
-    description: 'Vital worker shuttle connecting Green Line Board Office station to Paposh Nagar, Banaras, and SITE factories.',
-    urduDescription: 'بورڈ آفس سے عبداللہ کالج، پاپوش نگر، بنارس چوک اور میٹروول سائٹ۔',
-    stops: ['board-office', 'abdullah-college', 'paposh-nagar', 'banaras-chowk', 'metroville'],
-  },
-  {
-    id: 'CC-C4',
-    code: 'CC-C4',
-    name: 'Liaquatabad to Guru Mandir Link',
-    urduName: 'لیاقت آباد تا گرو مندر لنک',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 30,
-    intervalMinutes: { min: 1, max: 3 },
-    operatingHours: '05:30 - 01:00',
-    comfort: 'OPEN_AIR',
-    description: 'Heavy passenger flow along Lalookhet, Teen Hatti and Jehangir Road straight to Guru Mandir.',
-    urduDescription: 'لیاقت آباد 10 نمبر سے ڈاکخانہ، تین ہٹی، جہانگیر روڈ اور گرو مندر۔',
-    stops: ['liaquatabad-10', 'lalookhet-dak-khana', 'teen-hatti', 'jehangir-road', 'guru-mandir'],
-  },
-  {
-    id: 'CC-C5',
-    code: 'CC-C5',
-    name: 'Golimar to Habib Bank Chowrangi',
-    urduName: 'گولی مار تا حبیب بینک چورنگی (سائٹ)',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 30,
-    intervalMinutes: { min: 2, max: 3 },
-    operatingHours: '06:00 - 22:30',
-    comfort: 'OPEN_AIR',
-    description: 'Connects Green Line Sanitary Market / Golimar to Bara Board and Habib Bank industrial zone.',
-    urduDescription: 'گولی مار چورنگی (گلبہار) سے بڑا بورڈ، ناظم آباد 1 اور حبیب بینک چورنگی۔',
-    stops: ['golimar-chowrangi', 'bara-board', 'nazimabad-1', 'habib-bank'],
-  },
-  {
-    id: 'CC-E1',
-    code: 'CC-E1',
-    name: 'University Road Student Trunk',
-    urduName: 'یونیورسٹی روڈ اسٹوڈنٹ ٹرنک',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 40,
-    intervalMinutes: { min: 1, max: 2 },
-    operatingHours: '06:30 - 22:00',
-    comfort: 'OPEN_AIR',
-    description: 'Extremely popular student feeder shuttling between NIPA Chowrangi, FUUAST, NED University, KU, and Safoora.',
-    urduDescription: 'نیپا چورنگی سے اردو یونیورسٹی، سفاری پارک، این ای ڈی، جامعہ کراچی اور صفورہ چورنگی۔',
-    stops: ['nipa-chowrangi', 'urdu-university', 'safari-park', 'ned-university', 'karachi-university', 'maskan-chowrangi', 'safoora-chowrangi'],
-  },
-  {
-    id: 'CC-E2',
-    code: 'CC-E2',
-    name: 'Johar Inner Loop Feeder',
-    urduName: 'جوہر انر لوپ فیڈر',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 35,
-    intervalMinutes: { min: 1, max: 3 },
-    operatingHours: '06:00 - 00:30',
-    comfort: 'OPEN_AIR',
-    description: 'Serves Gulistan-e-Johar blocks from NIPA and Millennium Mall through Darul Sehat Hospital to Kamran Chowrangi.',
-    urduDescription: 'نیپا چورنگی سے جوہر موڑ، ملینیم مال، دارالصحت ہسپتال، جوہر چورنگی اور کامران چورنگی۔',
-    stops: ['nipa-chowrangi', 'johar-mor', 'millennium-mall', 'darul-sehat', 'johar-chowrangi', 'kamran-chowrangi'],
-  },
-  {
-    id: 'CC-E3',
-    code: 'CC-E3',
-    name: 'Scheme 33 Connector',
-    urduName: 'اسکیم 33 کنیکٹر',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: { min: 40, max: 50 },
-    intervalMinutes: { min: 3, max: 5 },
-    operatingHours: '06:30 - 22:30',
-    comfort: 'OPEN_AIR',
-    description: 'Shuttle connecting Sohrab Goth along Super Highway through Saadi Town and Kiran Hospital to Safoora.',
-    urduDescription: 'سہراب گوٹھ سے سپر ہائی وے، جمالی پل، سعدی ٹاؤن، کرن ہسپتال اور صفورہ چورنگی۔',
-    stops: ['sohrab-goth', 'al-asif-square', 'jamali-pull', 'saadi-town', 'kiran-hospital', 'safoora-chowrangi'],
-  },
-  {
-    id: 'CC-E4',
-    code: 'CC-E4',
-    name: 'Isphahani Feeder Corridor',
-    urduName: 'اصفہانی روڈ فیڈر کوریڈور',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 30,
-    intervalMinutes: { min: 2, max: 3 },
-    operatingHours: '06:00 - 23:30',
-    comfort: 'OPEN_AIR',
-    description: 'Connects Sohrab Goth via Abul Hassan Isphahani Road and Disco Bakery to Gulshan Chowrangi and NIPA.',
-    urduDescription: 'سہراب گوٹھ سے اصفہانی روڈ، ڈسکو بیکری، گلشن چورنگی اور نیپا چورنگی۔',
-    stops: ['sohrab-goth', 'isphahani-road', 'disco-bakery', 'gulshan-chowrangi', 'nipa-chowrangi'],
-  },
-  {
-    id: 'CC-E5',
-    code: 'CC-E5',
-    name: 'Civic Centre to Dalmia Link',
-    urduName: 'سوک سینٹر تا ڈالمیا و ملینیم لنک',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 30,
-    intervalMinutes: { min: 2, max: 4 },
-    operatingHours: '06:00 - 23:00',
-    comfort: 'OPEN_AIR',
-    description: 'Connects Civic Centre & Hassan Square past National Stadium and Dalmia Road to Millennium Mall.',
-    urduDescription: 'حسن اسکوائر / سوک سینٹر سے نیشنل اسٹیڈیم، ڈالمیا روڈ، شانتی نگر اور ملینیم مال۔',
-    stops: ['hassan-square', 'national-stadium', 'dalmia-road', 'millennium-mall'],
-  },
-  {
-    id: 'CC-S1',
-    code: 'CC-S1',
-    name: 'Numaish to Saddar Shuttle',
-    urduName: 'نمائش تا صدر شٹل',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 30,
-    intervalMinutes: { min: 1, max: 2 },
-    operatingHours: '06:00 - 01:00',
-    comfort: 'OPEN_AIR',
-    description: 'Ultra-busy downtown shuttle distributing Green Line passengers from Numaish to Capri, Regal, Empress Market, and Lucky Star.',
-    urduDescription: 'نمائش چورنگی سے کیپری سنیما، ریگل چوک، ایمپریس مارکیٹ اور لکی اسٹار صدر۔',
-    stops: ['numaish-chowrangi', 'capri-cinema', 'regal-chowk', 'empress-market', 'lucky-star'],
-  },
-  {
-    id: 'CC-S2',
-    code: 'CC-S2',
-    name: 'Tower to Lyari Feeder',
-    urduName: 'ٹاور تا لیاری فیڈر',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 30,
-    intervalMinutes: { min: 1, max: 3 },
-    operatingHours: '05:30 - 00:00',
-    comfort: 'OPEN_AIR',
-    description: 'Core Old City to Lyari connector moving thousands daily between Merewether Tower, Lee Market, and Miran Nakka.',
-    urduDescription: 'میرین ویڈر ٹاور سے کھارادر، لی مارکیٹ، چیل چوک اور میراں ناکہ لیاری۔',
-    stops: ['merewether-tower', 'kharadar', 'lee-market', 'cheel-chowk', 'miran-nakka'],
-  },
-  {
-    id: 'CC-S3',
-    code: 'CC-S3',
-    name: 'Tower to Keamari Port Shuttle',
-    urduName: 'ٹاور تا کیماڑی پورٹ شٹل',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 30,
-    intervalMinutes: { min: 1, max: 3 },
-    operatingHours: '05:00 - 00:30',
-    comfort: 'OPEN_AIR',
-    description: 'Quick port worker connector over Jinnah Bridge into Jackson Market and Keamari boat docks.',
-    urduDescription: 'ٹاور سے جناح برج، جیکسن مارکیٹ اور کیماڑی بوٹ ڈاکس تک۔',
-    stops: ['merewether-tower', 'jinnah-bridge', 'jackson-market', 'keamari-docks'],
-  },
-  {
-    id: 'CC-S4',
-    code: 'CC-S4',
-    name: 'Cantt Station to Saddar',
-    urduName: 'کینٹ اسٹیشن تا صدر و جے پی ایم سی',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 30,
-    intervalMinutes: { min: 1, max: 2 },
-    operatingHours: '24 Hours',
-    comfort: 'OPEN_AIR',
-    description: '24/7 train passenger connector from Cantt Station to JPMC Hospital, Lucky Star, and Empress Market.',
-    urduDescription: 'کینٹ ریلوے اسٹیشن سے جناح ہسپتال، لکی اسٹار اور ایمپریس مارکیٹ صدر۔',
-    stops: ['cantt-station', 'jpmc', 'lucky-star', 'empress-market'],
-  },
-  {
-    id: 'CC-K1',
-    code: 'CC-K1',
-    name: 'Qayyumabad to Korangi Crossing Trunk',
-    urduName: 'قیوم آباد تا کورنگی کراسنگ و انڈس ہسپتال',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 35,
-    intervalMinutes: { min: 1, max: 3 },
-    operatingHours: '05:30 - 00:30',
-    comfort: 'OPEN_AIR',
-    description: 'Heavy feeder connecting DHA/Qayyumabad hub across Korangi Creek to Indus Hospital and Korangi 5.',
-    urduDescription: 'قیوم آباد چورنگی سے کورنگی کراسنگ، ناصر جمپ، انڈس ہسپتال اور کورنگی نمبر 5۔',
-    stops: ['qayyumabad', 'korangi-crossing', 'nasir-jump', 'indus-hospital', 'korangi-5'],
-  },
-  {
-    id: 'CC-K2',
-    code: 'CC-K2',
-    name: 'Korangi Industrial Zone Feeder',
-    urduName: 'کورنگی انڈسٹریل زون فیڈر',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 30,
-    intervalMinutes: { min: 2, max: 4 },
-    operatingHours: '06:00 - 22:30',
-    comfort: 'OPEN_AIR',
-    description: 'Connects factory workers across Chamra, Vita, and Singer Chowrangi.',
-    urduDescription: 'کورنگی کراسنگ سے چمڑا چورنگی، ویٹا چورنگی اور سنگر چورنگی۔',
-    stops: ['korangi-crossing', 'chamra-chowrangi', 'vita-chowrangi', 'singer-chowrangi'],
-  },
-  {
-    id: 'CC-M1',
-    code: 'CC-M1',
-    name: 'Malir Halt to Malir Cantt Feeder',
-    urduName: 'ملیر ہالٹ تا ملیر کینٹ فیڈر',
-    category: 'CHINGCHI',
-    vehicleType: '6-Seater Qingqi Rickshaw',
-    color: '#8b5cf6',
-    fleetCategory: 'CHINGCHI',
-    fare: 35,
-    intervalMinutes: { min: 2, max: 3 },
-    operatingHours: '06:00 - 23:00',
-    comfort: 'OPEN_AIR',
-    description: 'Feeds commuters from Malir Halt railway and bus hubs into Malir Cantt Checkpost 2, Tank Chowk, and Cantt Bazar.',
-    urduDescription: 'ملیر ہالٹ سے ماڈل کالونی موڑ، چیک پوسٹ 2، ٹینک چوک اور کینٹ بازار۔',
-    stops: ['malir-halt', 'model-colony-mor', 'checkpost-2', 'tank-chowk', 'cantt-bazar'],
-  },
-
-  // ----------------------------------------------------
   // B. ICONIC KARACHI MINIBUSES & HEAVY COACHES (17)
   // ----------------------------------------------------
   {
@@ -3361,131 +2931,12 @@ const BASE_ROUTES: TransitRoute[] = [
   },
 ];
 
-export const ROUTES: TransitRoute[] = [
-  ...BASE_ROUTES,
-  ...ADDITIONAL_CHINGCHI_ROUTES,
-];
+export const ROUTES: TransitRoute[] = BASE_ROUTES;
 
-// ==========================================
-// 3. CHINGCHI ADDA (STAND) DIRECTORY
-// ==========================================
-export const CHINGCHI_ADDAS: ChingchiAdda[] = [
-  {
-    id: 'adda-nagan',
-    name: 'Nagan Chowrangi Mega Adda',
-    urduName: 'ناگن چورنگی چنگچی اڈا',
-    location: 'Under Nagan Flyover, West & East slips',
-    lat: 24.9752,
-    lng: 67.0645,
-    destinations: [
-      { routeCode: 'CC-N1', destination: 'Buffer Zone Sector 15-A / 15-B', fare: 30, time: '5 mins' },
-      { routeCode: 'CC-N2', destination: 'Sohrab Goth Interchange / Al-Asif', fare: 40, time: '10 mins' },
-      { routeCode: 'CC-N5', destination: 'KDA Chowrangi / Hyderi Market', fare: 35, time: '8 mins' },
-    ],
-    riderTip: 'Conductors shout "بفر بفر 15" or "سہراب گوٹھ سواری!". Pay exact change to the conductor on boarding.',
-  },
-  {
-    id: 'adda-buffer-zone',
-    name: 'Buffer Zone 15-A Adda',
-    urduName: 'بفر زون 15-اے چنگچی اڈا',
-    location: 'Sector 15-A Commercial Market / Erum Centre Road',
-    lat: 24.9665,
-    lng: 67.0735,
-    destinations: [
-      { routeCode: 'CC-N1', destination: 'Nagan Chowrangi (Green Line BRT)', fare: 30, time: '5 mins' },
-      { routeCode: 'CC-N1', destination: 'Sakhi Hassan Chowrangi', fare: 30, time: '4 mins' },
-    ],
-    riderTip: 'Fastest way to reach Green Line BRT from inner Buffer Zone streets.',
-  },
-  {
-    id: 'adda-numaish',
-    name: 'Numaish Underground & Surface Adda',
-    urduName: 'نمائش چورنگی چنگچی اڈا',
-    location: 'Numaish Underpass North & South Exits, M.A. Jinnah Rd',
-    lat: 24.8728,
-    lng: 67.0326,
-    destinations: [
-      { routeCode: 'CC-S1', destination: 'Capri Cinema & Saddar Lucky Star', fare: 30, time: '7 mins' },
-      { routeCode: 'CC-C4', destination: 'Guru Mandir & Liaquatabad', fare: 30, time: '10 mins' },
-    ],
-    riderTip: 'Ideal transfer point between Green Line BRT, Red Bus, and Saddar shopping markets.',
-  },
-  {
-    id: 'adda-nipa',
-    name: 'NIPA Chowrangi Adda',
-    urduName: 'نیپا چورنگی اڈا',
-    location: 'Under NIPA Flyover, North-East Slip',
-    lat: 24.9180,
-    lng: 67.0970,
-    destinations: [
-      { routeCode: 'CC-E1', destination: 'NED University & KU Silver Jubilee', fare: 35, time: '8 mins' },
-      { routeCode: 'CC-E1', destination: 'Safoora Chowrangi', fare: 40, time: '15 mins' },
-      { routeCode: 'CC-E2', destination: 'Johar Chowrangi & Kamran Chowrangi', fare: 35, time: '12 mins' },
-      { routeCode: 'CC-E4', destination: 'Sohrab Goth via Isphahani', fare: 30, time: '10 mins' },
-    ],
-    riderTip: 'Busiest student hub in Karachi. Qingqis leave every 60 seconds during university peak hours (7:30 - 9:00 AM).',
-  },
-  {
-    id: 'adda-tower',
-    name: 'Merewether Tower Adda',
-    urduName: 'میرین ویڈر ٹاور اڈا',
-    location: 'Opposite Tower Clock, M.A. Jinnah / Kharadar Turn',
-    lat: 24.8485,
-    lng: 66.9990,
-    destinations: [
-      { routeCode: 'CC-S2', destination: 'Lee Market & Cheel Chowk Lyari', fare: 30, time: '10 mins' },
-      { routeCode: 'CC-S3', destination: 'Jackson Market & Keamari Docks', fare: 30, time: '8 mins' },
-    ],
-    riderTip: 'Hold your phone and belongings securely when boarding in crowded rush hours.',
-  },
-  {
-    id: 'adda-sohrab-goth',
-    name: 'Sohrab Goth / Al-Asif Adda',
-    urduName: 'سہراب گوٹھ / ال آصف اڈا',
-    location: 'Al-Asif Square Service Road, Super Highway',
-    lat: 24.9450,
-    lng: 67.0860,
-    destinations: [
-      { routeCode: 'CC-N2', destination: 'Nagan Chowrangi (Green Line BRT)', fare: 40, time: '10 mins' },
-      { routeCode: 'CC-E3', destination: 'Saadi Town & Safoora', fare: 45, time: '18 mins' },
-      { routeCode: 'CC-E4', destination: 'NIPA via Isphahani Road', fare: 30, time: '10 mins' },
-    ],
-    riderTip: 'Interchange hub for travelers arriving from interior Sindh into Karachi via M-9.',
-  },
-  {
-    id: 'adda-cantt',
-    name: 'Cantt Railway Station Adda',
-    urduName: 'کینٹ ریلوے اسٹیشن اڈا',
-    location: 'Outside Cantt Station main exit porch',
-    lat: 24.8475,
-    lng: 67.0397,
-    destinations: [
-      { routeCode: 'CC-S4', destination: 'JPMC Hospital & Lucky Star Saddar', fare: 30, time: '6 mins' },
-      { routeCode: 'CC-S4', destination: 'Empress Market', fare: 30, time: '8 mins' },
-    ],
-    riderTip: 'Available 24 hours a day for train arrivals (Karakoram Express, Tezgam, Awam Express).',
-  },
-  {
-    id: 'adda-qayyumabad',
-    name: 'Qayyumabad Interchange Adda',
-    urduName: 'قیوم آباد انٹرچینج اڈا',
-    location: 'Under KPT Expressway flyover',
-    lat: 24.8360,
-    lng: 67.0850,
-    destinations: [
-      { routeCode: 'CC-K1', destination: 'Korangi Crossing & Indus Hospital', fare: 35, time: '12 mins' },
-      { routeCode: 'CC-K1', destination: 'Korangi No. 5', fare: 35, time: '15 mins' },
-    ],
-    riderTip: 'Essential bridge feeder linking DHA Phase 1 & 7 across to Korangi industrial zones.',
-  },
-];
-
-// Helper to look up stop by ID
 export function getStop(id: string): TransitStop | undefined {
   return STOPS[id];
 }
 
-// Helper to look up route by ID
 export function getRoute(id: string): TransitRoute | undefined {
-  return ROUTES.find(r => r.id === id || r.code === id);
+  return ROUTES.find((r) => r.id === id);
 }

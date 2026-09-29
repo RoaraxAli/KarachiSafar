@@ -20,20 +20,18 @@ export const TripCard: React.FC<TripCardProps> = ({
   // Helper for mode background color in crisp professional style
   const getBadgeStyle = (mode: TransitMode) => {
     switch (mode) {
-      case 'CHINGCHI':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
       case 'BRT':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        return 'bg-emerald-50 text-emerald-800 border-emerald-200';
       case 'RED_BUS':
-        return 'bg-red-50 text-red-700 border-red-200';
+        return 'bg-red-50 text-red-800 border-red-200';
       case 'EV_BUS':
-        return 'bg-cyan-50 text-cyan-700 border-cyan-200';
+        return 'bg-cyan-50 text-cyan-800 border-cyan-200';
       case 'LOCAL_BUS':
-        return 'bg-amber-50 text-amber-800 border-amber-200';
+        return 'bg-amber-50 text-amber-900 border-amber-200';
       case 'WALK':
         return 'bg-slate-100 text-slate-700 border-slate-200';
       case 'BYKEA':
-        return 'bg-teal-50 text-teal-700 border-teal-200';
+        return 'bg-emerald-50 text-emerald-800 border-emerald-200';
       default:
         return 'bg-slate-100 text-slate-700 border-slate-200';
     }
@@ -42,9 +40,11 @@ export const TripCard: React.FC<TripCardProps> = ({
   const getTagColor = (tag: TripPlan['tag']) => {
     switch (tag) {
       case 'FASTEST':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
+        return 'bg-emerald-50 text-emerald-800 border-emerald-200';
       case 'MOST_COMFORTABLE':
-        return 'bg-cyan-50 text-cyan-700 border-cyan-200';
+        return 'bg-slate-100 text-slate-800 border-slate-300';
+      case 'CHEAPEST':
+        return 'bg-amber-50 text-amber-800 border-amber-200';
       default:
         return 'bg-slate-100 text-slate-700 border-slate-200';
     }
@@ -55,11 +55,11 @@ export const TripCard: React.FC<TripCardProps> = ({
       onClick={() => onSelect(plan)}
       className={`rounded-xl transition-all border p-3.5 cursor-pointer ${
         isSelected
-          ? 'bg-blue-50/30 border-blue-600 shadow-sm ring-1 ring-blue-600/30'
-          : 'bg-white border-slate-200 hover:border-blue-300 hover:shadow-sm'
+          ? 'bg-slate-50 border-slate-900 shadow-sm ring-1 ring-slate-900/15'
+          : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-sm'
       }`}
     >
-      {/* Top Header: Tag Badge & Total Duration (No fares) */}
+      {/* Top Header: Tag Badge & Total Duration */}
       <div className="flex items-start justify-between gap-2 mb-2">
         <div>
           <span
@@ -74,19 +74,19 @@ export const TripCard: React.FC<TripCardProps> = ({
           </h3>
         </div>
 
-        {/* Big Duration (Fares removed as requested) */}
+        {/* Big Duration */}
         <div className="text-right flex-shrink-0">
           <div className="text-lg sm:text-xl font-bold text-slate-900 flex items-center justify-end gap-0.5">
             <span>{plan.totalDurationMinutes}</span>
             <span className="text-xs font-normal text-slate-500">min</span>
           </div>
-          <div className="text-[11px] text-slate-500">
+          <div className="text-[11px] text-slate-500 font-mono">
             {plan.totalDistanceKm} km
           </div>
         </div>
       </div>
 
-      {/* Summary Chips: Transfers & AC (No fares) */}
+      {/* Summary Chips: Transfers & AC */}
       <div className="flex flex-wrap items-center gap-1.5 mb-2.5 text-xs text-slate-600">
         <span className="flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded border border-slate-200 text-[11px]">
           <Shuffle className="w-3 h-3 text-slate-400" />
@@ -98,8 +98,8 @@ export const TripCard: React.FC<TripCardProps> = ({
         </span>
 
         {plan.hasAC && (
-          <span className="flex items-center gap-1 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 text-blue-700 text-[11px] font-medium">
-            <Wind className="w-3 h-3 text-blue-500" />
+          <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 text-slate-800 text-[11px] font-medium">
+            <Wind className="w-3 h-3 text-slate-600" />
             <span>AC Available</span>
           </span>
         )}
@@ -144,14 +144,14 @@ export const TripCard: React.FC<TripCardProps> = ({
             e.stopPropagation();
             onStartNavigation(plan);
           }}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition cursor-pointer shadow-sm"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white transition cursor-pointer shadow-sm"
         >
           <Navigation className="w-3 h-3 fill-current" />
           <span>Navigate</span>
         </button>
       </div>
 
-      {/* Expanded Itinerary Drill-down (No fares) */}
+      {/* Expanded Itinerary Drill-down */}
       {isExpanded && (
         <div className="mt-2.5 pt-2.5 border-t border-slate-100 space-y-2">
           {plan.legs.map((leg, lIdx) => (

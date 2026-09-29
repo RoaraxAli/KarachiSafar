@@ -3,25 +3,23 @@ import { RouteSearchForm } from './components/RouteSearchForm';
 import { TripCard } from './components/TripCard';
 import { MapView } from './components/MapView';
 import { RouteExplorer } from './components/RouteExplorer';
-import { ChingchiDirectory } from './components/ChingchiDirectory';
 import { NavigationMode } from './components/NavigationMode';
 import { planJourney, filterPlans } from './lib/graphRouter';
-import type { TripPlan, TransitRoute, ChingchiAdda } from './types/transit';
-import { STOPS } from './data/transitData';
+import type { TripPlan, TransitRoute, FilterCategory } from './types/transit';
+import { ROUTES } from './data/transitData';
 import { Compass, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 
 export function App() {
   // Sidebar state: open by default
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // App navigation state (Fares removed as requested)
-  const [activeTab, setActiveTab] = useState<'PLANNER' | 'EXPLORER' | 'CHINGCHI_ADDAS'>('PLANNER');
+  // App navigation state: Clean, production-ready tabs
+  const [activeTab, setActiveTab] = useState<'PLANNER' | 'EXPLORER'>('PLANNER');
 
-  // Journey Planner State - EMPTY by default for production readiness
+  // Journey Planner State - Clean empty state initially
   const [originStopId, setOriginStopId] = useState<string>('');
   const [destStopId, setDestStopId] = useState<string>('');
-  const [filter, setFilter] = useState<'ALL' | 'FASTEST' | 'COMFORTABLE' | 'CHINGCHI'>('ALL');
-  const [allowChingchi, setAllowChingchi] = useState<boolean>(false);
+  const [filter, setFilter] = useState<FilterCategory>('ALL');
   const [selectedPlan, setSelectedPlan] = useState<TripPlan | null>(null);
 
   // Route Explorer State
@@ -35,14 +33,14 @@ export function App() {
     if (!originStopId || !destStopId || originStopId === destStopId) {
       return [];
     }
-    return planJourney(originStopId, destStopId, allowChingchi);
-  }, [originStopId, destStopId, allowChingchi]);
+    return planJourney(originStopId, destStopId);
+  }, [originStopId, destStopId]);
 
   const displayedPlans = useMemo(() => {
     return filterPlans(rawPlans, filter);
   }, [rawPlans, filter]);
 
-  // Automatically select the first/top plan when plans change
+  // Automatically select the top plan when plans change
   useEffect(() => {
     if (displayedPlans.length > 0) {
       setSelectedPlan(displayedPlans[0]);
@@ -51,17 +49,6 @@ export function App() {
     }
   }, [displayedPlans]);
 
-  const handleSelectAdda = (adda: ChingchiAdda) => {
-    const match = Object.values(STOPS).find(
-      (s) => Math.hypot(s.lat - adda.lat, s.lng - adda.lng) < 0.005
-    );
-    if (match) {
-      setOriginStopId(match.id);
-    }
-    setActiveTab('PLANNER');
-    setIsSidebarOpen(true);
-  };
-
   const handleSelectRouteFromExplorer = (route: TransitRoute) => {
     setSelectedExplorerRoute(route);
   };
@@ -69,9 +56,9 @@ export function App() {
   const hasSearch = originStopId !== '' && destStopId !== '';
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex relative bg-slate-100 text-slate-800 font-sans selection:bg-blue-600 selection:text-white">
+    <div className="h-screen w-screen overflow-hidden flex relative bg-slate-100 text-slate-800 font-sans selection:bg-slate-900 selection:text-white">
       {/* ============================================================ */}
-      {/* 1. PROFESSIONAL SIDEBAR (White & Blue, Collapsible)         */}
+      {/* 1. PROFESSIONAL EXECUTIVE SIDEBAR (White theme)               */}
       {/* ============================================================ */}
       <aside
         className={`h-full flex flex-col z-20 bg-white border-r border-slate-200 shadow-xl transition-all duration-300 ease-in-out absolute sm:relative inset-y-0 left-0 ${
@@ -80,13 +67,13 @@ export function App() {
             : 'w-0 -translate-x-full sm:translate-x-0 sm:w-0 overflow-hidden pointer-events-none border-none'
         }`}
       >
-        {/* Sidebar Header: Professional Clean Bar */}
+        {/* Sidebar Header: Executive Clean Bar */}
         <div className="p-3.5 border-b border-slate-200 bg-white flex items-center justify-between gap-2 flex-shrink-0">
           <div
-            className="flex items-center gap-2 cursor-pointer select-none"
+            className="flex items-center gap-2.5 cursor-pointer select-none"
             onClick={() => setActiveTab('PLANNER')}
           >
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white text-base font-bold shadow-sm">
+            <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white text-sm font-bold shadow-sm tracking-wide">
               KS
             </div>
             <div>
@@ -111,13 +98,13 @@ export function App() {
           </div>
         </div>
 
-        {/* Sub-Tab Navigation Bar (Fares removed) */}
-        <div className="flex items-center border-b border-slate-200 bg-slate-50/70 p-1 flex-shrink-0 text-xs">
+        {/* Sub-Tab Navigation Bar */}
+        <div className="flex items-center border-b border-slate-200 bg-slate-50/80 p-1 flex-shrink-0 text-xs">
           <button
             onClick={() => setActiveTab('PLANNER')}
-            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition cursor-pointer text-center ${
+            className={`flex-1 py-1.5 px-3 rounded-lg font-semibold transition cursor-pointer text-center ${
               activeTab === 'PLANNER'
-                ? 'bg-white text-blue-600 font-bold shadow-sm border border-slate-200'
+                ? 'bg-white text-slate-900 font-bold shadow-sm border border-slate-200'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -125,31 +112,21 @@ export function App() {
           </button>
           <button
             onClick={() => setActiveTab('EXPLORER')}
-            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition cursor-pointer text-center ${
+            className={`flex-1 py-1.5 px-3 rounded-lg font-semibold transition cursor-pointer text-center ${
               activeTab === 'EXPLORER'
-                ? 'bg-white text-blue-600 font-bold shadow-sm border border-slate-200'
+                ? 'bg-white text-slate-900 font-bold shadow-sm border border-slate-200'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Routes (92)
-          </button>
-          <button
-            onClick={() => setActiveTab('CHINGCHI_ADDAS')}
-            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition cursor-pointer text-center ${
-              activeTab === 'CHINGCHI_ADDAS'
-                ? 'bg-white text-blue-600 font-bold shadow-sm border border-slate-200'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Qingqi Stands
+            Routes ({ROUTES.length})
           </button>
         </div>
 
         {/* Scrollable Sidebar Content */}
-        <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5 bg-slate-50/50">
+        <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5 bg-slate-50/40">
           {activeTab === 'PLANNER' && (
             <div className="space-y-3">
-              {/* Route Search Form (Empty by default) */}
+              {/* Route Search Form */}
               <RouteSearchForm
                 originStopId={originStopId}
                 destStopId={destStopId}
@@ -157,8 +134,6 @@ export function App() {
                 setDestStopId={setDestStopId}
                 filter={filter}
                 setFilter={setFilter}
-                allowChingchi={allowChingchi}
-                setAllowChingchi={setAllowChingchi}
               />
 
               {/* Journey Options List or Empty State */}
@@ -167,7 +142,7 @@ export function App() {
                   <>
                     <div className="flex items-center justify-between px-1">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                        Route Options ({displayedPlans.length})
+                        Transit Options ({displayedPlans.length})
                       </span>
                     </div>
 
@@ -186,17 +161,17 @@ export function App() {
                     ) : (
                       <div className="p-8 text-center bg-white border border-slate-200 rounded-xl space-y-2 shadow-sm">
                         <MapPin className="w-6 h-6 text-slate-400 mx-auto" />
-                        <div className="text-xs font-bold text-slate-800">No transit connection found</div>
+                        <div className="text-xs font-bold text-slate-800">No direct connection found</div>
                         <p className="text-[11px] text-slate-500">
-                          Try choosing major transit nodes such as Nagan Chowrangi, NIPA, Sohrab Goth, or Saddar.
+                          Try choosing major transit corridors such as Nagan Chowrangi, NIPA, Sohrab Goth, or Saddar.
                         </p>
                       </div>
                     )}
                   </>
                 ) : (
-                  /* Clean Production-Ready Empty State (No dummy data) */
+                  /* Clean Production-Ready Empty State */
                   <div className="p-8 text-center bg-white border border-slate-200 rounded-xl space-y-3 shadow-sm">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 mx-auto flex items-center justify-center border border-blue-100">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-800 mx-auto flex items-center justify-center border border-slate-200">
                       <Compass className="w-5 h-5" />
                     </div>
                     <div>
@@ -227,15 +202,11 @@ export function App() {
               }}
             />
           )}
-
-          {activeTab === 'CHINGCHI_ADDAS' && (
-            <ChingchiDirectory onSelectAdda={handleSelectAdda} />
-          )}
         </div>
       </aside>
 
       {/* ============================================================ */}
-      {/* 2. THE BIG MAP (Persistent, responsive, dominant)             */}
+      {/* 2. THE TRANSIT MAP (Full size, responsive, dominant)          */}
       {/* ============================================================ */}
       <main className="flex-1 h-full relative z-10 overflow-hidden bg-slate-200">
         <MapView
@@ -250,9 +221,9 @@ export function App() {
         {!isSidebarOpen && (
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="absolute top-4 left-4 z-[400] flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs border border-slate-200 shadow-md transition-all cursor-pointer hover:border-blue-500"
+            className="absolute top-4 left-4 z-[400] flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs border border-slate-200 shadow-md transition-all cursor-pointer hover:border-slate-400"
           >
-            <Compass className="w-4 h-4 text-blue-600" />
+            <Compass className="w-4 h-4 text-slate-800" />
             <span>Open Transit Navigator</span>
             <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
           </button>
@@ -261,7 +232,7 @@ export function App() {
         {/* Floating Active Route Information Pill (Top-Center of Map) */}
         {selectedPlan && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[400] hidden md:flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/95 border border-slate-200 shadow-md text-xs text-slate-800">
-            <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
             <span className="font-bold text-slate-900 truncate max-w-xs">{selectedPlan.title}</span>
             <span className="text-slate-500 font-mono text-[11px]">
               {selectedPlan.totalDurationMinutes} mins • {selectedPlan.totalDistanceKm} km
