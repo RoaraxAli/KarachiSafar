@@ -3,6 +3,7 @@ import L from 'leaflet';
 import { Layers, Maximize2, Minimize2 } from 'lucide-react';
 import type { TripPlan, TransitRoute } from '../types/transit';
 import { STOPS, ROUTES } from '../data/transitData';
+import { ROAD_POLYLINES } from '../data/roadPolylines';
 
 interface MapViewProps {
   selectedPlan: TripPlan | null;
@@ -110,22 +111,20 @@ export const MapView: React.FC<MapViewProps> = ({
 
     const bounds = L.latLngBounds([]);
 
-    // 1. If showAllCorridors is enabled, render background network polylines
-    if (showAllCorridors) {
+    // 1. If showAllCorridors is enabled and no specific trip plan is active, render background network along ACTUAL ROADS
+    if (showAllCorridors && !selectedPlan) {
       ROUTES.forEach((route) => {
-        const latLngs: [number, number][] = [];
-        route.stops.forEach((sId) => {
-          const stop = STOPS[sId];
-          if (stop) {
-            latLngs.push([stop.lat, stop.lng]);
-          }
-        });
+        const roadPoly = ROAD_POLYLINES[route.id];
+        const latLngs: [number, number][] =
+          roadPoly && roadPoly.length > 1
+            ? roadPoly
+            : (route.stops.map((sId) => (STOPS[sId] ? [STOPS[sId].lat, STOPS[sId].lng] : null)).filter(Boolean) as [number, number][]);
 
         if (latLngs.length > 1) {
           L.polyline(latLngs, {
             color: route.color,
             weight: route.category === 'BRT' ? 4 : 2,
-            opacity: 0.35,
+            opacity: 0.4,
             lineJoin: 'round',
           }).addTo(layerGroup);
         }
@@ -134,11 +133,9 @@ export const MapView: React.FC<MapViewProps> = ({
 
     // 2. If a single route is being explored from Route Explorer
     if (selectedRoute && !selectedPlan) {
-      const latLngs: [number, number][] = [];
       selectedRoute.stops.forEach((sId, idx) => {
         const stop = STOPS[sId];
         if (stop) {
-          latLngs.push([stop.lat, stop.lng]);
           bounds.extend([stop.lat, stop.lng]);
 
           // Marker for each stop in route
@@ -161,11 +158,17 @@ export const MapView: React.FC<MapViewProps> = ({
         }
       });
 
-      if (latLngs.length > 1) {
-        L.polyline(latLngs, {
+      const roadPoly = ROAD_POLYLINES[selectedRoute.id];
+      const routeLatLngs: [number, number][] =
+        roadPoly && roadPoly.length > 1
+          ? roadPoly
+          : (selectedRoute.stops.map((sId) => (STOPS[sId] ? [STOPS[sId].lat, STOPS[sId].lng] : null)).filter(Boolean) as [number, number][]);
+
+      if (routeLatLngs.length > 1) {
+        L.polyline(routeLatLngs, {
           color: selectedRoute.color,
           weight: 5,
-          opacity: 0.9,
+          opacity: 0.95,
           lineJoin: 'round',
         }).addTo(layerGroup);
       }

@@ -1,4 +1,5 @@
 import { STOPS, ROUTES, getStop } from '../data/transitData';
+import { ROAD_POLYLINES } from '../data/roadPolylines';
 import type { TransitStop, TransitRoute, TripPlan, TripLeg, TransitMode } from '../types/transit';
 
 // ==========================================
@@ -82,11 +83,8 @@ function buildTransitLeg(
   endIndex: number
 ): TripLeg {
   const intermediateStops: TransitStop[] = [];
-  const polyline: [number, number][] = [];
-
   let totalDistKm = 0;
   let prevStop: TransitStop = fromStop;
-  polyline.push([fromStop.lat, fromStop.lng]);
 
   const step = startIndex < endIndex ? 1 : -1;
   const isForward = step > 0;
@@ -98,10 +96,45 @@ function buildTransitLeg(
       if (isForward ? i < endIndex : i > endIndex) {
         intermediateStops.push(stop);
       }
-      polyline.push([stop.lat, stop.lng]);
       totalDistKm += calculateDistanceKm(prevStop.lat, prevStop.lng, stop.lat, stop.lng);
       prevStop = stop;
     }
+  }
+
+  // Extract exact street-level road polyline from pre-computed road network
+  let polyline: [number, number][] = [];
+  const fullRoadPolyline = ROAD_POLYLINES[route.id];
+
+  if (fullRoadPolyline && fullRoadPolyline.length > 1) {
+    let minD1 = Infinity;
+    let idx1 = 0;
+    let minD2 = Infinity;
+    let idx2 = 0;
+
+    for (let p = 0; p < fullRoadPolyline.length; p++) {
+      const pt = fullRoadPolyline[p];
+      const d1 = Math.abs(pt[0] - fromStop.lat) + Math.abs(pt[1] - fromStop.lng);
+      if (d1 < minD1) {
+        minD1 = d1;
+        idx1 = p;
+      }
+      const d2 = Math.abs(pt[0] - toStop.lat) + Math.abs(pt[1] - toStop.lng);
+      if (d2 < minD2) {
+        minD2 = d2;
+        idx2 = p;
+      }
+    }
+
+    if (idx1 <= idx2) {
+      polyline = fullRoadPolyline.slice(idx1, idx2 + 1);
+    } else {
+      polyline = fullRoadPolyline.slice(idx2, idx1 + 1).slice().reverse();
+    }
+  }
+
+  // Fallback to stop dots if slice is empty
+  if (polyline.length < 2) {
+    polyline = [[fromStop.lat, fromStop.lng], ...intermediateStops.map((s) => [s.lat, s.lng] as [number, number]), [toStop.lat, toStop.lng]];
   }
 
   const speed = MODE_SPEEDS[route.category] || 24;
