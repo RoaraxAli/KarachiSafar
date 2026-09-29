@@ -73,27 +73,22 @@ export const MapView: React.FC<MapViewProps> = ({
 
     if (mapStyle === 'DARK') {
       const darkBase = L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
         {
-          attribution: '&copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-          maxZoom: 16,
-        }
-      );
-      const darkLabels = L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-        {
-          maxZoom: 16,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: 'abcd',
+          maxZoom: 20,
         }
       );
       baseGroup.addLayer(darkBase);
-      baseGroup.addLayer(darkLabels);
     } else {
-      // ESRI World Street Map: Clean, high-legibility English labels
+      // CartoDB Positron: High-resolution OSM street tiles across all Karachi with zero zoom gaps
       const street = L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
         {
-          attribution: '&copy; Esri &mdash; Sources: Esri, HERE, Garmin, USGS, Intermap, METI',
-          maxZoom: 18,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: 'abcd',
+          maxZoom: 20,
         }
       );
       baseGroup.addLayer(street);

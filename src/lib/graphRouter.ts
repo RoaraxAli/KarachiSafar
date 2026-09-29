@@ -258,25 +258,38 @@ export function planJourney(
 
   const plans: TripPlan[] = [];
   const candidateRoutes = ROUTES;
-
-  // Direct walk fallback if under 800m
   const directDistance = calculateDistanceMeters(origin.lat, origin.lng, dest.lat, dest.lng);
-  if (directDistance <= 800) {
-    const walkLeg = buildWalkLeg(origin, dest);
+
+  // 0. Close-Distance Connections (Direct Walk and Quick Link)
+  if (directDistance <= 2200) {
+    if (directDistance <= 1500) {
+      plans.push(
+        createTripPlan(
+          'plan-direct-walk',
+          `Direct Walk (${directDistance}m)`,
+          'پیدل راستہ',
+          directDistance <= 800 ? 'FASTEST' : 'RECOMMENDED',
+          'تیز ترین (پیدل)',
+          [buildWalkLeg(origin, dest)]
+        )
+      );
+    }
     plans.push(
       createTripPlan(
-        'plan-direct-walk',
-        'Direct Walking Route',
-        'پیدل راستہ',
-        'FASTEST',
-        'تیز ترین (پیدل)',
-        [walkLeg]
+        'plan-direct-link',
+        `Direct Ride Connection (${(directDistance / 1000).toFixed(1)} km)`,
+        'براہِ راست لنک / رائیڈ',
+        directDistance <= 800 ? 'RECOMMENDED' : 'FASTEST',
+        'تیز ترین',
+        [buildBykeaLeg(origin, dest)]
       )
     );
-    return plans;
+    if (directDistance <= 600) {
+      return plans;
+    }
   }
 
-  // 1. Direct Routes on a single transit vehicle (Bidirectional!)
+  // 1. Direct Transit Routes on a single vehicle (Bidirectional)
   for (const route of candidateRoutes) {
     const fromIdx = route.stops.indexOf(originStopId);
     const toIdx = route.stops.indexOf(destStopId);
@@ -295,28 +308,47 @@ export function planJourney(
     }
   }
 
-  // 2. Direct with Walk at Origin or Destination (Adaptive radius up to 2000m)
-  const nearbyOrigins = findNearbyStops(origin.lat, origin.lng, 2000);
-  const nearbyDests = findNearbyStops(dest.lat, dest.lng, 2000);
+  // 2. Direct with Walk at Origin or Destination (Adaptive radius up to 1600m)
+  const nearbyOrigins = findNearbyStops(origin.lat, origin.lng, 1600);
+  const nearbyDests = findNearbyStops(dest.lat, dest.lng, 1600);
 
   for (const { stop: nOrigin, distanceMeters: origDist } of nearbyOrigins) {
+    // Sanity: Boarding stop must not be further from destination than origin is + 300m
+    if (calculateDistanceMeters(nOrigin.lat, nOrigin.lng, dest.lat, dest.lng) > directDistance + 300) {
+      continue;
+    }
+
     for (const { stop: nDest, distanceMeters: destDist } of nearbyDests) {
+      // Sanity: Transit drop-off must move rider significantly closer to destination!
+      const distFromDropToDest = calculateDistanceMeters(nDest.lat, nDest.lng, dest.lat, dest.lng);
+      if (distFromDropToDest >= directDistance * 0.8) {
+        continue;
+      }
+
       for (const route of candidateRoutes) {
         const fromIdx = route.stops.indexOf(nOrigin.id);
         const toIdx = route.stops.indexOf(nDest.id);
         if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
+          const transitLeg = buildTransitLeg(route, nOrigin, nDest, fromIdx, toIdx);
+
+          // Detour Sanity: Reject oversized detours for short trips
+          const totalDist = origDist + transitLeg.distanceMeters + destDist;
+          if (directDistance < 3000 && totalDist > directDistance * 2.0) {
+            continue;
+          }
+
           const legs: TripLeg[] = [];
           if (origDist > 80) {
             legs.push(
-              origDist <= 1200
+              origDist <= 1000
                 ? buildWalkLeg(origin, nOrigin)
                 : buildBykeaLeg(origin, nOrigin)
             );
           }
-          legs.push(buildTransitLeg(route, nOrigin, nDest, fromIdx, toIdx));
+          legs.push(transitLeg);
           if (destDist > 80) {
             legs.push(
-              destDist <= 1200
+              destDist <= 1000
                 ? buildWalkLeg(nDest, dest)
                 : buildBykeaLeg(nDest, dest)
             );
@@ -344,72 +376,91 @@ export function planJourney(
     }
   }
 
-  // 3. 2-leg Multimodal Transit Transfers (Connecting through transit hubs)
-  // Limit to closest 4 origins and closest 4 dests for fast execution
-  const topOrigins = nearbyOrigins.slice(0, 4).map((o) => o.stop);
-  const topDests = nearbyDests.slice(0, 4).map((d) => d.stop);
+  // 3. 2-leg Multimodal Transit Transfers (Only for medium-to-long trips > 2.5km)
+  if (directDistance > 2500) {
+    const topOrigins = nearbyOrigins.slice(0, 3).map((o) => o.stop);
+    const topDests = nearbyDests.slice(0, 3).map((d) => d.stop);
 
-  for (const startStop of topOrigins) {
-    for (const route1 of candidateRoutes) {
-      const idx1 = route1.stops.indexOf(startStop.id);
-      if (idx1 === -1) continue;
+    for (const startStop of topOrigins) {
+      if (calculateDistanceMeters(startStop.lat, startStop.lng, dest.lat, dest.lng) > directDistance + 300) {
+        continue;
+      }
 
-      // Check key transfer points along route1 in both directions
-      for (let t = 0; t < route1.stops.length; t++) {
-        if (t === idx1) continue;
-        const transferStopId = route1.stops[t];
-        const transferStop = getStop(transferStopId);
-        if (!transferStop) continue;
+      for (const route1 of candidateRoutes) {
+        const idx1 = route1.stops.indexOf(startStop.id);
+        if (idx1 === -1) continue;
 
-        const transferNearby = findNearbyStops(transferStop.lat, transferStop.lng, 600);
+        for (let t = 0; t < route1.stops.length; t++) {
+          if (t === idx1) continue;
+          const transferStopId = route1.stops[t];
+          const transferStop = getStop(transferStopId);
+          if (!transferStop) continue;
 
-        for (const { stop: t2Stop, distanceMeters: tWalkDist } of transferNearby) {
-          for (const route2 of candidateRoutes) {
-            if (route1.id === route2.id) continue;
-            const idx2 = route2.stops.indexOf(t2Stop.id);
-            if (idx2 === -1) continue;
+          // Transfer stop must be moving in destination direction
+          if (calculateDistanceMeters(transferStop.lat, transferStop.lng, dest.lat, dest.lng) > directDistance * 1.1) {
+            continue;
+          }
 
-            for (const endStop of topDests) {
-              const destIdx = route2.stops.indexOf(endStop.id);
-              if (destIdx !== -1 && destIdx !== idx2) {
-                const legs: TripLeg[] = [];
+          const transferNearby = findNearbyStops(transferStop.lat, transferStop.lng, 500);
 
-                const initWalk = calculateDistanceMeters(origin.lat, origin.lng, startStop.lat, startStop.lng);
-                if (initWalk > 80) {
-                  legs.push(
-                    initWalk <= 1200
-                      ? buildWalkLeg(origin, startStop)
-                      : buildBykeaLeg(origin, startStop)
+          for (const { stop: t2Stop, distanceMeters: tWalkDist } of transferNearby) {
+            for (const route2 of candidateRoutes) {
+              if (route1.id === route2.id) continue;
+              const idx2 = route2.stops.indexOf(t2Stop.id);
+              if (idx2 === -1) continue;
+
+              for (const endStop of topDests) {
+                const destIdx = route2.stops.indexOf(endStop.id);
+                if (destIdx !== -1 && destIdx !== idx2) {
+                  // End stop must be closer to destination than transfer was
+                  if (calculateDistanceMeters(endStop.lat, endStop.lng, dest.lat, dest.lng) >= directDistance * 0.8) {
+                    continue;
+                  }
+
+                  const legs: TripLeg[] = [];
+                  const initWalk = calculateDistanceMeters(origin.lat, origin.lng, startStop.lat, startStop.lng);
+                  if (initWalk > 80) {
+                    legs.push(
+                      initWalk <= 1000
+                        ? buildWalkLeg(origin, startStop)
+                        : buildBykeaLeg(origin, startStop)
+                    );
+                  }
+
+                  legs.push(buildTransitLeg(route1, startStop, transferStop, idx1, t));
+
+                  if (tWalkDist > 80) {
+                    legs.push(buildWalkLeg(transferStop, t2Stop));
+                  }
+
+                  legs.push(buildTransitLeg(route2, t2Stop, endStop, idx2, destIdx));
+
+                  const finalWalk = calculateDistanceMeters(endStop.lat, endStop.lng, dest.lat, dest.lng);
+                  if (finalWalk > 80) {
+                    legs.push(
+                      finalWalk <= 1000
+                        ? buildWalkLeg(endStop, dest)
+                        : buildBykeaLeg(endStop, dest)
+                    );
+                  }
+
+                  // Detour check for transfer
+                  const totalDistMeters = legs.reduce((acc, l) => acc + l.distanceMeters, 0);
+                  if (directDistance < 5000 && totalDistMeters > directDistance * 2.2) {
+                    continue;
+                  }
+
+                  plans.push(
+                    createTripPlan(
+                      `plan-transfer-${route1.id}-${route2.id}-${transferStop.id}`,
+                      `${route1.code} ➔ ${route2.code}`,
+                      `${route1.code} ➔ ${route2.code}`,
+                      'RECOMMENDED',
+                      'تجویز کردہ',
+                      legs
+                    )
                   );
                 }
-
-                legs.push(buildTransitLeg(route1, startStop, transferStop, idx1, t));
-
-                if (tWalkDist > 80) {
-                  legs.push(buildWalkLeg(transferStop, t2Stop));
-                }
-
-                legs.push(buildTransitLeg(route2, t2Stop, endStop, idx2, destIdx));
-
-                const finalWalk = calculateDistanceMeters(endStop.lat, endStop.lng, dest.lat, dest.lng);
-                if (finalWalk > 80) {
-                  legs.push(
-                    finalWalk <= 1200
-                      ? buildWalkLeg(endStop, dest)
-                      : buildBykeaLeg(endStop, dest)
-                  );
-                }
-
-                plans.push(
-                  createTripPlan(
-                    `plan-transfer-${route1.id}-${route2.id}-${transferStop.id}`,
-                    `${route1.code} ➔ ${route2.code}`,
-                    `${route1.code} ➔ ${route2.code}`,
-                    'RECOMMENDED',
-                    'تجویز کردہ',
-                    legs
-                  )
-                );
               }
             }
           }
@@ -418,27 +469,29 @@ export function planJourney(
     }
   }
 
-  // 4. Bykea First-Mile / Last-Mile Fallback if stops > 1200m
-  const closestToOrigin = findClosestStop(origin.lat, origin.lng);
-  if (closestToOrigin.distanceMeters > 1200) {
-    const hubStop = closestToOrigin.stop;
-    const bykeaLeg = buildBykeaLeg(origin, hubStop);
+  // 4. Bykea First-Mile / Last-Mile Fallback for long-distance origin gaps
+  if (directDistance > 3000) {
+    const closestToOrigin = findClosestStop(origin.lat, origin.lng);
+    if (closestToOrigin.distanceMeters > 1200) {
+      const hubStop = closestToOrigin.stop;
+      const bykeaLeg = buildBykeaLeg(origin, hubStop);
 
-    for (const route of candidateRoutes) {
-      const fromIdx = route.stops.indexOf(hubStop.id);
-      const toIdx = route.stops.indexOf(dest.id);
-      if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
-        const transitLeg = buildTransitLeg(route, hubStop, dest, fromIdx, toIdx);
-        plans.push(
-          createTripPlan(
-            `plan-bykea-${hubStop.id}-${route.id}`,
-            `Ride Feeder + ${route.code}`,
-            `رائیڈ + ${route.code}`,
-            'RECOMMENDED',
-            'تجویز کردہ',
-            [bykeaLeg, transitLeg]
-          )
-        );
+      for (const route of candidateRoutes) {
+        const fromIdx = route.stops.indexOf(hubStop.id);
+        const toIdx = route.stops.indexOf(dest.id);
+        if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
+          const transitLeg = buildTransitLeg(route, hubStop, dest, fromIdx, toIdx);
+          plans.push(
+            createTripPlan(
+              `plan-bykea-${hubStop.id}-${route.id}`,
+              `Ride Feeder + ${route.code}`,
+              `رائیڈ + ${route.code}`,
+              'RECOMMENDED',
+              'تجویز کردہ',
+              [bykeaLeg, transitLeg]
+            )
+          );
+        }
       }
     }
   }
