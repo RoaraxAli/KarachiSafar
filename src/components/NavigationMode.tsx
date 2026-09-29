@@ -30,7 +30,6 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit, la
 
   // Handle advancing to next stop
   const handleAdvanceStop = () => {
-    // Play subtle audio alert simulation
     if ('speechSynthesis' in window && lang === 'ur') {
       try {
         const utterance = new SpeechSynthesisUtterance(`اگلا اسٹاپ: ${nextStop.urduName}`);
@@ -41,13 +40,12 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit, la
       }
     }
 
-    setAudioFeedback(`🔔 Next Stop: ${nextStop.name}`);
+    setAudioFeedback(`Next Stop: ${nextStop.name}`);
     setTimeout(() => setAudioFeedback(null), 2500);
 
     if (!isLastStopInLeg) {
       setCurrentStopIndex((prev) => prev + 1);
     } else {
-      // Advance to next leg or complete journey
       if (!isFinalLeg) {
         setCurrentLegIndex((prev) => prev + 1);
         setCurrentStopIndex(0);
@@ -60,13 +58,13 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit, la
   const getLegBadge = (mode: string) => {
     switch (mode) {
       case 'CHINGCHI':
-        return '🛺 6-Seater Chingchi';
+        return '🛺 Qingqi';
       case 'BRT':
         return '🟢 Green Line BRT';
       case 'RED_BUS':
-        return '🔴 Peoples Red Bus';
+        return '🔴 Red Bus';
       case 'EV_BUS':
-        return '⚡ Electric EV Bus';
+        return '⚡ EV Bus';
       case 'LOCAL_BUS':
         return '🚌 Minibus';
       case 'WALK':
@@ -78,42 +76,42 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit, la
 
   if (hasArrived) {
     return (
-      <div className="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
-        <div className="bg-slate-900 border border-emerald-500/50 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-5 shadow-2xl">
-          <div className="w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center text-4xl border border-emerald-400/40">
-            🎉
+      <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-xl">
+          <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 mx-auto flex items-center justify-center text-3xl border border-blue-200">
+            ✓
           </div>
           <div>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-              {lang === 'ur' ? 'سفر مکمل!' : 'Journey Completed!'}
+            <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+              {lang === 'ur' ? 'سفر مکمل!' : 'Journey Completed'}
             </span>
-            <h2 className="text-2xl font-black text-white mt-2">
-              {lang === 'ur' ? 'منزل پر خوش آمدید' : 'You have arrived!'}
+            <h2 className="text-xl font-bold text-slate-900 mt-2">
+              {lang === 'ur' ? 'منزل پر آمد' : 'Arrived at Destination'}
             </h2>
-            <p className="text-sm text-slate-300 mt-1">
+            <p className="text-sm font-semibold text-slate-700 mt-1">
               {plan.legs[plan.legs.length - 1].toStop.name}
             </p>
-            <p className="text-xs text-slate-400 urdu-font">
+            <p className="text-xs text-slate-500 urdu-font">
               {plan.legs[plan.legs.length - 1].toStop.urduName}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-slate-800/80 border border-slate-700 text-xs">
+          <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
             <div>
-              <div className="text-slate-400">Total Duration</div>
-              <div className="text-lg font-bold text-white">{plan.totalDurationMinutes} mins</div>
+              <div className="text-slate-500">Duration</div>
+              <div className="text-base font-bold text-slate-900">{plan.totalDurationMinutes} mins</div>
             </div>
             <div>
-              <div className="text-slate-400">Total Fare</div>
-              <div className="text-lg font-bold text-emerald-400">Rs. {plan.totalFarePKR}</div>
+              <div className="text-slate-500">Distance</div>
+              <div className="text-base font-bold text-slate-900">{plan.totalDistanceKm} km</div>
             </div>
           </div>
 
           <button
             onClick={onExit}
-            className="w-full py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition cursor-pointer shadow-lg shadow-emerald-950/40"
+            className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition cursor-pointer shadow-sm"
           >
-            {lang === 'ur' ? 'نیویگیشن بند کریں' : 'Exit Navigation'}
+            {lang === 'ur' ? 'بند کریں' : 'Close Navigation'}
           </button>
         </div>
       </div>
@@ -121,21 +119,21 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit, la
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/95 flex flex-col justify-between p-3 sm:p-6 backdrop-blur-lg">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex flex-col justify-between p-3 sm:p-6">
       {/* Top Header Bar */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
-            <Navigation className="w-5 h-5 fill-current animate-pulse" />
+      <div className="max-w-2xl mx-auto w-full bg-white border border-slate-200 rounded-xl p-3 shadow-md flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+            <Navigation className="w-4 h-4 fill-current" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                {lang === 'ur' ? 'لائیو نیویگیشن موڈ' : 'Live Navigation Simulator'}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-900">
+                {lang === 'ur' ? 'لائیو سفر رہنمائی' : 'Live Transit Navigation'}
               </span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-blue-600" />
             </div>
-            <div className="text-xs text-slate-400">
+            <div className="text-[11px] text-slate-500">
               Leg {currentLegIndex + 1} of {plan.legs.length} • {getLegBadge(currentLeg.mode)}
             </div>
           </div>
@@ -143,98 +141,81 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit, la
 
         <button
           onClick={onExit}
-          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition cursor-pointer"
+          className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition cursor-pointer"
           title="Exit"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
       </div>
 
       {/* Center Guidance Cockpit */}
-      <div className="max-w-xl mx-auto w-full my-auto space-y-4">
+      <div className="max-w-lg mx-auto w-full my-auto space-y-3">
         {/* Next Stop Announcement Card */}
-        <div className="bg-gradient-to-b from-slate-900 to-slate-900/90 border-2 border-emerald-500/70 rounded-3xl p-6 sm:p-8 shadow-2xl text-center space-y-4 relative overflow-hidden">
-          {/* Subtle vehicle glow badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800 border border-slate-700 text-slate-200">
+        <div className="bg-white border-2 border-blue-600 rounded-2xl p-6 shadow-xl text-center space-y-3 relative">
+          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-bold bg-blue-50 border border-blue-200 text-blue-700">
             <span>{currentLeg.routeCode || currentLeg.mode}</span>
-            <span className="text-slate-500">•</span>
-            <span>{currentLeg.durationMinutes} min leg</span>
           </div>
 
-          <div>
-            <div className="text-xs uppercase font-extrabold tracking-widest text-slate-400 mb-1">
-              {lang === 'ur' ? 'اگلا اسٹاپ' : 'Next Stop'}
+          {/* Current vs Next Stop Display */}
+          <div className="space-y-1">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              {lang === 'ur' ? 'اگلا اسٹاپ' : 'Approaching Next Stop'}
             </div>
-            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-              {nextStop.name}
-            </h2>
-            <div className="text-lg sm:text-2xl font-bold text-emerald-400 urdu-font mt-1">
-              {nextStop.urduName}
+            <div className="text-xl sm:text-2xl font-black text-slate-900">
+              {lang === 'ur' ? nextStop.urduName : nextStop.name}
             </div>
-            <div className="text-xs text-slate-400 mt-1">{nextStop.area}</div>
+            <div className="text-xs text-slate-500 font-medium">
+              {lang === 'ur' ? nextStop.name : nextStop.urduName} ({nextStop.area})
+            </div>
           </div>
 
-          {/* Leg Instruction */}
-          <div className="p-3 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-xs text-slate-200 leading-relaxed text-left">
-            <div className="font-semibold text-emerald-400 mb-0.5">
-              {lang === 'ur' ? 'ہدایات:' : 'Current Step Instruction:'}
+          {/* Audio Feedback toast */}
+          {audioFeedback && (
+            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold animate-pulse border border-blue-200">
+              <Volume2 className="w-3.5 h-3.5" />
+              <span>{audioFeedback}</span>
             </div>
-            <div>{lang === 'ur' ? currentLeg.urduInstruction : currentLeg.instruction}</div>
-          </div>
+          )}
 
-          {/* Stop Progress Bar */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono">
-              <span>Current: {currentStop.name}</span>
-              <span>
+          {/* Stop Progress Tracker inside current leg */}
+          <div className="pt-2">
+            <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+              <span>{currentStop.name}</span>
+              <span className="font-semibold text-blue-600">
                 Stop {currentStopIndex + 1} of {legStops.length}
               </span>
+              <span>{currentLeg.toStop.name}</span>
             </div>
-            <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden border border-slate-700">
+            <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
               <div
-                className="bg-emerald-500 h-full transition-all duration-500"
+                className="bg-blue-600 h-full transition-all duration-300 rounded-full"
                 style={{
                   width: `${((currentStopIndex + 1) / legStops.length) * 100}%`,
                 }}
               />
             </div>
           </div>
+        </div>
 
-          {/* Audio Chime Notification banner */}
-          {audioFeedback && (
-            <div className="absolute top-2 left-4 right-4 bg-emerald-600 text-white font-bold text-xs py-1.5 px-3 rounded-xl shadow-lg flex items-center justify-center gap-1.5 animate-bounce">
-              <Volume2 className="w-4 h-4" />
-              <span>{audioFeedback}</span>
-            </div>
-          )}
+        {/* Action Controls */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleAdvanceStop}
+            className="flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md transition cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>{isLastStopInLeg && isFinalLeg ? (lang === 'ur' ? 'سفر ختم کریں' : 'Complete Trip') : (lang === 'ur' ? 'اگلے اسٹاپ پر جائیں' : 'Advance to Next Stop')}</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
-      {/* Bottom Controls */}
-      <div className="max-w-xl mx-auto w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
-        <button
-          onClick={handleAdvanceStop}
-          className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition cursor-pointer"
-        >
-          <span>
-            {isLastStopInLeg
-              ? isFinalLeg
-                ? lang === 'ur'
-                  ? 'منزل پر پہنچ گئے 🏁'
-                  : 'Arrive at Final Destination 🏁'
-                : lang === 'ur'
-                ? 'اگلی بس / چنگچی میں تبدیل کریں ➔'
-                : 'Transfer to Next Leg ➔'
-              : lang === 'ur'
-              ? 'اگلے اسٹاپ پر جائیں ➔'
-              : 'Next Stop Approached ➔'}
-          </span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
-
-        <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-          <span>Total Fare: Rs. {plan.totalFarePKR}</span>
-          <span>{plan.legs.length - currentLegIndex} legs remaining</span>
+      {/* Bottom Summary Bar */}
+      <div className="max-w-2xl mx-auto w-full bg-white border border-slate-200 rounded-xl p-3 shadow-md flex items-center justify-between text-xs text-slate-600">
+        <div>
+          <span className="font-semibold text-slate-900">{plan.title}</span>
+        </div>
+        <div className="font-mono text-slate-600">
+          {plan.totalDurationMinutes} mins • {plan.totalDistanceKm} km
         </div>
       </div>
     </div>

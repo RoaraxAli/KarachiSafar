@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Bus, Eye, Clock, Banknote, Shield } from 'lucide-react';
+import { Search, Bus, Eye, Clock, Shield, ArrowLeft } from 'lucide-react';
 import { ROUTES, STOPS } from '../data/transitData';
 import type { TransitRoute, TransitMode } from '../types/transit';
 
@@ -23,6 +23,7 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
   const [selectedRouteInternal, setSelectedRouteInternal] = useState<TransitRoute | null>(
     ROUTES.find((r) => r.id === selectedRouteId) || ROUTES[0]
   );
+  const [activeView, setActiveView] = useState<'LIST' | 'DETAIL'>('LIST');
 
   const filteredRoutes = useMemo(() => {
     return ROUTES.filter((r) => {
@@ -38,8 +39,6 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
     });
   }, [search, categoryFilter]);
 
-  const [activeView, setActiveView] = useState<'LIST' | 'DETAIL'>('LIST');
-
   const handleRouteClick = (route: TransitRoute) => {
     setSelectedRouteInternal(route);
     onSelectRoute(route);
@@ -49,7 +48,7 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
   const getModeLabel = (mode: TransitMode) => {
     switch (mode) {
       case 'CHINGCHI':
-        return '🛺 6-Seater Chingchi';
+        return '🛺 Qingqi Feeder';
       case 'BRT':
         return '🟢 Green Line BRT';
       case 'RED_BUS':
@@ -75,200 +74,169 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Header and Search */}
-      <div className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700 backdrop-blur-md">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-          <div>
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Bus className="w-5 h-5 text-emerald-400" />
-              <span>{lang === 'ur' ? 'کراچی ٹرانسپورٹ روٹ ڈائریکٹری' : 'Karachi Transit Routes Directory'}</span>
+      <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Bus className="w-4 h-4 text-blue-600" />
+            <h2 className="text-sm font-bold text-slate-900">
+              {lang === 'ur' ? 'روٹ ڈائریکٹری' : 'Transit Routes Directory'}
             </h2>
-            <p className="text-xs text-slate-400">
-              {lang === 'ur'
-                ? `${counts.ALL} تصدیق شدہ روٹس: ${counts.CHINGCHI} چنگچی کوریڈورز، بی آر ٹی، ریڈ بس، ای وی اور روایتی منی بسیں`
-                : `${counts.ALL} Verified Routes: ${counts.CHINGCHI} Qingqi Feeders, Green Line BRT, Red Bus, Electric Bus & Iconic Minibuses`}
-            </p>
           </div>
-
-          {/* Quick Stats Pill */}
-          <div className="flex items-center gap-2 text-xs">
-            <span className="px-2.5 py-1 rounded-full bg-slate-900 text-emerald-400 font-bold border border-slate-700">
-              {filteredRoutes.length} Routes
-            </span>
-          </div>
+          <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+            {filteredRoutes.length} Routes
+          </span>
         </div>
 
         {/* Search input */}
-        <div className="relative mb-3">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+        <div className="relative">
+          <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={
               lang === 'ur'
-                ? 'روٹ کوڈ یا اسٹاپ تلاش کریں (مثلاً W-11، A-18، K-18، R-4، ناگن)...'
-                : 'Search by route code, name, or stop (e.g. W-11, A-18, K-18, R-4, Nagan)...'
+                ? 'روٹ کوڈ یا اسٹاپ تلاش کریں (مثلاً W-11، A-18، R-4)...'
+                : 'Search route code or stop (e.g. W-11, A-18, R-4)...'
             }
-            className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+            className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600"
           />
         </div>
 
         {/* Category Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
           <button
             onClick={() => setCategoryFilter('ALL')}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap border transition cursor-pointer ${
+            className={`px-2.5 py-1 rounded text-[11px] font-semibold border transition cursor-pointer whitespace-nowrap ${
               categoryFilter === 'ALL'
-                ? 'bg-white text-slate-900 border-white'
-                : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
             }`}
           >
             All ({counts.ALL})
           </button>
           <button
             onClick={() => setCategoryFilter('CHINGCHI')}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap border transition cursor-pointer ${
+            className={`px-2.5 py-1 rounded text-[11px] font-semibold border transition cursor-pointer whitespace-nowrap ${
               categoryFilter === 'CHINGCHI'
-                ? 'bg-purple-600 text-white border-purple-400'
-                : 'bg-slate-900 text-purple-300 border-slate-700 hover:bg-slate-800'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
             }`}
           >
-            🛺 Chingchi ({counts.CHINGCHI})
+            🛺 Qingqi ({counts.CHINGCHI})
           </button>
           <button
             onClick={() => setCategoryFilter('BRT')}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap border transition cursor-pointer ${
+            className={`px-2.5 py-1 rounded text-[11px] font-semibold border transition cursor-pointer whitespace-nowrap ${
               categoryFilter === 'BRT'
-                ? 'bg-emerald-600 text-white border-emerald-400'
-                : 'bg-slate-900 text-emerald-300 border-slate-700 hover:bg-slate-800'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
             }`}
           >
-            🟢 Green Line BRT ({counts.BRT})
+            🟢 BRT ({counts.BRT})
           </button>
           <button
             onClick={() => setCategoryFilter('RED_BUS')}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap border transition cursor-pointer ${
+            className={`px-2.5 py-1 rounded text-[11px] font-semibold border transition cursor-pointer whitespace-nowrap ${
               categoryFilter === 'RED_BUS'
-                ? 'bg-red-600 text-white border-red-400'
-                : 'bg-slate-900 text-red-300 border-slate-700 hover:bg-slate-800'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
             }`}
           >
-            🔴 Red Bus PBS ({counts.RED_BUS})
+            🔴 Red Bus ({counts.RED_BUS})
           </button>
           <button
             onClick={() => setCategoryFilter('EV_BUS')}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap border transition cursor-pointer ${
+            className={`px-2.5 py-1 rounded text-[11px] font-semibold border transition cursor-pointer whitespace-nowrap ${
               categoryFilter === 'EV_BUS'
-                ? 'bg-cyan-600 text-white border-cyan-400'
-                : 'bg-slate-900 text-cyan-300 border-slate-700 hover:bg-slate-800'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
             }`}
           >
-            ⚡ Electric EV ({counts.EV_BUS})
+            ⚡ EV ({counts.EV_BUS})
           </button>
           <button
             onClick={() => setCategoryFilter('LOCAL_BUS')}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap border transition cursor-pointer ${
+            className={`px-2.5 py-1 rounded text-[11px] font-semibold border transition cursor-pointer whitespace-nowrap ${
               categoryFilter === 'LOCAL_BUS'
-                ? 'bg-amber-600 text-white border-amber-400'
-                : 'bg-slate-900 text-amber-300 border-slate-700 hover:bg-slate-800'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
             }`}
           >
-            🚌 Minibuses & Coaches ({counts.LOCAL_BUS})
+            🚌 Minibuses ({counts.LOCAL_BUS})
           </button>
-        </div>
-
-        {/* Regulatory Chingchi Tip */}
-        <div className="mt-3 px-3 py-2 rounded-xl bg-purple-950/20 border border-purple-800/30 text-[11px] text-purple-200/90 flex items-center justify-between gap-2">
-          <span>
-            {lang === 'ur'
-              ? '💡 معلوماتی نوٹ: سفر پلانر میں چنگچی رکشے حکومتی بندش اور حفاظتی وجوہات کی بنا پر پہلے سے بند (OFF) ہیں۔ آپ سرچ فارم میں "چنگچی شامل کریں" ٹوگل آن کر کے استعمال کر سکتے ہیں۔'
-              : '💡 Note on Qingqi Routing: In the Journey Planner, Chingchis are OFF by default due to periodic municipal crackdowns & safety bans. Enable the "Include Chingchi" toggle in the search bar to route via them.'}
-          </span>
         </div>
       </div>
 
       {/* Content: Either Detail View or List View */}
       {activeView === 'DETAIL' && selectedRouteInternal ? (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {/* Back button */}
           <button
             onClick={() => setActiveView('LIST')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition cursor-pointer"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 border border-slate-200 shadow-sm transition cursor-pointer"
           >
-            <span>← {lang === 'ur' ? 'روٹس کی فہرست پر واپس جائیں' : 'Back to Routes List'}</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>{lang === 'ur' ? 'روٹس کی فہرست' : 'Back to Routes List'}</span>
           </button>
 
           {/* Selected Route Detail */}
-          <div className="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 shadow-xl space-y-3">
+          <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm space-y-2.5">
             {/* Route Heading */}
-            <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-2.5">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span
-                    className="px-2.5 py-0.5 rounded text-xs font-extrabold text-white"
-                    style={{ backgroundColor: selectedRouteInternal.color }}
-                  >
-                    {selectedRouteInternal.code}
-                  </span>
-                  <span className="text-xs font-semibold text-slate-300">
-                    {getModeLabel(selectedRouteInternal.category)}
-                  </span>
-                </div>
-                <h3 className="text-sm sm:text-base font-bold text-white">
-                  {lang === 'ur' ? selectedRouteInternal.urduName : selectedRouteInternal.name}
-                </h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  {lang === 'ur'
-                    ? selectedRouteInternal.urduDescription
-                    : selectedRouteInternal.description}
-                </p>
+            <div className="border-b border-slate-100 pb-2">
+              <div className="flex items-center gap-2 mb-1">
+                <span
+                  className="px-2 py-0.5 rounded text-xs font-bold text-white shadow-sm"
+                  style={{ backgroundColor: selectedRouteInternal.color }}
+                >
+                  {selectedRouteInternal.code}
+                </span>
+                <span className="text-xs font-semibold text-slate-600">
+                  {getModeLabel(selectedRouteInternal.category)}
+                </span>
               </div>
+              <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                {lang === 'ur' ? selectedRouteInternal.urduName : selectedRouteInternal.name}
+              </h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                {lang === 'ur'
+                  ? selectedRouteInternal.urduDescription
+                  : selectedRouteInternal.description}
+              </p>
             </div>
 
-            {/* Route Attributes */}
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="bg-slate-800/80 p-2 rounded-xl border border-slate-700/60">
-                <div className="text-slate-400 flex items-center gap-1 mb-0.5">
-                  <Banknote className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Fare</span>
+            {/* Route Attributes (Fares removed) */}
+            <div className="grid grid-cols-3 gap-1.5 text-xs">
+              <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                <div className="text-slate-500 flex items-center gap-1 mb-0.5 text-[10px]">
+                  <Clock className="w-3 h-3 text-blue-600" />
+                  <span>Headway</span>
                 </div>
-                <div className="font-bold text-white text-xs sm:text-sm">
-                  Rs. {typeof selectedRouteInternal.fare === 'number'
-                    ? selectedRouteInternal.fare
-                    : `${selectedRouteInternal.fare.min} - ${selectedRouteInternal.fare.max}`}
-                </div>
-              </div>
-
-              <div className="bg-slate-800/80 p-2 rounded-xl border border-slate-700/60">
-                <div className="text-slate-400 flex items-center gap-1 mb-0.5">
-                  <Clock className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Frequency</span>
-                </div>
-                <div className="font-bold text-white text-xs sm:text-sm">
+                <div className="font-bold text-slate-900 text-xs">
                   {typeof selectedRouteInternal.intervalMinutes === 'number'
-                    ? `${selectedRouteInternal.intervalMinutes} mins`
-                    : `${selectedRouteInternal.intervalMinutes.min}-${selectedRouteInternal.intervalMinutes.max} mins`}
+                    ? `${selectedRouteInternal.intervalMinutes}m`
+                    : `${selectedRouteInternal.intervalMinutes.min}-${selectedRouteInternal.intervalMinutes.max}m`}
                 </div>
               </div>
 
-              <div className="bg-slate-800/80 p-2 rounded-xl border border-slate-700/60">
-                <div className="text-slate-400 flex items-center gap-1 mb-0.5">
-                  <Shield className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Type</span>
+              <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                <div className="text-slate-500 flex items-center gap-1 mb-0.5 text-[10px]">
+                  <Shield className="w-3 h-3 text-blue-600" />
+                  <span>Fleet</span>
                 </div>
-                <div className="font-bold text-white text-xs">
-                  {selectedRouteInternal.comfort === 'AC' ? 'Air-Conditioned ❄️' : 'Regular Open-Air'}
+                <div className="font-bold text-slate-900 text-xs truncate">
+                  {selectedRouteInternal.comfort === 'AC' ? 'AC ❄️' : 'Regular'}
                 </div>
               </div>
 
-              <div className="bg-slate-800/80 p-2 rounded-xl border border-slate-700/60">
-                <div className="text-slate-400 flex items-center gap-1 mb-0.5">
-                  <Clock className="w-3.5 h-3.5 text-purple-400" />
+              <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                <div className="text-slate-500 flex items-center gap-1 mb-0.5 text-[10px]">
+                  <Clock className="w-3 h-3 text-blue-600" />
                   <span>Hours</span>
                 </div>
-                <div className="font-bold text-white text-xs truncate">
+                <div className="font-bold text-slate-900 text-xs truncate">
                   {selectedRouteInternal.operatingHours}
                 </div>
               </div>
@@ -276,40 +244,40 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
 
             {/* Stop Sequence */}
             <div>
-              <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                Stops ({selectedRouteInternal.stops.length})
-              </h4>
-              <div className="space-y-1 max-h-72 overflow-y-auto pr-1">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                Stop Sequence ({selectedRouteInternal.stops.length} Stops)
+              </div>
+              <div className="space-y-1 max-h-72 overflow-y-auto pr-0.5">
                 {selectedRouteInternal.stops.map((stopId, sIdx) => {
                   const stop = STOPS[stopId];
                   if (!stop) return null;
                   return (
                     <div
                       key={stopId}
-                      className="p-1.5 rounded-lg bg-slate-800/60 border border-slate-700/50 flex items-center justify-between text-xs hover:border-slate-600 transition"
+                      className="p-1.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-xs hover:border-blue-300 transition"
                     >
                       <div className="flex items-center gap-2 overflow-hidden">
-                        <span className="w-4 h-4 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0">
+                        <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0">
                           {sIdx + 1}
                         </span>
                         <div className="truncate">
-                          <span className="font-medium text-white text-xs">
+                          <span className="font-medium text-slate-900 text-xs">
                             {lang === 'ur' ? stop.urduName : stop.name}
                           </span>
-                          <span className="text-[10px] text-slate-400 ml-1">({stop.area})</span>
+                          <span className="text-[10px] text-slate-500 ml-1">({stop.area})</span>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-1 flex-shrink-0">
                         <button
                           onClick={() => onSetAsOrigin(stop.id)}
-                          className="px-1.5 py-0.5 rounded bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 font-medium text-[9px] transition cursor-pointer"
+                          className="px-1.5 py-0.5 rounded bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white font-medium text-[10px] transition cursor-pointer"
                         >
                           From
                         </button>
                         <button
                           onClick={() => onSetAsDestination(stop.id)}
-                          className="px-1.5 py-0.5 rounded bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white font-medium text-[9px] transition cursor-pointer"
+                          className="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-red-600 text-slate-700 hover:text-white font-medium text-[10px] transition cursor-pointer"
                         >
                           To
                         </button>
@@ -323,7 +291,7 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
         </div>
       ) : (
         /* Route List View */
-        <div className="space-y-1.5 max-h-[calc(100vh-280px)] overflow-y-auto pr-1">
+        <div className="space-y-1.5 max-h-[calc(100vh-250px)] overflow-y-auto pr-0.5">
           {filteredRoutes.map((route) => {
             const isSelected = selectedRouteInternal?.id === route.id;
             return (
@@ -332,8 +300,8 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
                 onClick={() => handleRouteClick(route)}
                 className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-slate-800 border-emerald-500 shadow-md ring-1 ring-emerald-500/30'
-                    : 'bg-slate-800/60 border-slate-700/80 hover:bg-slate-800/90'
+                    ? 'bg-blue-50/40 border-blue-600 shadow-sm'
+                    : 'bg-white border-slate-200 hover:border-blue-300 hover:shadow-sm'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
@@ -343,18 +311,18 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
                   >
                     {route.code}
                   </span>
-                  <span className="text-[11px] font-mono text-slate-400">
-                    Rs. {typeof route.fare === 'number' ? route.fare : `${route.fare.min}-${route.fare.max}`}
+                  <span className="text-[10px] font-semibold text-slate-500">
+                    {getModeLabel(route.category)}
                   </span>
                 </div>
 
-                <div className="font-semibold text-xs sm:text-sm text-slate-100 line-clamp-1">
+                <div className="font-semibold text-xs sm:text-sm text-slate-900 line-clamp-1">
                   {lang === 'ur' ? route.urduName : route.name}
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1">
+                <div className="flex items-center justify-between text-[11px] text-slate-500 mt-1">
                   <span>{route.stops.length} stops</span>
-                  <span className="flex items-center gap-1 text-emerald-400 font-medium text-[11px]">
+                  <span className="flex items-center gap-1 text-blue-600 font-medium text-[11px]">
                     <Eye className="w-3 h-3" />
                     <span>Plot on map</span>
                   </span>

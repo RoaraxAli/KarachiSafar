@@ -25,7 +25,7 @@ export const MapView: React.FC<MapViewProps> = ({
   const mapInstanceRef = useRef<L.Map | null>(null);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
   const baseTileGroupRef = useRef<L.LayerGroup | null>(null);
-  const [mapStyle, setMapStyle] = useState<'DARK' | 'STREET'>('DARK');
+  const [mapStyle, setMapStyle] = useState<'DARK' | 'STREET'>('STREET');
   const [showAllCorridors, setShowAllCorridors] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -311,10 +311,10 @@ export const MapView: React.FC<MapViewProps> = ({
         {/* Network Overlay Toggle */}
         <button
           onClick={() => setShowAllCorridors(!showAllCorridors)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border shadow-lg backdrop-blur-md transition cursor-pointer ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border shadow-sm transition cursor-pointer ${
             showAllCorridors
-              ? 'bg-purple-600 text-white border-purple-400'
-              : 'bg-slate-900/90 text-slate-200 border-slate-700 hover:bg-slate-800'
+              ? 'bg-blue-600 text-white border-blue-600'
+              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
           }`}
           title="Toggle All Karachi Transit Corridors"
         >
@@ -325,7 +325,7 @@ export const MapView: React.FC<MapViewProps> = ({
         {/* Style Switcher (Dark vs OSM Streets - 0 API Key) */}
         <button
           onClick={() => setMapStyle(mapStyle === 'DARK' ? 'STREET' : 'DARK')}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border bg-slate-900/90 text-slate-200 border-slate-700 hover:bg-slate-800 shadow-lg backdrop-blur-md transition cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border bg-white text-slate-700 border-slate-200 hover:bg-slate-50 shadow-sm transition cursor-pointer"
           title="Switch Basemap Style (No API Key Required)"
         >
           <span>{mapStyle === 'DARK' ? '🗺️ Street Map' : '🌙 Dark Transit'}</span>
@@ -335,7 +335,7 @@ export const MapView: React.FC<MapViewProps> = ({
         {!className && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 shadow-lg backdrop-blur-md transition cursor-pointer"
+            className="p-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-sm transition cursor-pointer"
             title={isExpanded ? 'Minimize Map' : 'Expand Map'}
           >
             {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -344,30 +344,30 @@ export const MapView: React.FC<MapViewProps> = ({
       </div>
 
       {/* Legend Bar at Bottom of Map */}
-      <div className="absolute bottom-2 left-2 right-2 sm:right-auto z-[400] bg-slate-900/95 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800 shadow-xl text-[11px] flex items-center flex-wrap gap-x-3 gap-y-1">
+      <div className="absolute bottom-3 left-3 right-3 sm:right-auto z-[400] bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200 shadow-md text-[11px] flex items-center flex-wrap gap-x-3 gap-y-1 text-slate-700">
         <span className="font-bold text-slate-400 uppercase text-[10px]">Legend:</span>
-        <span className="flex items-center gap-1 text-purple-300">
+        <span className="flex items-center gap-1 text-purple-700 font-medium">
           <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
           <span>Chingchi</span>
         </span>
-        <span className="flex items-center gap-1 text-emerald-300">
+        <span className="flex items-center gap-1 text-emerald-700 font-medium">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
           <span>BRT Green</span>
         </span>
-        <span className="flex items-center gap-1 text-red-300">
+        <span className="flex items-center gap-1 text-red-700 font-medium">
           <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
           <span>Red Bus</span>
         </span>
-        <span className="flex items-center gap-1 text-cyan-300">
-          <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
+        <span className="flex items-center gap-1 text-cyan-700 font-medium">
+          <span className="w-2.5 h-2.5 rounded-full bg-cyan-500" />
           <span>EV Bus</span>
         </span>
-        <span className="flex items-center gap-1 text-amber-300">
+        <span className="flex items-center gap-1 text-amber-700 font-medium">
           <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-          <span>Minibus / Coach</span>
+          <span>Minibus</span>
         </span>
-        <span className="flex items-center gap-1 text-blue-300">
-          <span className="w-3 border-t-2 border-dashed border-blue-400" />
+        <span className="flex items-center gap-1 text-blue-700 font-medium">
+          <span className="w-3 border-t-2 border-dashed border-blue-500" />
           <span>Walk</span>
         </span>
       </div>
