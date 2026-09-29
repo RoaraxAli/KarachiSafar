@@ -4,17 +4,15 @@ import type { TransitStop, TransitRoute, TripPlan, TripLeg, TransitMode } from '
 // ==========================================
 // CONSTANTS & TRANSIT PERFORMANCE MODEL
 // ==========================================
-// Speeds in km/h
 export const MODE_SPEEDS: Record<TransitMode, number> = {
-  BRT: 42,        // Dedicated grade-separated rapid transit
+  BRT: 42,        // Dedicated grade-separated rapid transit corridor
   EV_BUS: 26,     // Electric transit bus
-  RED_BUS: 25,    // Standard city transit bus
-  LOCAL_BUS: 24,  // City coach
+  RED_BUS: 25,    // Peoples Red Bus
+  LOCAL_BUS: 24,  // Standard city transit
   WALK: 4.8,      // 80 meters/min walking speed
   BYKEA: 32,      // Motorbike ride-hailing
 };
 
-// Initial average waiting times at stop in minutes
 export const MODE_WAIT_TIMES: Record<TransitMode, number> = {
   BRT: 2.5,
   LOCAL_BUS: 3.0,
@@ -28,7 +26,7 @@ export const MODE_WAIT_TIMES: Record<TransitMode, number> = {
 // HAVERSINE DISTANCE HELPER
 // ==========================================
 export function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371; // Earth's radius in km
+  const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
@@ -45,8 +43,8 @@ export function calculateDistanceMeters(lat1: number, lon1: number, lat2: number
   return Math.round(calculateDistanceKm(lat1, lon1, lat2, lon2) * 1000);
 }
 
-// Find closest stops to any given coordinate
-export function findNearbyStops(lat: number, lng: number, maxDistanceMeters = 1000): { stop: TransitStop; distanceMeters: number }[] {
+// Find nearby stops with adaptive radius
+export function findNearbyStops(lat: number, lng: number, maxDistanceMeters = 1800): { stop: TransitStop; distanceMeters: number }[] {
   const results: { stop: TransitStop; distanceMeters: number }[] = [];
   for (const stop of Object.values(STOPS)) {
     const dist = calculateDistanceMeters(lat, lng, stop.lat, stop.lng);
@@ -57,7 +55,6 @@ export function findNearbyStops(lat: number, lng: number, maxDistanceMeters = 10
   return results.sort((a, b) => a.distanceMeters - b.distanceMeters);
 }
 
-// Find single closest stop
 export function findClosestStop(lat: number, lng: number): { stop: TransitStop; distanceMeters: number } {
   let closest: TransitStop = Object.values(STOPS)[0];
   let minDistance = Infinity;
@@ -74,7 +71,8 @@ export function findClosestStop(lat: number, lng: number): { stop: TransitStop; 
 }
 
 // ==========================================
-// ROUTE LEG BUILDER
+// BIDIRECTIONAL ROUTE LEG BUILDER
+// Supports both forward (0 -> n) and reverse (n -> 0) travel
 // ==========================================
 function buildTransitLeg(
   route: TransitRoute,
@@ -90,11 +88,14 @@ function buildTransitLeg(
   let prevStop: TransitStop = fromStop;
   polyline.push([fromStop.lat, fromStop.lng]);
 
-  for (let i = startIndex + 1; i <= endIndex; i++) {
+  const step = startIndex < endIndex ? 1 : -1;
+  const isForward = step > 0;
+
+  for (let i = startIndex + step; isForward ? i <= endIndex : i >= endIndex; i += step) {
     const stopId = route.stops[i];
     const stop = getStop(stopId);
     if (stop) {
-      if (i < endIndex) {
+      if (isForward ? i < endIndex : i > endIndex) {
         intermediateStops.push(stop);
       }
       polyline.push([stop.lat, stop.lng]);
@@ -103,12 +104,11 @@ function buildTransitLeg(
     }
   }
 
-  // Calculate realistic travel time based on mode speed and dwell times
-  const speed = MODE_SPEEDS[route.category];
+  const speed = MODE_SPEEDS[route.category] || 24;
   const runningTimeMinutes = (totalDistKm / speed) * 60;
   const dwellTimeMinutes = intermediateStops.length * (route.category === 'BRT' ? 0.5 : 0.7);
-  const waitTime = MODE_WAIT_TIMES[route.category];
-  const totalDurationMinutes = Math.max(2, Math.round(waitTime + runningTimeMinutes + dwellTimeMinutes));
+  const waitTime = MODE_WAIT_TIMES[route.category] || 4.0;
+  const totalDurationMinutes = Math.max(3, Math.round(waitTime + runningTimeMinutes + dwellTimeMinutes));
 
   let farePKR = typeof route.fare === 'number' ? route.fare : route.fare.min;
   if (typeof route.fare === 'object' && totalDistKm > 15) {
@@ -168,15 +168,15 @@ function buildBykeaLeg(fromStop: TransitStop, toStop: TransitStop): TripLeg {
   return {
     mode: 'BYKEA',
     color: '#059669',
-    vehicleType: 'Bykea Motorbike Ride',
+    vehicleType: 'Ride Link',
     fromStop,
     toStop,
     intermediateStops: [],
     distanceMeters: Math.round(distKm * 1000),
     durationMinutes,
     farePKR,
-    instruction: `Book ride from ${fromStop.name} to ${toStop.name} (${distKm.toFixed(1)} km).`,
-    urduInstruction: `${fromStop.urduName} سے رائیڈ لے کر ${toStop.urduName} جائیں۔`,
+    instruction: `Connect from ${fromStop.name} to ${toStop.name} (${distKm.toFixed(1)} km).`,
+    urduInstruction: `${fromStop.urduName} سے ${toStop.urduName} تک رابطہ کریں۔`,
     polyline: [
       [fromStop.lat, fromStop.lng],
       [toStop.lat, toStop.lng],
@@ -276,15 +276,15 @@ export function planJourney(
     return plans;
   }
 
-  // 1. Direct Routes on a single transit vehicle
+  // 1. Direct Routes on a single transit vehicle (Bidirectional!)
   for (const route of candidateRoutes) {
     const fromIdx = route.stops.indexOf(originStopId);
     const toIdx = route.stops.indexOf(destStopId);
-    if (fromIdx !== -1 && toIdx !== -1 && fromIdx < toIdx) {
+    if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
       const leg = buildTransitLeg(route, origin, dest, fromIdx, toIdx);
       plans.push(
         createTripPlan(
-          `plan-direct-${route.id}`,
+          `plan-direct-${route.id}-${fromIdx}-${toIdx}`,
           `Direct ${route.code} Route`,
           `براہِ راست ${route.code}`,
           'DIRECT',
@@ -295,29 +295,44 @@ export function planJourney(
     }
   }
 
-  // 2. Direct with Walk at Origin or Destination (<650m walk to nearby stop)
-  const nearbyOrigins = findNearbyStops(origin.lat, origin.lng, 650);
-  const nearbyDests = findNearbyStops(dest.lat, dest.lng, 650);
+  // 2. Direct with Walk at Origin or Destination (Adaptive radius up to 2000m)
+  const nearbyOrigins = findNearbyStops(origin.lat, origin.lng, 2000);
+  const nearbyDests = findNearbyStops(dest.lat, dest.lng, 2000);
 
   for (const { stop: nOrigin, distanceMeters: origDist } of nearbyOrigins) {
     for (const { stop: nDest, distanceMeters: destDist } of nearbyDests) {
       for (const route of candidateRoutes) {
         const fromIdx = route.stops.indexOf(nOrigin.id);
         const toIdx = route.stops.indexOf(nDest.id);
-        if (fromIdx !== -1 && toIdx !== -1 && fromIdx < toIdx) {
+        if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
           const legs: TripLeg[] = [];
           if (origDist > 80) {
-            legs.push(buildWalkLeg(origin, nOrigin));
+            legs.push(
+              origDist <= 1200
+                ? buildWalkLeg(origin, nOrigin)
+                : buildBykeaLeg(origin, nOrigin)
+            );
           }
           legs.push(buildTransitLeg(route, nOrigin, nDest, fromIdx, toIdx));
           if (destDist > 80) {
-            legs.push(buildWalkLeg(nDest, dest));
+            legs.push(
+              destDist <= 1200
+                ? buildWalkLeg(nDest, dest)
+                : buildBykeaLeg(nDest, dest)
+            );
+          }
+
+          let title = `Via ${route.code}`;
+          if (route.category === 'BRT') {
+            title = `Green Line BRT (${nOrigin.name} ➔ ${nDest.name})`;
+          } else {
+            title = `${route.code} (${nOrigin.name} ➔ ${nDest.name})`;
           }
 
           plans.push(
             createTripPlan(
               `plan-near-${route.id}-${nOrigin.id}-${nDest.id}`,
-              `${route.code} (${nOrigin.name} ➔ ${nDest.name})`,
+              title,
               `${route.code}`,
               'RECOMMENDED',
               'تجویز کردہ',
@@ -329,21 +344,24 @@ export function planJourney(
     }
   }
 
-  // 3. 2-leg Multimodal Transit Transfers
-  const candidateOrigins = nearbyOrigins.map((o) => o.stop);
-  const candidateDests = nearbyDests.map((d) => d.stop);
+  // 3. 2-leg Multimodal Transit Transfers (Connecting through transit hubs)
+  // Limit to closest 4 origins and closest 4 dests for fast execution
+  const topOrigins = nearbyOrigins.slice(0, 4).map((o) => o.stop);
+  const topDests = nearbyDests.slice(0, 4).map((d) => d.stop);
 
-  for (const startStop of candidateOrigins) {
+  for (const startStop of topOrigins) {
     for (const route1 of candidateRoutes) {
       const idx1 = route1.stops.indexOf(startStop.id);
       if (idx1 === -1) continue;
 
-      for (let t = idx1 + 1; t < route1.stops.length; t++) {
+      // Check key transfer points along route1 in both directions
+      for (let t = 0; t < route1.stops.length; t++) {
+        if (t === idx1) continue;
         const transferStopId = route1.stops[t];
         const transferStop = getStop(transferStopId);
         if (!transferStop) continue;
 
-        const transferNearby = findNearbyStops(transferStop.lat, transferStop.lng, 500);
+        const transferNearby = findNearbyStops(transferStop.lat, transferStop.lng, 600);
 
         for (const { stop: t2Stop, distanceMeters: tWalkDist } of transferNearby) {
           for (const route2 of candidateRoutes) {
@@ -351,14 +369,18 @@ export function planJourney(
             const idx2 = route2.stops.indexOf(t2Stop.id);
             if (idx2 === -1) continue;
 
-            for (const endStop of candidateDests) {
+            for (const endStop of topDests) {
               const destIdx = route2.stops.indexOf(endStop.id);
-              if (destIdx !== -1 && destIdx > idx2) {
+              if (destIdx !== -1 && destIdx !== idx2) {
                 const legs: TripLeg[] = [];
 
                 const initWalk = calculateDistanceMeters(origin.lat, origin.lng, startStop.lat, startStop.lng);
                 if (initWalk > 80) {
-                  legs.push(buildWalkLeg(origin, startStop));
+                  legs.push(
+                    initWalk <= 1200
+                      ? buildWalkLeg(origin, startStop)
+                      : buildBykeaLeg(origin, startStop)
+                  );
                 }
 
                 legs.push(buildTransitLeg(route1, startStop, transferStop, idx1, t));
@@ -371,7 +393,11 @@ export function planJourney(
 
                 const finalWalk = calculateDistanceMeters(endStop.lat, endStop.lng, dest.lat, dest.lng);
                 if (finalWalk > 80) {
-                  legs.push(buildWalkLeg(endStop, dest));
+                  legs.push(
+                    finalWalk <= 1200
+                      ? buildWalkLeg(endStop, dest)
+                      : buildBykeaLeg(endStop, dest)
+                  );
                 }
 
                 plans.push(
@@ -392,16 +418,16 @@ export function planJourney(
     }
   }
 
-  // 4. Bykea First-Mile / Last-Mile Fallback if stops >900m
+  // 4. Bykea First-Mile / Last-Mile Fallback if stops > 1200m
   const closestToOrigin = findClosestStop(origin.lat, origin.lng);
-  if (closestToOrigin.distanceMeters > 900) {
+  if (closestToOrigin.distanceMeters > 1200) {
     const hubStop = closestToOrigin.stop;
     const bykeaLeg = buildBykeaLeg(origin, hubStop);
 
     for (const route of candidateRoutes) {
       const fromIdx = route.stops.indexOf(hubStop.id);
       const toIdx = route.stops.indexOf(dest.id);
-      if (fromIdx !== -1 && toIdx !== -1 && fromIdx < toIdx) {
+      if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
         const transitLeg = buildTransitLeg(route, hubStop, dest, fromIdx, toIdx);
         plans.push(
           createTripPlan(
@@ -414,81 +440,6 @@ export function planJourney(
           )
         );
       }
-    }
-  }
-
-  // 5. Special Corridor: Buffer Zone / Nagan to Capri Cinema
-  const isBufferZone = origin.id === 'buffer-zone-15a' || origin.id === 'buffer-zone-16a' || origin.id === 'nagan-chowrangi';
-  const isCapriCinema = dest.id === 'capri-cinema' || dest.id === 'taj-complex' || dest.id === 'numaish-chowrangi';
-
-  if (isBufferZone && isCapriCinema) {
-    const nagan = getStop('nagan-chowrangi');
-    const capri = getStop('capri-cinema');
-
-    // Fastest Route: Green Line BRT Express (18 mins)
-    const brt = ROUTES.find((r) => r.id === 'GREEN-LINE-BRT');
-    if (brt && nagan && capri) {
-      const walkToNagan = buildWalkLeg(origin, nagan);
-      walkToNagan.distanceMeters = 400;
-      walkToNagan.durationMinutes = 5;
-      const legBRT = buildTransitLeg(brt, nagan, capri, brt.stops.indexOf('nagan-chowrangi'), brt.stops.indexOf('capri-cinema'));
-      legBRT.durationMinutes = 18;
-      legBRT.farePKR = 50;
-
-      plans.unshift(
-        createTripPlan(
-          'test-case-opt-brt-walk',
-          'Green Line BRT (Fastest Transit)',
-          'گرین لائن بی آر ٹی (تیز ترین)',
-          'FASTEST',
-          'تیز ترین',
-          origin.id === 'nagan-chowrangi' ? [legBRT] : [walkToNagan, legBRT]
-        )
-      );
-    }
-
-    // Direct Red Bus R-4
-    const r4 = ROUTES.find((r) => r.id === 'R-4');
-    if (r4 && nagan && capri) {
-      const walkToNagan = buildWalkLeg(origin, nagan);
-      walkToNagan.distanceMeters = 400;
-      walkToNagan.durationMinutes = 5;
-      const legRed = buildTransitLeg(r4, nagan, capri, r4.stops.indexOf('nagan-chowrangi'), r4.stops.indexOf('capri-cinema'));
-      legRed.durationMinutes = 33;
-      legRed.farePKR = 50;
-
-      plans.push(
-        createTripPlan(
-          'test-case-opt-2-redbus',
-          'Direct Red Bus R-4',
-          'براہِ راست بس آر-4',
-          'DIRECT',
-          'براہِ راست',
-          origin.id === 'nagan-chowrangi' ? [legRed] : [walkToNagan, legRed]
-        )
-      );
-    }
-
-    // Direct 5-C
-    const bus5c = ROUTES.find((r) => r.id === '5-C');
-    if (bus5c && nagan && capri) {
-      const walkToNagan = buildWalkLeg(origin, nagan);
-      walkToNagan.distanceMeters = 400;
-      walkToNagan.durationMinutes = 5;
-      const leg5c = buildTransitLeg(bus5c, nagan, capri, bus5c.stops.indexOf('nagan-chowrangi'), bus5c.stops.indexOf('capri-cinema'));
-      leg5c.durationMinutes = 32;
-      leg5c.farePKR = 35;
-
-      plans.push(
-        createTripPlan(
-          'test-case-opt-4-local',
-          'Direct 5-C Route',
-          'براہِ راست 5-سی',
-          'DIRECT',
-          'براہِ راست',
-          origin.id === 'nagan-chowrangi' ? [leg5c] : [walkToNagan, leg5c]
-        )
-      );
     }
   }
 

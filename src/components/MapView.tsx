@@ -265,19 +265,35 @@ export const MapView: React.FC<MapViewProps> = ({
         map.fitBounds(bounds, { padding: [40, 40] });
       }
     } else {
-      // Default: Origin and destination pins if selected
+      // Clean custom SVG pins for selected origin and destination
       const orig = STOPS[originStopId];
       const dst = STOPS[destStopId];
       if (orig) {
         bounds.extend([orig.lat, orig.lng]);
-        L.marker([orig.lat, orig.lng]).addTo(layerGroup).bindPopup(orig.name);
+        const origIcon = L.divIcon({
+          className: 'custom-stop-marker',
+          html: `<div style="background-color: #059669; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.4)">A</div>`,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
+        });
+        L.marker([orig.lat, orig.lng], { icon: origIcon })
+          .bindPopup(`<div style="font-weight: 700; font-size: 12px; color: #0f172a;">Origin: ${orig.name}</div>`)
+          .addTo(layerGroup);
       }
       if (dst) {
         bounds.extend([dst.lat, dst.lng]);
-        L.marker([dst.lat, dst.lng]).addTo(layerGroup).bindPopup(dst.name);
+        const dstIcon = L.divIcon({
+          className: 'custom-stop-marker',
+          html: `<div style="background-color: #dc2626; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: white; box-shadow: 0 2px 8px rgba(220,38,38,0.5)">🏁</div>`,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
+        });
+        L.marker([dst.lat, dst.lng], { icon: dstIcon })
+          .bindPopup(`<div style="font-weight: 700; font-size: 12px; color: #0f172a;">Destination: ${dst.name}</div>`)
+          .addTo(layerGroup);
       }
       if (bounds.isValid()) {
-        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+        map.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
       }
     }
   }, [selectedPlan, selectedRoute, showAllCorridors, originStopId, destStopId]);
