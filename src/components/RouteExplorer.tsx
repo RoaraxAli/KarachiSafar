@@ -60,6 +60,17 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
     }
   };
 
+  const counts = useMemo(() => {
+    return {
+      ALL: ROUTES.length,
+      CHINGCHI: ROUTES.filter((r) => r.category === 'CHINGCHI').length,
+      BRT: ROUTES.filter((r) => r.category === 'BRT').length,
+      RED_BUS: ROUTES.filter((r) => r.category === 'RED_BUS').length,
+      EV_BUS: ROUTES.filter((r) => r.category === 'EV_BUS').length,
+      LOCAL_BUS: ROUTES.filter((r) => r.category === 'LOCAL_BUS').length,
+    };
+  }, []);
+
   return (
     <div className="space-y-4">
       {/* Header and Search */}
@@ -72,8 +83,8 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
             </h2>
             <p className="text-xs text-slate-400">
               {lang === 'ur'
-                ? '54 تصدیق شدہ روٹس: چنگچی کوریڈورز، بی آر ٹی، ریڈ بس، ای وی اور روایتی منی بسیں'
-                : '54 Verified Routes: Chingchi Feeders, BRT, Red Bus, Electric Bus & Iconic Minibuses'}
+                ? `${counts.ALL} تصدیق شدہ روٹس: ${counts.CHINGCHI} چنگچی کوریڈورز، بی آر ٹی، ریڈ بس، ای وی اور روایتی منی بسیں`
+                : `${counts.ALL} Verified Routes: ${counts.CHINGCHI} Qingqi Feeders, Green Line BRT, Red Bus, Electric Bus & Iconic Minibuses`}
             </p>
           </div>
 
@@ -94,8 +105,8 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
             onChange={(e) => setSearch(e.target.value)}
             placeholder={
               lang === 'ur'
-                ? 'روٹ کوڈ یا اسٹاپ تلاش کریں (مثلاً W-11، CC-N1، R-4، ناگن)...'
-                : 'Search by route code, name, or stop (e.g. W-11, CC-N1, R-4, Nagan)...'
+                ? 'روٹ کوڈ یا اسٹاپ تلاش کریں (مثلاً W-11، A-18، K-18، R-4، ناگن)...'
+                : 'Search by route code, name, or stop (e.g. W-11, A-18, K-18, R-4, Nagan)...'
             }
             className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
           />
@@ -111,7 +122,7 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
                 : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'
             }`}
           >
-            All (54)
+            All ({counts.ALL})
           </button>
           <button
             onClick={() => setCategoryFilter('CHINGCHI')}
@@ -121,7 +132,7 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
                 : 'bg-slate-900 text-purple-300 border-slate-700 hover:bg-slate-800'
             }`}
           >
-            🛺 Chingchi (22)
+            🛺 Chingchi ({counts.CHINGCHI})
           </button>
           <button
             onClick={() => setCategoryFilter('BRT')}
@@ -131,7 +142,7 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
                 : 'bg-slate-900 text-emerald-300 border-slate-700 hover:bg-slate-800'
             }`}
           >
-            🟢 Green Line BRT
+            🟢 Green Line BRT ({counts.BRT})
           </button>
           <button
             onClick={() => setCategoryFilter('RED_BUS')}
@@ -141,7 +152,7 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
                 : 'bg-slate-900 text-red-300 border-slate-700 hover:bg-slate-800'
             }`}
           >
-            🔴 Red Bus PBS (10)
+            🔴 Red Bus PBS ({counts.RED_BUS})
           </button>
           <button
             onClick={() => setCategoryFilter('EV_BUS')}
@@ -151,7 +162,7 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
                 : 'bg-slate-900 text-cyan-300 border-slate-700 hover:bg-slate-800'
             }`}
           >
-            ⚡ Electric EV (5)
+            ⚡ Electric EV ({counts.EV_BUS})
           </button>
           <button
             onClick={() => setCategoryFilter('LOCAL_BUS')}
@@ -161,8 +172,17 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
                 : 'bg-slate-900 text-amber-300 border-slate-700 hover:bg-slate-800'
             }`}
           >
-            🚌 Minibuses & Coaches (17)
+            🚌 Minibuses & Coaches ({counts.LOCAL_BUS})
           </button>
+        </div>
+
+        {/* Regulatory Chingchi Tip */}
+        <div className="mt-3 px-3 py-2 rounded-xl bg-purple-950/20 border border-purple-800/30 text-[11px] text-purple-200/90 flex items-center justify-between gap-2">
+          <span>
+            {lang === 'ur'
+              ? '💡 معلوماتی نوٹ: سفر پلانر میں چنگچی رکشے حکومتی بندش اور حفاظتی وجوہات کی بنا پر پہلے سے بند (OFF) ہیں۔ آپ سرچ فارم میں "چنگچی شامل کریں" ٹوگل آن کر کے استعمال کر سکتے ہیں۔'
+              : '💡 Note on Qingqi Routing: In the Journey Planner, Chingchis are OFF by default due to periodic municipal crackdowns & safety bans. Enable the "Include Chingchi" toggle in the search bar to route via them.'}
+          </span>
         </div>
       </div>
 

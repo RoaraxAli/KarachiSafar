@@ -1,9 +1,10 @@
 import type { TransitStop, TransitRoute, ChingchiAdda } from '../types/transit';
+import { ADDITIONAL_STOPS, ADDITIONAL_CHINGCHI_ROUTES } from './additionalChingchiData';
 
 // ==========================================
 // 1. COMPREHENSIVE KARACHI TRANSIT STOPS
 // ==========================================
-export const STOPS: Record<string, TransitStop> = {
+const BASE_STOPS: Record<string, TransitStop> = {
   // Surjani & New Karachi & 4K
   'abdullah-chowrangi': {
     id: 'abdullah-chowrangi',
@@ -2215,11 +2216,15 @@ export const STOPS: Record<string, TransitStop> = {
   },
 };
 
+export const STOPS: Record<string, TransitStop> = {
+  ...BASE_STOPS,
+  ...ADDITIONAL_STOPS,
+};
 
 // ==========================================
 // 2. VERIFIED TRANSIT ROUTES DATASET
 // ==========================================
-export const ROUTES: TransitRoute[] = [
+const BASE_ROUTES: TransitRoute[] = [
   // ----------------------------------------------------
   // A. FIXED CHINGCHI (6-SEATER QINGQI) FEEDER CORRIDORS (22)
   // ----------------------------------------------------
@@ -3354,6 +3359,11 @@ export const ROUTES: TransitRoute[] = [
       'capri-cinema'
     ],
   },
+];
+
+export const ROUTES: TransitRoute[] = [
+  ...BASE_ROUTES,
+  ...ADDITIONAL_CHINGCHI_ROUTES,
 ];
 
 // ==========================================

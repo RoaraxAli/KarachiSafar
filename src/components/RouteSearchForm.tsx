@@ -10,6 +10,8 @@ interface RouteSearchFormProps {
   onSearch?: () => void;
   filter: 'ALL' | 'FASTEST' | 'CHEAPEST' | 'COMFORTABLE' | 'CHINGCHI';
   setFilter: (filter: 'ALL' | 'FASTEST' | 'CHEAPEST' | 'COMFORTABLE' | 'CHINGCHI') => void;
+  allowChingchi: boolean;
+  setAllowChingchi: (val: boolean) => void;
   lang: 'en' | 'ur';
 }
 
@@ -71,6 +73,8 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
   setDestStopId,
   filter,
   setFilter,
+  allowChingchi,
+  setAllowChingchi,
   lang,
 }) => {
   const [originSearch, setOriginSearch] = useState('');
@@ -321,12 +325,81 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
         </div>
       </div>
 
+      {/* CHINGCHI FEEDER TOGGLE - OFF BY DEFAULT */}
+      <div
+        className={`mt-4 p-3.5 rounded-xl border transition-all ${
+          allowChingchi
+            ? 'bg-purple-950/40 border-purple-500/50 text-purple-100 shadow-md shadow-purple-950/40'
+            : 'bg-slate-900/70 border-slate-800 text-slate-300'
+        }`}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <div
+              className={`mt-0.5 p-2 rounded-lg text-base flex-shrink-0 ${
+                allowChingchi ? 'bg-purple-600/30 text-purple-300' : 'bg-slate-800 text-slate-400'
+              }`}
+            >
+              🛺
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs sm:text-sm font-bold text-white">
+                  {lang === 'ur' ? 'چنگچی رکشہ (Qingqi) فیڈرز شامل کریں' : 'Include Chingchi (Qingqi) Feeders'}
+                </span>
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    allowChingchi
+                      ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                      : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                  }`}
+                >
+                  {allowChingchi
+                    ? lang === 'ur'
+                      ? 'فعال (59 روٹس)'
+                      : 'ENABLED (59 CORRIDORS)'
+                    : lang === 'ur'
+                    ? 'بند ہے (سفارش کردہ)'
+                    : 'OFF BY DEFAULT'}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                {allowChingchi
+                  ? lang === 'ur'
+                    ? 'شہر کے 59 لوکل چنگچی روٹس شامل ہیں (فلیٹ کرایہ 30 تا 40 روپے، بفر زون، فیڈرل بی ایریا، اورنگی، گلشن و ملیر کے گلی محلوں سے مین شاہرائیں)'
+                    : '59 hyper-local Qingqi corridors enabled (Flat Rs. 30-40, high-frequency feeder shuttles connecting residential blocks to BRT & main arteries).'
+                  : lang === 'ur'
+                  ? 'چنگچی رکشے حکومتی بندش، مین روڈز پر پابندیوں اور حفاظتی خدشات کے پیش نظر پہلے سے بند ہیں۔ اگر آپ کو گلی محلوں کے سستے فیڈر کی ضرورت ہو تو آن کریں۔'
+                  : 'Chingchis are off by default due to frequent municipal bans, unregularized routes, and safety concerns. Toggle ON to include 6-seater neighborhood feeders.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Toggle Switch */}
+          <button
+            type="button"
+            role="switch"
+            aria-checked={allowChingchi}
+            onClick={() => setAllowChingchi(!allowChingchi)}
+            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
+              allowChingchi ? 'bg-purple-600' : 'bg-slate-700'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                allowChingchi ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
+      </div>
+
       {/* Filter Tabs as Specified in Prompt */}
       <div className="mt-4 pt-3 border-t border-slate-700/80">
         <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
           {lang === 'ur' ? 'ترجیحات و فلٹر' : 'Journey Preferences & Mode Filters'}
         </label>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-2">
           <button
             onClick={() => setFilter('ALL')}
             className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer flex items-center justify-center gap-1 ${
@@ -346,7 +419,7 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
                 : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'
             }`}
           >
-            <span>🟢 {lang === 'ur' ? 'تیز ترین (BRT)' : 'Fastest (BRT First)'}</span>
+            <span>🟢 {lang === 'ur' ? 'تیز ترین (BRT)' : 'Fastest (BRT)'}</span>
           </button>
 
           <button
@@ -357,7 +430,7 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
                 : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'
             }`}
           >
-            <span>🚌 {lang === 'ur' ? 'سستا ترین (بس / چنگچی)' : 'Cheapest (Bus/Qingqi)'}</span>
+            <span>🚌 {lang === 'ur' ? 'سستا ترین' : 'Cheapest'}</span>
           </button>
 
           <button
@@ -368,7 +441,21 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
                 : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'
             }`}
           >
-            <span>❄️ {lang === 'ur' ? 'آرام دہ (صرف AC)' : 'Comfort (AC Only)'}</span>
+            <span>❄️ {lang === 'ur' ? 'آرام دہ (AC)' : 'Comfort (AC)'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setFilter('CHINGCHI');
+              setAllowChingchi(true);
+            }}
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer flex items-center justify-center gap-1 ${
+              filter === 'CHINGCHI'
+                ? 'bg-purple-600 text-white border-purple-400'
+                : 'bg-slate-900 text-purple-300 border-slate-700 hover:bg-slate-800'
+            }`}
+          >
+            <span>🛺 {lang === 'ur' ? 'صرف چنگچی' : 'Chingchi'}</span>
           </button>
         </div>
       </div>

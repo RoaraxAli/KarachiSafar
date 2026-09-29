@@ -21,6 +21,7 @@ export function App() {
   const [originStopId, setOriginStopId] = useState<string>('buffer-zone-15a');
   const [destStopId, setDestStopId] = useState<string>('capri-cinema');
   const [filter, setFilter] = useState<'ALL' | 'FASTEST' | 'CHEAPEST' | 'COMFORTABLE' | 'CHINGCHI'>('ALL');
+  const [allowChingchi, setAllowChingchi] = useState<boolean>(false); // OFF by default as per user instructions
   const [selectedPlan, setSelectedPlan] = useState<TripPlan | null>(null);
 
   // Route Explorer State
@@ -29,10 +30,10 @@ export function App() {
   // Active Navigation Simulator
   const [navigatingPlan, setNavigatingPlan] = useState<TripPlan | null>(null);
 
-  // Generate plans whenever origin or destination changes
+  // Generate plans whenever origin, destination, or allowChingchi changes
   const rawPlans = useMemo(() => {
-    return planJourney(originStopId, destStopId);
-  }, [originStopId, destStopId]);
+    return planJourney(originStopId, destStopId, allowChingchi);
+  }, [originStopId, destStopId, allowChingchi]);
 
   const displayedPlans = useMemo(() => {
     return filterPlans(rawPlans, filter);
@@ -95,6 +96,8 @@ export function App() {
               onSearch={() => {}}
               filter={filter}
               setFilter={setFilter}
+              allowChingchi={allowChingchi}
+              setAllowChingchi={setAllowChingchi}
               lang={lang}
             />
 
