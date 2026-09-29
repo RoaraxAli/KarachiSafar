@@ -33,7 +33,7 @@ Karachi Safar integrates 33 verified transit routes across Karachi's major arter
 The routing engine executes multi-criteria path finding:
 - **Direct Express Routes**: Point-to-point transit without vehicle transfers.
 - **Multimodal Transfers**: Seamlessly combines local feeder coaches with rapid transit trunks (Green Line BRT & Red Bus).
-- **Fastest & AC Filters**: Easily filter routes by speed, air-conditioning, or traditional minibuses.
+- **Fastest Route Optimization**: Automatically calculates and ranks the fastest public transit connection between origin and destination.
 - **Trip Drilldown**: Complete intermediate stop sequences, duration breakdowns, and transfer walking steps.
 
 ---

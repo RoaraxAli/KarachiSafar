@@ -6,8 +6,6 @@ export type TransitMode =
   | 'WALK'
   | 'BYKEA';
 
-export type ComfortLevel = 'AC' | 'NON_AC' | 'OPEN_AIR';
-
 export interface TransitStop {
   id: string;
   name: string;
@@ -25,13 +23,11 @@ export interface TransitRoute {
   name: string;
   urduName: string;
   category: TransitMode;
-  vehicleType: string; // e.g. 'Articulated BRT Bus', '12m Air-Conditioned Bus', 'Minibus', 'Heavy Coach'
+  vehicleType: string;
   color: string;
-  fleetCategory: 'BRT' | 'RED_BUS' | 'EV_BUS' | 'LOCAL_BUS';
   fare: number | { min: number; max: number };
   intervalMinutes: number | { min: number; max: number };
   operatingHours: string;
-  comfort: ComfortLevel;
   distanceKm?: number;
   stops: string[]; // stop IDs in sequence
   description?: string;
@@ -45,7 +41,6 @@ export interface TripLeg {
   routeName?: string;
   routeUrduName?: string;
   color: string;
-  comfort: ComfortLevel;
   vehicleType?: string;
   fromStop: TransitStop;
   toStop: TransitStop;
@@ -62,13 +57,12 @@ export interface TripPlan {
   id: string;
   title: string;
   urduTitle: string;
-  tag: 'FASTEST' | 'CHEAPEST' | 'MOST_COMFORTABLE' | 'DIRECT' | 'BALANCED';
+  tag: 'FASTEST' | 'DIRECT' | 'RECOMMENDED';
   tagUrdu: string;
   totalDurationMinutes: number;
   totalFarePKR: number;
   totalDistanceKm: number;
   transferCount: number;
-  hasAC: boolean;
   modes: TransitMode[];
   legs: TripLeg[];
   summaryBadges: {
@@ -79,5 +73,3 @@ export interface TripPlan {
     icon: string;
   }[];
 }
-
-export type FilterCategory = 'ALL' | 'FASTEST' | 'COMFORTABLE' | 'LOCAL_BUS';

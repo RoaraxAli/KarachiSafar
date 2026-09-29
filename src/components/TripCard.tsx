@@ -1,5 +1,5 @@
 import { useState, Fragment } from 'react';
-import { Shuffle, Wind, ChevronDown, ChevronUp, Navigation, ArrowRight } from 'lucide-react';
+import { Shuffle, ChevronDown, ChevronUp, Navigation, ArrowRight } from 'lucide-react';
 import type { TripPlan, TransitMode } from '../types/transit';
 
 interface TripCardProps {
@@ -17,7 +17,6 @@ export const TripCard: React.FC<TripCardProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Helper for mode background color in crisp professional style
   const getBadgeStyle = (mode: TransitMode) => {
     switch (mode) {
       case 'BRT':
@@ -40,13 +39,11 @@ export const TripCard: React.FC<TripCardProps> = ({
   const getTagColor = (tag: TripPlan['tag']) => {
     switch (tag) {
       case 'FASTEST':
-        return 'bg-emerald-50 text-emerald-800 border-emerald-200';
-      case 'MOST_COMFORTABLE':
+        return 'bg-emerald-50 text-emerald-800 border-emerald-300';
+      case 'DIRECT':
         return 'bg-slate-100 text-slate-800 border-slate-300';
-      case 'CHEAPEST':
-        return 'bg-amber-50 text-amber-800 border-amber-200';
       default:
-        return 'bg-slate-100 text-slate-700 border-slate-200';
+        return 'bg-slate-50 text-slate-700 border-slate-200';
     }
   };
 
@@ -67,7 +64,7 @@ export const TripCard: React.FC<TripCardProps> = ({
               plan.tag
             )}`}
           >
-            {plan.tag}
+            {plan.tag === 'FASTEST' ? '⚡ Fastest Route' : plan.tag}
           </span>
           <h3 className="text-sm sm:text-base font-bold text-slate-900 mt-1 leading-snug">
             {plan.title}
@@ -86,23 +83,16 @@ export const TripCard: React.FC<TripCardProps> = ({
         </div>
       </div>
 
-      {/* Summary Chips: Transfers & AC */}
+      {/* Summary Chips: Direct or Transfers */}
       <div className="flex flex-wrap items-center gap-1.5 mb-2.5 text-xs text-slate-600">
         <span className="flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded border border-slate-200 text-[11px]">
           <Shuffle className="w-3 h-3 text-slate-400" />
           <span>
             {plan.transferCount === 0
-              ? 'Direct'
+              ? 'Direct Route (No Transfers)'
               : `${plan.transferCount} Transfer${plan.transferCount > 1 ? 's' : ''}`}
           </span>
         </span>
-
-        {plan.hasAC && (
-          <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 text-slate-800 text-[11px] font-medium">
-            <Wind className="w-3 h-3 text-slate-600" />
-            <span>AC Available</span>
-          </span>
-        )}
       </div>
 
       {/* Leg Badges Chain */}
@@ -144,7 +134,7 @@ export const TripCard: React.FC<TripCardProps> = ({
             e.stopPropagation();
             onStartNavigation(plan);
           }}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white transition cursor-pointer shadow-sm"
+          className="flex items-center gap-1 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white transition cursor-pointer shadow-sm"
         >
           <Navigation className="w-3 h-3 fill-current" />
           <span>Navigate</span>

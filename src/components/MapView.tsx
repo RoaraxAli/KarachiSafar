@@ -342,26 +342,14 @@ export const MapView: React.FC<MapViewProps> = ({
 
       {/* Legend Bar at Bottom of Map */}
       <div className="absolute bottom-3 left-3 right-3 sm:right-auto z-[400] bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200 shadow-md text-[11px] flex items-center flex-wrap gap-x-3 gap-y-1 text-slate-700">
-        <span className="font-bold text-slate-400 uppercase text-[10px]">Transit Network:</span>
-        <span className="flex items-center gap-1 text-emerald-800 font-medium">
+        <span className="font-bold text-slate-400 uppercase text-[10px]">Map:</span>
+        <span className="flex items-center gap-1 text-slate-900 font-medium">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
-          <span>BRT Green</span>
+          <span>Public Transit</span>
         </span>
-        <span className="flex items-center gap-1 text-red-800 font-medium">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-600" />
-          <span>Peoples Red Bus</span>
-        </span>
-        <span className="flex items-center gap-1 text-cyan-800 font-medium">
-          <span className="w-2.5 h-2.5 rounded-full bg-cyan-600" />
-          <span>Peoples EV</span>
-        </span>
-        <span className="flex items-center gap-1 text-amber-800 font-medium">
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-600" />
-          <span>Minibus / Coach</span>
-        </span>
-        <span className="flex items-center gap-1 text-slate-700 font-medium">
+        <span className="flex items-center gap-1 text-slate-600 font-medium">
           <span className="w-3 border-t-2 border-dashed border-slate-500" />
-          <span>Walk</span>
+          <span>Walking Link</span>
         </span>
       </div>
     </div>

@@ -4,8 +4,8 @@ import { TripCard } from './components/TripCard';
 import { MapView } from './components/MapView';
 import { RouteExplorer } from './components/RouteExplorer';
 import { NavigationMode } from './components/NavigationMode';
-import { planJourney, filterPlans } from './lib/graphRouter';
-import type { TripPlan, TransitRoute, FilterCategory } from './types/transit';
+import { planJourney } from './lib/graphRouter';
+import type { TripPlan, TransitRoute } from './types/transit';
 import { ROUTES } from './data/transitData';
 import { Compass, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 
@@ -19,7 +19,6 @@ export function App() {
   // Journey Planner State - Clean empty state initially
   const [originStopId, setOriginStopId] = useState<string>('');
   const [destStopId, setDestStopId] = useState<string>('');
-  const [filter, setFilter] = useState<FilterCategory>('ALL');
   const [selectedPlan, setSelectedPlan] = useState<TripPlan | null>(null);
 
   // Route Explorer State
@@ -28,19 +27,15 @@ export function App() {
   // Active Navigation Simulator
   const [navigatingPlan, setNavigatingPlan] = useState<TripPlan | null>(null);
 
-  // Generate plans ONLY when both origin and destination are selected
-  const rawPlans = useMemo(() => {
+  // Generate fastest public transit plans when origin and destination are selected
+  const displayedPlans = useMemo(() => {
     if (!originStopId || !destStopId || originStopId === destStopId) {
       return [];
     }
     return planJourney(originStopId, destStopId);
   }, [originStopId, destStopId]);
 
-  const displayedPlans = useMemo(() => {
-    return filterPlans(rawPlans, filter);
-  }, [rawPlans, filter]);
-
-  // Automatically select the top plan when plans change
+  // Automatically select the fastest/top plan when plans change
   useEffect(() => {
     if (displayedPlans.length > 0) {
       setSelectedPlan(displayedPlans[0]);
@@ -81,7 +76,7 @@ export function App() {
                 Karachi Safar
               </h1>
               <p className="text-[11px] text-slate-500 leading-none">
-                Public Transit Navigator
+                Fastest Public Transit Navigator
               </p>
             </div>
           </div>
@@ -108,7 +103,7 @@ export function App() {
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Plan Trip
+            Find Route
           </button>
           <button
             onClick={() => setActiveTab('EXPLORER')}
@@ -118,7 +113,7 @@ export function App() {
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Routes ({ROUTES.length})
+            Transit Lines ({ROUTES.length})
           </button>
         </div>
 
@@ -132,8 +127,6 @@ export function App() {
                 destStopId={destStopId}
                 setOriginStopId={setOriginStopId}
                 setDestStopId={setDestStopId}
-                filter={filter}
-                setFilter={setFilter}
               />
 
               {/* Journey Options List or Empty State */}
@@ -142,7 +135,7 @@ export function App() {
                   <>
                     <div className="flex items-center justify-between px-1">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                        Transit Options ({displayedPlans.length})
+                        Fastest Options ({displayedPlans.length})
                       </span>
                     </div>
 
@@ -161,7 +154,7 @@ export function App() {
                     ) : (
                       <div className="p-8 text-center bg-white border border-slate-200 rounded-xl space-y-2 shadow-sm">
                         <MapPin className="w-6 h-6 text-slate-400 mx-auto" />
-                        <div className="text-xs font-bold text-slate-800">No direct connection found</div>
+                        <div className="text-xs font-bold text-slate-800">No transit connection found</div>
                         <p className="text-[11px] text-slate-500">
                           Try choosing major transit corridors such as Nagan Chowrangi, NIPA, Sohrab Goth, or Saddar.
                         </p>
@@ -176,10 +169,10 @@ export function App() {
                     </div>
                     <div>
                       <h3 className="text-xs sm:text-sm font-bold text-slate-800">
-                        Plan Your Transit Route
+                        Find Fastest Public Transit
                       </h3>
                       <p className="text-[11px] text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
-                        Select an origin and destination above to compute realistic multimodal transit routes across Karachi.
+                        Select an origin and destination to calculate the fastest public transit connection across Karachi.
                       </p>
                     </div>
                   </div>

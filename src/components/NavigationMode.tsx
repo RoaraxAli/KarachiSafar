@@ -27,7 +27,6 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit }) 
   const isLastStopInLeg = currentStopIndex >= legStops.length - 1;
   const isFinalLeg = currentLegIndex >= plan.legs.length - 1;
 
-  // Handle advancing to next stop
   const handleAdvanceStop = () => {
     if ('speechSynthesis' in window) {
       try {
@@ -54,21 +53,10 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit }) 
     }
   };
 
-  const getLegBadge = (mode: string) => {
-    switch (mode) {
-      case 'BRT':
-        return '🟢 Green Line BRT';
-      case 'RED_BUS':
-        return '🔴 Red Bus';
-      case 'EV_BUS':
-        return '⚡ EV Bus';
-      case 'LOCAL_BUS':
-        return '🚌 Minibus';
-      case 'WALK':
-        return '🚶 Pedestrian Transfer';
-      default:
-        return mode;
-    }
+  const getLegBadge = (leg: TripLeg) => {
+    if (leg.mode === 'WALK') return 'Walking Link';
+    if (leg.mode === 'BYKEA') return 'Ride Link';
+    return leg.routeCode || leg.routeName || 'Public Transit';
   };
 
   if (hasArrived) {
@@ -80,7 +68,7 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit }) 
           </div>
           <div>
             <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-              Journey Completed
+              Trip Finished
             </span>
             <h2 className="text-xl font-bold text-slate-900 mt-2">
               Arrived at Destination
@@ -123,12 +111,12 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit }) 
           <div>
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-bold text-slate-900">
-                Live Transit Guidance
+                Live Transit Navigation
               </span>
               <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
             </div>
             <div className="text-[11px] text-slate-500">
-              Leg {currentLegIndex + 1} of {plan.legs.length} • {getLegBadge(currentLeg.mode)}
+              Leg {currentLegIndex + 1} of {plan.legs.length} • {getLegBadge(currentLeg)}
             </div>
           </div>
         </div>
