@@ -16,7 +16,6 @@ export function App() {
 
   // App navigation state (Fares removed as requested)
   const [activeTab, setActiveTab] = useState<'PLANNER' | 'EXPLORER' | 'CHINGCHI_ADDAS'>('PLANNER');
-  const [lang, setLang] = useState<'en' | 'ur'>('en');
 
   // Journey Planner State - EMPTY by default for production readiness
   const [originStopId, setOriginStopId] = useState<string>('');
@@ -91,26 +90,16 @@ export function App() {
               KS
             </div>
             <div>
-              <h1 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-1.5">
+              <h1 className="text-base font-bold text-slate-900 tracking-tight">
                 Karachi Safar
-                <span className="text-blue-600 text-xs font-semibold urdu-font">(کراچی سفر)</span>
               </h1>
               <p className="text-[11px] text-slate-500 leading-none">
-                {lang === 'ur' ? 'کراچی پبلک ٹرانزٹ نیویگیٹر' : 'Public Transit Navigator'}
+                Public Transit Navigator
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5">
-            {/* Language Switcher */}
-            <button
-              onClick={() => setLang(lang === 'en' ? 'ur' : 'en')}
-              className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 transition cursor-pointer"
-              title="Toggle Language"
-            >
-              {lang === 'en' ? 'اردو' : 'English'}
-            </button>
-
             {/* Collapse Sidebar Button */}
             <button
               onClick={() => setIsSidebarOpen(false)}
@@ -132,7 +121,7 @@ export function App() {
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            {lang === 'ur' ? 'سفر کی منصوبہ بندی' : 'Plan Trip'}
+            Plan Trip
           </button>
           <button
             onClick={() => setActiveTab('EXPLORER')}
@@ -142,7 +131,7 @@ export function App() {
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            {lang === 'ur' ? 'تمام روٹس' : 'Routes (92)'}
+            Routes (92)
           </button>
           <button
             onClick={() => setActiveTab('CHINGCHI_ADDAS')}
@@ -152,7 +141,7 @@ export function App() {
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            {lang === 'ur' ? 'چنگچی اڈے' : 'Qingqi Stands'}
+            Qingqi Stands
           </button>
         </div>
 
@@ -170,7 +159,6 @@ export function App() {
                 setFilter={setFilter}
                 allowChingchi={allowChingchi}
                 setAllowChingchi={setAllowChingchi}
-                lang={lang}
               />
 
               {/* Journey Options List or Empty State */}
@@ -179,7 +167,7 @@ export function App() {
                   <>
                     <div className="flex items-center justify-between px-1">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                        {lang === 'ur' ? `تجاویز (${displayedPlans.length})` : `Route Options (${displayedPlans.length})`}
+                        Route Options ({displayedPlans.length})
                       </span>
                     </div>
 
@@ -192,7 +180,6 @@ export function App() {
                             isSelected={selectedPlan?.id === plan.id}
                             onSelect={(p) => setSelectedPlan(p)}
                             onStartNavigation={(p) => setNavigatingPlan(p)}
-                            lang={lang}
                           />
                         ))}
                       </div>
@@ -214,12 +201,10 @@ export function App() {
                     </div>
                     <div>
                       <h3 className="text-xs sm:text-sm font-bold text-slate-800">
-                        {lang === 'ur' ? 'اپنا سفر تلاش کریں' : 'Plan Your Transit Route'}
+                        Plan Your Transit Route
                       </h3>
                       <p className="text-[11px] text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
-                        {lang === 'ur'
-                          ? 'روانگی اور منزل کے اسٹاپ منتخب کریں تاکہ بی آر ٹی، ریڈ بس، ای وی اور فیڈر روٹس کا بہترین راستہ حاصل کیا جا سکے'
-                          : 'Select an origin and destination above to compute realistic multimodal transit routes across Karachi.'}
+                        Select an origin and destination above to compute realistic multimodal transit routes across Karachi.
                       </p>
                     </div>
                   </div>
@@ -240,12 +225,11 @@ export function App() {
                 setDestStopId(stopId);
                 setActiveTab('PLANNER');
               }}
-              lang={lang}
             />
           )}
 
           {activeTab === 'CHINGCHI_ADDAS' && (
-            <ChingchiDirectory onSelectAdda={handleSelectAdda} lang={lang} />
+            <ChingchiDirectory onSelectAdda={handleSelectAdda} />
           )}
         </div>
       </aside>
@@ -259,7 +243,6 @@ export function App() {
           selectedRoute={activeTab === 'EXPLORER' ? selectedExplorerRoute : null}
           originStopId={originStopId}
           destStopId={destStopId}
-          lang={lang}
           className="w-full h-full relative"
         />
 
@@ -270,7 +253,7 @@ export function App() {
             className="absolute top-4 left-4 z-[400] flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs border border-slate-200 shadow-md transition-all cursor-pointer hover:border-blue-500"
           >
             <Compass className="w-4 h-4 text-blue-600" />
-            <span>{lang === 'ur' ? 'سفر نیویگیٹر کھولیں' : 'Open Transit Navigator'}</span>
+            <span>Open Transit Navigator</span>
             <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
           </button>
         )}
@@ -294,7 +277,6 @@ export function App() {
         <NavigationMode
           plan={navigatingPlan}
           onExit={() => setNavigatingPlan(null)}
-          lang={lang}
         />
       )}
     </div>

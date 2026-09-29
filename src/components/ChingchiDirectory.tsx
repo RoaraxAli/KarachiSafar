@@ -4,10 +4,9 @@ import type { ChingchiAdda } from '../types/transit';
 
 interface ChingchiDirectoryProps {
   onSelectAdda: (adda: ChingchiAdda) => void;
-  lang: 'en' | 'ur';
 }
 
-export const ChingchiDirectory: React.FC<ChingchiDirectoryProps> = ({ onSelectAdda, lang }) => {
+export const ChingchiDirectory: React.FC<ChingchiDirectoryProps> = ({ onSelectAdda }) => {
   return (
     <div className="space-y-3">
       {/* Intro Banner */}
@@ -15,13 +14,11 @@ export const ChingchiDirectory: React.FC<ChingchiDirectoryProps> = ({ onSelectAd
         <div className="flex items-center gap-2 mb-1">
           <span className="text-xl">🛺</span>
           <h2 className="text-sm font-bold text-slate-900">
-            {lang === 'ur' ? 'کراچی چنگچی اڈا ڈائریکٹری' : 'Qingqi Rickshaw Addas'}
+            Qingqi Rickshaw Addas
           </h2>
         </div>
         <p className="text-[11px] text-slate-500 leading-relaxed">
-          {lang === 'ur'
-            ? 'مقامی گلیوں اور کالونیوں کو بی آر ٹی اور مین سڑکوں سے جوڑنے والے مرکزی چنگچی اڈے'
-            : 'Key neighborhood terminals connecting residential sectors to main transit arteries'}
+          Key neighborhood terminals connecting residential sectors to main transit arteries
         </p>
       </div>
 
@@ -37,7 +34,7 @@ export const ChingchiDirectory: React.FC<ChingchiDirectoryProps> = ({ onSelectAd
               <div>
                 <h3 className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-blue-600" />
-                  <span>{lang === 'ur' ? adda.urduName : adda.name}</span>
+                  <span>{adda.name}</span>
                 </h3>
                 <p className="text-[11px] text-slate-500">{adda.location}</p>
               </div>
@@ -49,7 +46,7 @@ export const ChingchiDirectory: React.FC<ChingchiDirectoryProps> = ({ onSelectAd
             {/* Destinations (Fares removed) */}
             <div className="space-y-1">
               <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                {lang === 'ur' ? 'روٹس:' : 'Outgoing Feeder Corridors:'}
+                Outgoing Feeder Corridors:
               </div>
               <div className="space-y-1">
                 {adda.destinations.map((dest, dIdx) => (
@@ -83,7 +80,7 @@ export const ChingchiDirectory: React.FC<ChingchiDirectoryProps> = ({ onSelectAd
               className="w-full py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-sm"
             >
               <Navigation className="w-3 h-3" />
-              <span>{lang === 'ur' ? 'یہاں سے روانگی منتخب کریں' : 'Set as Journey Origin'}</span>
+              <span>Set as Journey Origin</span>
             </button>
           </div>
         ))}

@@ -5,10 +5,9 @@ import { X, Navigation, ArrowRight, Volume2 } from 'lucide-react';
 interface NavigationModeProps {
   plan: TripPlan;
   onExit: () => void;
-  lang: 'en' | 'ur';
 }
 
-export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit, lang }) => {
+export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit }) => {
   const [currentLegIndex, setCurrentLegIndex] = useState(0);
   const [currentStopIndex, setCurrentStopIndex] = useState(0);
   const [hasArrived, setHasArrived] = useState(false);
@@ -30,10 +29,10 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit, la
 
   // Handle advancing to next stop
   const handleAdvanceStop = () => {
-    if ('speechSynthesis' in window && lang === 'ur') {
+    if ('speechSynthesis' in window) {
       try {
-        const utterance = new SpeechSynthesisUtterance(`اگلا اسٹاپ: ${nextStop.urduName}`);
-        utterance.lang = 'ur-PK';
+        const utterance = new SpeechSynthesisUtterance(`Next stop: ${nextStop.name}`);
+        utterance.lang = 'en-US';
         window.speechSynthesis.speak(utterance);
       } catch (e) {
         // ignore speech error
@@ -83,16 +82,13 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit, la
           </div>
           <div>
             <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
-              {lang === 'ur' ? 'سفر مکمل!' : 'Journey Completed'}
+              Journey Completed
             </span>
             <h2 className="text-xl font-bold text-slate-900 mt-2">
-              {lang === 'ur' ? 'منزل پر آمد' : 'Arrived at Destination'}
+              Arrived at Destination
             </h2>
             <p className="text-sm font-semibold text-slate-700 mt-1">
               {plan.legs[plan.legs.length - 1].toStop.name}
-            </p>
-            <p className="text-xs text-slate-500 urdu-font">
-              {plan.legs[plan.legs.length - 1].toStop.urduName}
             </p>
           </div>
 
@@ -111,7 +107,7 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit, la
             onClick={onExit}
             className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition cursor-pointer shadow-sm"
           >
-            {lang === 'ur' ? 'بند کریں' : 'Close Navigation'}
+            Close Navigation
           </button>
         </div>
       </div>
@@ -129,7 +125,7 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit, la
           <div>
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-bold text-slate-900">
-                {lang === 'ur' ? 'لائیو سفر رہنمائی' : 'Live Transit Navigation'}
+                Live Transit Navigation
               </span>
               <span className="w-2 h-2 rounded-full bg-blue-600" />
             </div>
@@ -159,13 +155,13 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit, la
           {/* Current vs Next Stop Display */}
           <div className="space-y-1">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              {lang === 'ur' ? 'اگلا اسٹاپ' : 'Approaching Next Stop'}
+              Approaching Next Stop
             </div>
             <div className="text-xl sm:text-2xl font-black text-slate-900">
-              {lang === 'ur' ? nextStop.urduName : nextStop.name}
+              {nextStop.name}
             </div>
             <div className="text-xs text-slate-500 font-medium">
-              {lang === 'ur' ? nextStop.name : nextStop.urduName} ({nextStop.area})
+              {nextStop.area}
             </div>
           </div>
 
@@ -203,7 +199,7 @@ export const NavigationMode: React.FC<NavigationModeProps> = ({ plan, onExit, la
             onClick={handleAdvanceStop}
             className="flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md transition cursor-pointer flex items-center justify-center gap-2"
           >
-            <span>{isLastStopInLeg && isFinalLeg ? (lang === 'ur' ? 'سفر ختم کریں' : 'Complete Trip') : (lang === 'ur' ? 'اگلے اسٹاپ پر جائیں' : 'Advance to Next Stop')}</span>
+            <span>{isLastStopInLeg && isFinalLeg ? 'Complete Trip' : 'Advance to Next Stop'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

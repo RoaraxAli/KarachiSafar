@@ -11,7 +11,6 @@ interface RouteSearchFormProps {
   setFilter: (filter: 'ALL' | 'FASTEST' | 'COMFORTABLE' | 'CHINGCHI') => void;
   allowChingchi: boolean;
   setAllowChingchi: (val: boolean) => void;
-  lang: 'en' | 'ur';
 }
 
 export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
@@ -23,7 +22,6 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
   setFilter,
   allowChingchi,
   setAllowChingchi,
-  lang,
 }) => {
   const [originSearch, setOriginSearch] = useState('');
   const [destSearch, setDestSearch] = useState('');
@@ -38,7 +36,6 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
     return stopList.filter(
       (s) =>
         s.name.toLowerCase().includes(q) ||
-        s.urduName.includes(q) ||
         s.area.toLowerCase().includes(q)
     ).slice(0, 15);
   }, [originSearch, stopList]);
@@ -49,7 +46,6 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
     return stopList.filter(
       (s) =>
         s.name.toLowerCase().includes(q) ||
-        s.urduName.includes(q) ||
         s.area.toLowerCase().includes(q)
     ).slice(0, 15);
   }, [destSearch, stopList]);
@@ -101,17 +97,17 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
               <div className="w-2.5 h-2.5 rounded-full bg-blue-600 flex-shrink-0" />
               <div className="truncate">
                 <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
-                  {lang === 'ur' ? 'روانگی کا مقام' : 'Origin Stop'}
+                  Origin Stop
                 </div>
                 <div className="text-xs sm:text-sm font-semibold text-slate-900 truncate">
                   {originStop ? (
                     <>
-                      <span>{lang === 'ur' ? originStop.urduName : originStop.name}</span>
+                      <span>{originStop.name}</span>
                       <span className="text-[11px] font-normal text-slate-500 ml-1.5">({originStop.area})</span>
                     </>
                   ) : (
                     <span className="text-slate-400 font-normal">
-                      {lang === 'ur' ? 'روانگی کا اسٹاپ منتخب کریں' : 'Select Origin Stop'}
+                      Select Origin Stop
                     </span>
                   )}
                 </div>
@@ -141,7 +137,7 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
                 type="text"
                 value={originSearch}
                 onChange={(e) => setOriginSearch(e.target.value)}
-                placeholder={lang === 'ur' ? 'اسٹاپ تلاش کریں...' : 'Search origin stop...'}
+                placeholder="Search origin stop..."
                 className="w-full bg-slate-50 text-slate-900 rounded-lg px-3 py-1.5 text-xs border border-slate-300 focus:outline-none focus:border-blue-600 mb-1.5"
                 autoFocus
               />
@@ -159,7 +155,7 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
                     }`}
                   >
                     <div>
-                      <div className="font-medium">{lang === 'ur' ? stop.urduName : stop.name}</div>
+                      <div className="font-medium">{stop.name}</div>
                       <div className="text-[10px] text-slate-500">{stop.area} {stop.isBRTStation ? '• BRT' : ''}</div>
                     </div>
                     {stop.id === originStopId && <Check className="w-3.5 h-3.5 text-blue-600" />}
@@ -194,17 +190,17 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
               <div className="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0" />
               <div className="truncate">
                 <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
-                  {lang === 'ur' ? 'منزل کا مقام' : 'Destination Stop'}
+                  Destination Stop
                 </div>
                 <div className="text-xs sm:text-sm font-semibold text-slate-900 truncate">
                   {destStop ? (
                     <>
-                      <span>{lang === 'ur' ? destStop.urduName : destStop.name}</span>
+                      <span>{destStop.name}</span>
                       <span className="text-[11px] font-normal text-slate-500 ml-1.5">({destStop.area})</span>
                     </>
                   ) : (
                     <span className="text-slate-400 font-normal">
-                      {lang === 'ur' ? 'منزل کا اسٹاپ منتخب کریں' : 'Select Destination Stop'}
+                      Select Destination Stop
                     </span>
                   )}
                 </div>
@@ -220,7 +216,7 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
                 type="text"
                 value={destSearch}
                 onChange={(e) => setDestSearch(e.target.value)}
-                placeholder={lang === 'ur' ? 'منزل تلاش کریں...' : 'Search destination stop...'}
+                placeholder="Search destination stop..."
                 className="w-full bg-slate-50 text-slate-900 rounded-lg px-3 py-1.5 text-xs border border-slate-300 focus:outline-none focus:border-blue-600 mb-1.5"
                 autoFocus
               />
@@ -238,7 +234,7 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
                     }`}
                   >
                     <div>
-                      <div className="font-medium">{lang === 'ur' ? stop.urduName : stop.name}</div>
+                      <div className="font-medium">{stop.name}</div>
                       <div className="text-[10px] text-slate-500">{stop.area} {stop.isBRTStation ? '• BRT' : ''}</div>
                     </div>
                     {stop.id === destStopId && <Check className="w-3.5 h-3.5 text-blue-600" />}
@@ -257,7 +253,7 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-900">
-                {lang === 'ur' ? 'چنگچی رکشہ شامل کریں' : 'Include Chingchi Feeders'}
+                Include Chingchi Feeders
               </span>
               <span
                 className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
@@ -271,8 +267,8 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
             </div>
             <p className="text-[11px] text-slate-500 leading-tight mt-0.5">
               {allowChingchi
-                ? (lang === 'ur' ? '59 مقامی فیڈر روٹس فعال ہیں' : '59 Local Qingqi feeder routes enabled')
-                : (lang === 'ur' ? 'حکومتی پابندیوں کی وجہ سے پہلے سے بند ہے' : 'Off by default due to municipal regulations')}
+                ? '59 Local Qingqi feeder routes enabled'
+                : 'Off by default due to municipal regulations'}
             </p>
           </div>
         </div>
@@ -304,7 +300,7 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
               : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
           }`}
         >
-          {lang === 'ur' ? 'تمام' : 'All Routes'}
+          All Routes
         </button>
 
         <button
@@ -315,7 +311,7 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
               : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
           }`}
         >
-          🟢 {lang === 'ur' ? 'تیز ترین' : 'Fastest'}
+          🟢 Fastest
         </button>
 
         <button
@@ -326,7 +322,7 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
               : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
           }`}
         >
-          ❄️ {lang === 'ur' ? 'صرف AC' : 'AC Only'}
+          ❄️ AC Only
         </button>
 
         <button
@@ -340,7 +336,7 @@ export const RouteSearchForm: React.FC<RouteSearchFormProps> = ({
               : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
           }`}
         >
-          🛺 {lang === 'ur' ? 'چنگچی' : 'Chingchi'}
+          🛺 Chingchi
         </button>
       </div>
     </div>

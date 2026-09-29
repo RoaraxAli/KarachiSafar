@@ -8,7 +8,6 @@ interface RouteExplorerProps {
   selectedRouteId: string | null;
   onSetAsOrigin: (stopId: string) => void;
   onSetAsDestination: (stopId: string) => void;
-  lang: 'en' | 'ur';
 }
 
 export const RouteExplorer: React.FC<RouteExplorerProps> = ({
@@ -16,7 +15,6 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
   selectedRouteId,
   onSetAsOrigin,
   onSetAsDestination,
-  lang,
 }) => {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<'ALL' | TransitMode>('ALL');
@@ -33,7 +31,6 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
         !search ||
         r.code.toLowerCase().includes(q) ||
         r.name.toLowerCase().includes(q) ||
-        r.urduName.includes(q) ||
         r.stops.some((sId) => STOPS[sId]?.name.toLowerCase().includes(q));
       return matchesCategory && matchesSearch;
     });
@@ -81,7 +78,7 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
           <div className="flex items-center gap-1.5">
             <Bus className="w-4 h-4 text-blue-600" />
             <h2 className="text-sm font-bold text-slate-900">
-              {lang === 'ur' ? 'روٹ ڈائریکٹری' : 'Transit Routes Directory'}
+              Transit Routes Directory
             </h2>
           </div>
           <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
@@ -96,11 +93,7 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={
-              lang === 'ur'
-                ? 'روٹ کوڈ یا اسٹاپ تلاش کریں (مثلاً W-11، A-18، R-4)...'
-                : 'Search route code or stop (e.g. W-11, A-18, R-4)...'
-            }
+            placeholder="Search route code or stop (e.g. W-11, A-18, R-4)..."
             className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600"
           />
         </div>
@@ -179,7 +172,7 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
             className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 border border-slate-200 shadow-sm transition cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{lang === 'ur' ? 'روٹس کی فہرست' : 'Back to Routes List'}</span>
+            <span>Back to Routes List</span>
           </button>
 
           {/* Selected Route Detail */}
@@ -198,12 +191,10 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
                 </span>
               </div>
               <h3 className="text-sm sm:text-base font-bold text-slate-900">
-                {lang === 'ur' ? selectedRouteInternal.urduName : selectedRouteInternal.name}
+                {selectedRouteInternal.name}
               </h3>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                {lang === 'ur'
-                  ? selectedRouteInternal.urduDescription
-                  : selectedRouteInternal.description}
+                {selectedRouteInternal.description}
               </p>
             </div>
 
@@ -262,7 +253,7 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
                         </span>
                         <div className="truncate">
                           <span className="font-medium text-slate-900 text-xs">
-                            {lang === 'ur' ? stop.urduName : stop.name}
+                            {stop.name}
                           </span>
                           <span className="text-[10px] text-slate-500 ml-1">({stop.area})</span>
                         </div>
@@ -317,7 +308,7 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
                 </div>
 
                 <div className="font-semibold text-xs sm:text-sm text-slate-900 line-clamp-1">
-                  {lang === 'ur' ? route.urduName : route.name}
+                  {route.name}
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-slate-500 mt-1">

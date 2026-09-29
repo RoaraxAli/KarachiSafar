@@ -10,7 +10,6 @@ interface MapViewProps {
   originStopId: string;
   destStopId: string;
   onSelectStop?: (stopId: string) => void;
-  lang: 'en' | 'ur';
   className?: string;
 }
 
@@ -152,7 +151,6 @@ export const MapView: React.FC<MapViewProps> = ({
               <div style="font-family: sans-serif; color: #0f172a; padding: 4px;">
                 <div style="font-size: 11px; font-weight: bold; color: ${selectedRoute.color};">${selectedRoute.code} • Stop ${idx + 1}</div>
                 <div style="font-size: 13px; font-weight: 700;">${stop.name}</div>
-                <div style="font-size: 12px; color: #64748b;">${stop.urduName}</div>
                 <div style="font-size: 11px; margin-top: 4px; color: #475569;">${stop.area}</div>
               </div>
             `)
@@ -216,7 +214,6 @@ export const MapView: React.FC<MapViewProps> = ({
               <div style="font-family: sans-serif; color: #0f172a; padding: 4px;">
                 <div style="font-size: 11px; font-weight: bold; color: ${leg.color};">${leg.routeCode || leg.mode}</div>
                 <div style="font-size: 13px; font-weight: 700;">${from.name}</div>
-                <div style="font-size: 12px; color: #64748b;">${from.urduName}</div>
                 <div style="font-size: 11px; margin-top: 4px; color: #334155;">${from.area}</div>
               </div>
             `)
@@ -237,7 +234,6 @@ export const MapView: React.FC<MapViewProps> = ({
                 <div style="font-family: sans-serif; color: #0f172a; padding: 4px;">
                   <div style="font-size: 11px; font-weight: bold; color: #ef4444;">Final Destination</div>
                   <div style="font-size: 13px; font-weight: 700;">${to.name}</div>
-                  <div style="font-size: 12px; color: #64748b;">${to.urduName}</div>
                 </div>
               `)
               .addTo(layerGroup);
@@ -256,7 +252,6 @@ export const MapView: React.FC<MapViewProps> = ({
               .bindPopup(`
                 <div style="font-family: sans-serif; color: #0f172a; padding: 2px;">
                   <div style="font-size: 12px; font-weight: 600;">${iStop.name}</div>
-                  <div style="font-size: 11px; color: #64748b;">${iStop.urduName}</div>
                 </div>
               `)
               .addTo(layerGroup);

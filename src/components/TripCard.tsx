@@ -7,7 +7,6 @@ interface TripCardProps {
   isSelected: boolean;
   onSelect: (plan: TripPlan) => void;
   onStartNavigation: (plan: TripPlan) => void;
-  lang: 'en' | 'ur';
 }
 
 export const TripCard: React.FC<TripCardProps> = ({
@@ -15,7 +14,6 @@ export const TripCard: React.FC<TripCardProps> = ({
   isSelected,
   onSelect,
   onStartNavigation,
-  lang,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -69,10 +67,10 @@ export const TripCard: React.FC<TripCardProps> = ({
               plan.tag
             )}`}
           >
-            {lang === 'ur' ? plan.tagUrdu : plan.tag}
+            {plan.tag}
           </span>
           <h3 className="text-sm sm:text-base font-bold text-slate-900 mt-1 leading-snug">
-            {lang === 'ur' ? plan.urduTitle : plan.title}
+            {plan.title}
           </h3>
         </div>
 
@@ -94,11 +92,7 @@ export const TripCard: React.FC<TripCardProps> = ({
           <Shuffle className="w-3 h-3 text-slate-400" />
           <span>
             {plan.transferCount === 0
-              ? lang === 'ur'
-                ? 'براہِ راست'
-                : 'Direct'
-              : lang === 'ur'
-              ? `${plan.transferCount} ٹرانسفر`
+              ? 'Direct'
               : `${plan.transferCount} Transfer${plan.transferCount > 1 ? 's' : ''}`}
           </span>
         </span>
@@ -141,7 +135,7 @@ export const TripCard: React.FC<TripCardProps> = ({
           }}
           className="text-xs text-slate-600 hover:text-slate-900 flex items-center gap-1 py-1 px-2 rounded hover:bg-slate-100 transition cursor-pointer"
         >
-          <span>{isExpanded ? (lang === 'ur' ? 'مختصر کریں' : 'Hide Details') : (lang === 'ur' ? 'اسٹاپس دیکھیں' : 'View Stops')}</span>
+          <span>{isExpanded ? 'Hide Details' : 'View Stops'}</span>
           {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
         </button>
 
@@ -153,7 +147,7 @@ export const TripCard: React.FC<TripCardProps> = ({
           className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition cursor-pointer shadow-sm"
         >
           <Navigation className="w-3 h-3 fill-current" />
-          <span>{lang === 'ur' ? 'نیویگیشن' : 'Navigate'}</span>
+          <span>Navigate</span>
         </button>
       </div>
 
@@ -177,7 +171,7 @@ export const TripCard: React.FC<TripCardProps> = ({
               </div>
 
               <div className="text-slate-700 font-medium leading-relaxed text-xs">
-                {lang === 'ur' ? leg.urduInstruction : leg.instruction}
+                {leg.instruction}
               </div>
 
               {/* Intermediate Stops */}
