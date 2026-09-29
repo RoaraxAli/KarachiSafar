@@ -22,6 +22,8 @@ export const MapView: React.FC<MapViewProps> = ({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
+  const baseTileGroupRef = useRef<L.LayerGroup | null>(null);
+  const [mapStyle, setMapStyle] = useState<'DARK' | 'STREET'>('DARK');
   const [showAllCorridors, setShowAllCorridors] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -37,12 +39,9 @@ export const MapView: React.FC<MapViewProps> = ({
       zoomControl: false,
     });
 
-    // Dark-mode OSM TileLayer (CartoDB Dark Matter)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://carto.com/">CartoDB</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
-      maxZoom: 19,
-      subdomains: 'abcd',
-    }).addTo(map);
+    // Base tile layer group (100% free, NO API key required)
+    const baseTileGroup = L.layerGroup().addTo(map);
+    baseTileGroupRef.current = baseTileGroup;
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
@@ -55,6 +54,38 @@ export const MapView: React.FC<MapViewProps> = ({
       mapInstanceRef.current = null;
     };
   }, []);
+
+  // Update base tile layer on style change (both 100% free with NO API key and NO watermarks)
+  useEffect(() => {
+    const baseGroup = baseTileGroupRef.current;
+    if (!baseGroup) return;
+    baseGroup.clearLayers();
+
+    if (mapStyle === 'DARK') {
+      const darkBase = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+        {
+          attribution: '&copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+          maxZoom: 16,
+        }
+      );
+      const darkLabels = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+        {
+          maxZoom: 16,
+        }
+      );
+      baseGroup.addLayer(darkBase);
+      baseGroup.addLayer(darkLabels);
+    } else {
+      const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+        subdomains: 'abc',
+      });
+      baseGroup.addLayer(osm);
+    }
+  }, [mapStyle]);
 
   // Update map contents when selectedPlan, selectedRoute, or showAllCorridors changes
   useEffect(() => {
@@ -262,7 +293,7 @@ export const MapView: React.FC<MapViewProps> = ({
       <div ref={mapContainerRef} className="w-full h-full" />
 
       {/* Floating Map Controls & Overlays */}
-      <div className="absolute top-3 left-3 z-[400] flex flex-col gap-2">
+      <div className="absolute top-3 left-3 z-[400] flex flex-wrap items-center gap-2">
         {/* Network Overlay Toggle */}
         <button
           onClick={() => setShowAllCorridors(!showAllCorridors)}
@@ -275,6 +306,15 @@ export const MapView: React.FC<MapViewProps> = ({
         >
           <Layers className="w-3.5 h-3.5" />
           <span>{showAllCorridors ? 'Hide Transit Mesh' : 'Show All Karachi Corridors'}</span>
+        </button>
+
+        {/* Style Switcher (Dark vs OSM Streets - 0 API Key) */}
+        <button
+          onClick={() => setMapStyle(mapStyle === 'DARK' ? 'STREET' : 'DARK')}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border bg-slate-900/90 text-slate-200 border-slate-700 hover:bg-slate-800 shadow-lg backdrop-blur-md transition cursor-pointer"
+          title="Switch Basemap Style (No API Key Required)"
+        >
+          <span>{mapStyle === 'DARK' ? '🗺️ Street Map' : '🌙 Dark Transit'}</span>
         </button>
       </div>
 
