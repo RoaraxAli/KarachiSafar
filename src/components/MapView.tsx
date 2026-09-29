@@ -11,6 +11,7 @@ interface MapViewProps {
   destStopId: string;
   onSelectStop?: (stopId: string) => void;
   lang: 'en' | 'ur';
+  className?: string;
 }
 
 export const MapView: React.FC<MapViewProps> = ({
@@ -18,6 +19,7 @@ export const MapView: React.FC<MapViewProps> = ({
   selectedRoute,
   originStopId,
   destStopId,
+  className,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -49,7 +51,16 @@ export const MapView: React.FC<MapViewProps> = ({
     mapInstanceRef.current = map;
     layerGroupRef.current = layerGroup;
 
+    // Resize observer to auto-adapt map size when sidebar collapses or opens
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    if (mapContainerRef.current) {
+      resizeObserver.observe(mapContainerRef.current);
+    }
+
     return () => {
+      resizeObserver.disconnect();
       map.remove();
       mapInstanceRef.current = null;
     };
@@ -285,15 +296,18 @@ export const MapView: React.FC<MapViewProps> = ({
 
   return (
     <div
-      className={`relative rounded-2xl overflow-hidden border border-slate-700 shadow-2xl transition-all ${
-        isExpanded ? 'h-[75vh]' : 'h-80 sm:h-[420px]'
-      }`}
+      className={
+        className ||
+        `relative rounded-2xl overflow-hidden border border-slate-700 shadow-2xl transition-all ${
+          isExpanded ? 'h-[75vh]' : 'h-80 sm:h-[420px]'
+        }`
+      }
     >
       {/* Leaflet Map Div */}
       <div ref={mapContainerRef} className="w-full h-full" />
 
-      {/* Floating Map Controls & Overlays */}
-      <div className="absolute top-3 left-3 z-[400] flex flex-wrap items-center gap-2">
+      {/* Floating Map Controls & Overlays on Top-Right */}
+      <div className="absolute top-3 right-3 z-[400] flex flex-wrap items-center gap-2">
         {/* Network Overlay Toggle */}
         <button
           onClick={() => setShowAllCorridors(!showAllCorridors)}
@@ -316,17 +330,17 @@ export const MapView: React.FC<MapViewProps> = ({
         >
           <span>{mapStyle === 'DARK' ? '🗺️ Street Map' : '🌙 Dark Transit'}</span>
         </button>
-      </div>
 
-      {/* Expand/Contract Map Button */}
-      <div className="absolute top-3 right-3 z-[400]">
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 shadow-lg backdrop-blur-md transition cursor-pointer"
-          title={isExpanded ? 'Minimize Map' : 'Expand Map'}
-        >
-          {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-        </button>
+        {/* Expand/Contract Map Button only if not full screen className */}
+        {!className && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 shadow-lg backdrop-blur-md transition cursor-pointer"
+            title={isExpanded ? 'Minimize Map' : 'Expand Map'}
+          >
+            {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          </button>
+        )}
       </div>
 
       {/* Legend Bar at Bottom of Map */}

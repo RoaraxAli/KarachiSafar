@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Navbar } from './components/Navbar';
 import { RouteSearchForm } from './components/RouteSearchForm';
 import { TripCard } from './components/TripCard';
 import { MapView } from './components/MapView';
@@ -10,9 +9,12 @@ import { NavigationMode } from './components/NavigationMode';
 import { planJourney, filterPlans } from './lib/graphRouter';
 import type { TripPlan, TransitRoute, ChingchiAdda } from './types/transit';
 import { STOPS } from './data/transitData';
-import { AlertCircle, Sparkles, Compass, Bus } from 'lucide-react';
+import { AlertCircle, Sparkles, Compass, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export function App() {
+  // Sidebar state: open by default
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   // App navigation state
   const [activeTab, setActiveTab] = useState<'PLANNER' | 'EXPLORER' | 'CHINGCHI_ADDAS' | 'FARES'>('PLANNER');
   const [lang, setLang] = useState<'en' | 'ur'>('en');
@@ -54,10 +56,10 @@ export function App() {
     setDestStopId('capri-cinema');
     setActiveTab('PLANNER');
     setFilter('ALL');
+    setIsSidebarOpen(true);
   };
 
   const handleSelectAdda = (adda: ChingchiAdda) => {
-    // Find closest stop to adda
     const match = Object.values(STOPS).find(
       (s) => Math.hypot(s.lat - adda.lat, s.lng - adda.lng) < 0.005
     );
@@ -65,6 +67,7 @@ export function App() {
       setOriginStopId(match.id);
     }
     setActiveTab('PLANNER');
+    setIsSidebarOpen(true);
   };
 
   const handleSelectRouteFromExplorer = (route: TransitRoute) => {
@@ -72,78 +75,142 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-white pb-12">
-      {/* Top Navbar */}
-      <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        lang={lang}
-        setLang={setLang}
-        onOpenQuickDemo={handleOpenQuickDemo}
-      />
+    <div className="h-screen w-screen overflow-hidden flex relative bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-white">
+      {/* ============================================================ */}
+      {/* 1. SIDEBAR (Docked on Left, Collapsible, Clean & Uncluttered) */}
+      {/* ============================================================ */}
+      <aside
+        className={`h-full flex flex-col z-20 bg-slate-950 sm:bg-slate-900/95 border-r border-slate-800 shadow-2xl backdrop-blur-2xl transition-all duration-300 ease-in-out absolute sm:relative inset-y-0 left-0 ${
+          isSidebarOpen
+            ? 'w-full sm:w-[420px] md:w-[450px] lg:w-[460px] translate-x-0'
+            : 'w-0 -translate-x-full sm:translate-x-0 sm:w-0 overflow-hidden pointer-events-none border-none'
+        }`}
+      >
+        {/* Sidebar Header */}
+        <div className="p-3 border-b border-slate-800/80 bg-slate-900/90 flex items-center justify-between gap-2 flex-shrink-0">
+          <div
+            className="flex items-center gap-2 cursor-pointer select-none"
+            onClick={() => setActiveTab('PLANNER')}
+          >
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-base shadow-sm">
+              🛺
+            </div>
+            <div>
+              <h1 className="text-base font-bold text-white tracking-tight flex items-center gap-1">
+                Karachi Safar
+                <span className="text-emerald-400 text-xs font-semibold urdu-font">(کراچی سفر)</span>
+              </h1>
+              <p className="text-[10px] text-slate-400 leading-none">
+                {lang === 'ur' ? 'ملٹی ماڈل ٹرانزٹ' : 'Multimodal Transit Navigator'}
+              </p>
+            </div>
+          </div>
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6">
-        {/* TAB 1: JOURNEY PLANNER */}
-        {activeTab === 'PLANNER' && (
-          <div className="space-y-5">
-            {/* Search Input Form */}
-            <RouteSearchForm
-              originStopId={originStopId}
-              destStopId={destStopId}
-              setOriginStopId={setOriginStopId}
-              setDestStopId={setDestStopId}
-              onSearch={() => {}}
-              filter={filter}
-              setFilter={setFilter}
-              allowChingchi={allowChingchi}
-              setAllowChingchi={setAllowChingchi}
-              lang={lang}
-            />
+          <div className="flex items-center gap-1.5">
+            {/* Quick Demo Button */}
+            <button
+              onClick={handleOpenQuickDemo}
+              className="px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition cursor-pointer flex items-center gap-1"
+              title="Demo: Buffer Zone to Capri Cinema"
+            >
+              <Sparkles className="w-3 h-3" />
+              <span>Demo</span>
+            </button>
 
-            {/* Split View: Map on Left / Top, Trip Options on Right / Bottom */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-              {/* Map Column */}
-              <div className="lg:col-span-6 lg:sticky lg:top-24 space-y-3">
-                <MapView
-                  selectedPlan={selectedPlan}
-                  selectedRoute={null}
-                  originStopId={originStopId}
-                  destStopId={destStopId}
-                  lang={lang}
-                />
+            {/* Language Switcher */}
+            <button
+              onClick={() => setLang(lang === 'en' ? 'ur' : 'en')}
+              className="px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-800 text-amber-400 border border-slate-700 transition cursor-pointer"
+              title="Toggle Language"
+            >
+              {lang === 'en' ? 'اردو' : 'EN'}
+            </button>
 
-                {/* Map Context Bar */}
-                {selectedPlan && (
-                  <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-xs flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="font-semibold text-slate-200">
-                        {lang === 'ur' ? 'منتخب راستہ میپ پر ہائی لائٹ ہے' : 'Active Route Polyline Displayed'}
-                      </span>
-                    </div>
-                    <span className="text-slate-400 font-mono">
-                      {selectedPlan.totalDistanceKm} km • {selectedPlan.totalDurationMinutes} mins
-                    </span>
-                  </div>
-                )}
-              </div>
+            {/* Collapse Sidebar Button */}
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer"
+              title="Collapse Sidebar (Full Map)"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
-              {/* Trip Cards List Column */}
-              <div className="lg:col-span-6 space-y-3">
+        {/* Sub-Tab Navigation Bar */}
+        <div className="flex items-center border-b border-slate-800/80 bg-slate-900/60 p-1 flex-shrink-0 text-xs">
+          <button
+            onClick={() => setActiveTab('PLANNER')}
+            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition cursor-pointer text-center ${
+              activeTab === 'PLANNER'
+                ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            {lang === 'ur' ? 'سفر پلان' : 'Plan'}
+          </button>
+          <button
+            onClick={() => setActiveTab('EXPLORER')}
+            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition cursor-pointer text-center ${
+              activeTab === 'EXPLORER'
+                ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            {lang === 'ur' ? 'روٹس (92)' : 'Routes (92)'}
+          </button>
+          <button
+            onClick={() => setActiveTab('CHINGCHI_ADDAS')}
+            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition cursor-pointer text-center ${
+              activeTab === 'CHINGCHI_ADDAS'
+                ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            {lang === 'ur' ? 'اڈے' : 'Addas'}
+          </button>
+          <button
+            onClick={() => setActiveTab('FARES')}
+            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition cursor-pointer text-center ${
+              activeTab === 'FARES'
+                ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            {lang === 'ur' ? 'کرایہ' : 'Fares'}
+          </button>
+        </div>
+
+        {/* Scrollable Sidebar Content */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-3.5">
+          {activeTab === 'PLANNER' && (
+            <div className="space-y-3">
+              {/* Clean Route Search Inputs */}
+              <RouteSearchForm
+                originStopId={originStopId}
+                destStopId={destStopId}
+                setOriginStopId={setOriginStopId}
+                setDestStopId={setDestStopId}
+                filter={filter}
+                setFilter={setFilter}
+                allowChingchi={allowChingchi}
+                setAllowChingchi={setAllowChingchi}
+                lang={lang}
+              />
+
+              {/* Journey Options List */}
+              <div className="space-y-2">
                 <div className="flex items-center justify-between px-1">
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    {lang === 'ur'
-                      ? `دستیاب راستے (${displayedPlans.length})`
-                      : `Multimodal Journey Options (${displayedPlans.length})`}
-                  </div>
-                  <div className="text-[11px] text-emerald-400 font-medium">
-                    ⚡ Live Dijkstra Routing
-                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    {lang === 'ur' ? `راستے (${displayedPlans.length})` : `Journey Options (${displayedPlans.length})`}
+                  </span>
+                  <span className="text-[10px] text-emerald-400 font-semibold">
+                    ⚡ Live Dijkstra
+                  </span>
                 </div>
 
                 {displayedPlans.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {displayedPlans.map((plan) => (
                       <TripCard
                         key={plan.id}
@@ -156,43 +223,19 @@ export function App() {
                     ))}
                   </div>
                 ) : (
-                  <div className="p-8 text-center bg-slate-900/70 border border-slate-800 rounded-2xl space-y-3">
-                    <AlertCircle className="w-8 h-8 text-amber-400 mx-auto" />
-                    <div className="text-sm font-bold text-white">No direct transit route found</div>
-                    <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                      Try selecting nearby major transit hubs (e.g. Nagan Chowrangi, Board Office, Numaish, NIPA, Sohrab Goth, or Tower).
+                  <div className="p-6 text-center bg-slate-900/60 border border-slate-800 rounded-xl space-y-2">
+                    <AlertCircle className="w-6 h-6 text-amber-400 mx-auto" />
+                    <div className="text-xs font-bold text-white">No direct transit route found</div>
+                    <p className="text-[11px] text-slate-400">
+                      Try selecting nearby major transit hubs (Nagan, NIPA, Sohrab Goth, or Saddar).
                     </p>
                   </div>
                 )}
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* TAB 2: ROUTE EXPLORER */}
-        {activeTab === 'EXPLORER' && (
-          <div className="space-y-5">
-            {/* Map Preview for Explorer */}
-            {selectedExplorerRoute && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs px-1 text-slate-400">
-                  <span className="font-semibold text-slate-300">
-                    Viewing {selectedExplorerRoute.code} ({selectedExplorerRoute.stops.length} stops) on map:
-                  </span>
-                  <span className="text-emerald-400 font-bold">
-                    Rs. {typeof selectedExplorerRoute.fare === 'number' ? selectedExplorerRoute.fare : selectedExplorerRoute.fare.min}
-                  </span>
-                </div>
-                <MapView
-                  selectedPlan={null}
-                  selectedRoute={selectedExplorerRoute}
-                  originStopId={originStopId}
-                  destStopId={destStopId}
-                  lang={lang}
-                />
-              </div>
-            )}
-
+          {activeTab === 'EXPLORER' && (
             <RouteExplorer
               onSelectRoute={handleSelectRouteFromExplorer}
               selectedRouteId={selectedExplorerRoute?.id || null}
@@ -206,19 +249,56 @@ export function App() {
               }}
               lang={lang}
             />
+          )}
+
+          {activeTab === 'CHINGCHI_ADDAS' && (
+            <ChingchiDirectory onSelectAdda={handleSelectAdda} lang={lang} />
+          )}
+
+          {activeTab === 'FARES' && <FareCalculator lang={lang} />}
+        </div>
+      </aside>
+
+      {/* ============================================================ */}
+      {/* 2. THE BIG MAP (Fills all remaining space, persistent & deep) */}
+      {/* ============================================================ */}
+      <main className="flex-1 h-full relative z-10 overflow-hidden">
+        <MapView
+          selectedPlan={activeTab === 'PLANNER' ? selectedPlan : null}
+          selectedRoute={activeTab === 'EXPLORER' ? selectedExplorerRoute : null}
+          originStopId={originStopId}
+          destStopId={destStopId}
+          lang={lang}
+          className="w-full h-full relative"
+        />
+
+        {/* Floating Button to Re-Open Sidebar when Collapsed */}
+        {!isSidebarOpen && (
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="absolute top-4 left-4 z-[400] flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900/95 hover:bg-slate-800 text-white font-bold text-xs border border-slate-700 shadow-2xl backdrop-blur-md transition-all cursor-pointer hover:border-emerald-500/50"
+          >
+            <Compass className="w-4 h-4 text-emerald-400" />
+            <span>{lang === 'ur' ? 'سفر پلانر کھولیں' : 'Open Transit Navigator'}</span>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+          </button>
+        )}
+
+        {/* Floating Active Route Information Pill (Top-Center of Map) */}
+        {selectedPlan && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[400] hidden md:flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/80 shadow-2xl backdrop-blur-md text-xs">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-semibold text-white truncate max-w-xs">{selectedPlan.title}</span>
+            <span className="text-slate-400 font-mono text-[11px]">
+              {selectedPlan.totalDurationMinutes}m • Rs. {selectedPlan.totalFarePKR}
+            </span>
           </div>
         )}
-
-        {/* TAB 3: CHINGCHI ADDA DIRECTORY */}
-        {activeTab === 'CHINGCHI_ADDAS' && (
-          <ChingchiDirectory onSelectAdda={handleSelectAdda} lang={lang} />
-        )}
-
-        {/* TAB 4: FARES & BYKEA CALCULATOR */}
-        {activeTab === 'FARES' && <FareCalculator lang={lang} />}
       </main>
 
-      {/* Navigation Mode Cockpit Modal */}
+      {/* ============================================================ */}
+      {/* 3. SIMULATED LIVE NAVIGATION MODAL */}
+      {/* ============================================================ */}
       {navigatingPlan && (
         <NavigationMode
           plan={navigatingPlan}
@@ -226,49 +306,6 @@ export function App() {
           lang={lang}
         />
       )}
-
-      {/* Mobile Sticky Quick Switcher Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 z-20 bg-slate-900/95 border-t border-slate-800 backdrop-blur-md px-3 py-2 sm:hidden">
-        <div className="flex items-center justify-around text-[10px]">
-          <button
-            onClick={() => setActiveTab('PLANNER')}
-            className={`flex flex-col items-center gap-0.5 cursor-pointer ${
-              activeTab === 'PLANNER' ? 'text-emerald-400 font-bold' : 'text-slate-400'
-            }`}
-          >
-            <Compass className="w-4 h-4" />
-            <span>{lang === 'ur' ? 'منصوبہ' : 'Plan'}</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('EXPLORER')}
-            className={`flex flex-col items-center gap-0.5 cursor-pointer ${
-              activeTab === 'EXPLORER' ? 'text-emerald-400 font-bold' : 'text-slate-400'
-            }`}
-          >
-            <Bus className="w-4 h-4" />
-            <span>{lang === 'ur' ? 'روٹس' : 'Routes'}</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('CHINGCHI_ADDAS')}
-            className={`flex flex-col items-center gap-0.5 cursor-pointer ${
-              activeTab === 'CHINGCHI_ADDAS' ? 'text-emerald-400 font-bold' : 'text-slate-400'
-            }`}
-          >
-            <span className="text-sm">🛺</span>
-            <span>{lang === 'ur' ? 'اڈے' : 'Addas'}</span>
-          </button>
-
-          <button
-            onClick={handleOpenQuickDemo}
-            className="flex flex-col items-center gap-0.5 text-amber-400 font-bold cursor-pointer"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>{lang === 'ur' ? 'ٹیسٹ کیس' : 'Demo'}</span>
-          </button>
-        </div>
-      </footer>
     </div>
   );
 }

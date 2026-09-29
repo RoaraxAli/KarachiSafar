@@ -38,9 +38,12 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
     });
   }, [search, categoryFilter]);
 
+  const [activeView, setActiveView] = useState<'LIST' | 'DETAIL'>('LIST');
+
   const handleRouteClick = (route: TransitRoute) => {
     setSelectedRouteInternal(route);
     onSelectRoute(route);
+    setActiveView('DETAIL');
   };
 
   const getModeLabel = (mode: TransitMode) => {
@@ -186,17 +189,148 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
         </div>
       </div>
 
-      {/* Main Grid: Routes List & Route Detail Panel */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-        {/* Left Side: Route List */}
-        <div className="md:col-span-5 space-y-2 max-h-[560px] overflow-y-auto pr-1">
+      {/* Content: Either Detail View or List View */}
+      {activeView === 'DETAIL' && selectedRouteInternal ? (
+        <div className="space-y-3">
+          {/* Back button */}
+          <button
+            onClick={() => setActiveView('LIST')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition cursor-pointer"
+          >
+            <span>← {lang === 'ur' ? 'روٹس کی فہرست پر واپس جائیں' : 'Back to Routes List'}</span>
+          </button>
+
+          {/* Selected Route Detail */}
+          <div className="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 shadow-xl space-y-3">
+            {/* Route Heading */}
+            <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-2.5">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span
+                    className="px-2.5 py-0.5 rounded text-xs font-extrabold text-white"
+                    style={{ backgroundColor: selectedRouteInternal.color }}
+                  >
+                    {selectedRouteInternal.code}
+                  </span>
+                  <span className="text-xs font-semibold text-slate-300">
+                    {getModeLabel(selectedRouteInternal.category)}
+                  </span>
+                </div>
+                <h3 className="text-sm sm:text-base font-bold text-white">
+                  {lang === 'ur' ? selectedRouteInternal.urduName : selectedRouteInternal.name}
+                </h3>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  {lang === 'ur'
+                    ? selectedRouteInternal.urduDescription
+                    : selectedRouteInternal.description}
+                </p>
+              </div>
+            </div>
+
+            {/* Route Attributes */}
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-slate-800/80 p-2 rounded-xl border border-slate-700/60">
+                <div className="text-slate-400 flex items-center gap-1 mb-0.5">
+                  <Banknote className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Fare</span>
+                </div>
+                <div className="font-bold text-white text-xs sm:text-sm">
+                  Rs. {typeof selectedRouteInternal.fare === 'number'
+                    ? selectedRouteInternal.fare
+                    : `${selectedRouteInternal.fare.min} - ${selectedRouteInternal.fare.max}`}
+                </div>
+              </div>
+
+              <div className="bg-slate-800/80 p-2 rounded-xl border border-slate-700/60">
+                <div className="text-slate-400 flex items-center gap-1 mb-0.5">
+                  <Clock className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Frequency</span>
+                </div>
+                <div className="font-bold text-white text-xs sm:text-sm">
+                  {typeof selectedRouteInternal.intervalMinutes === 'number'
+                    ? `${selectedRouteInternal.intervalMinutes} mins`
+                    : `${selectedRouteInternal.intervalMinutes.min}-${selectedRouteInternal.intervalMinutes.max} mins`}
+                </div>
+              </div>
+
+              <div className="bg-slate-800/80 p-2 rounded-xl border border-slate-700/60">
+                <div className="text-slate-400 flex items-center gap-1 mb-0.5">
+                  <Shield className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Type</span>
+                </div>
+                <div className="font-bold text-white text-xs">
+                  {selectedRouteInternal.comfort === 'AC' ? 'Air-Conditioned ❄️' : 'Regular Open-Air'}
+                </div>
+              </div>
+
+              <div className="bg-slate-800/80 p-2 rounded-xl border border-slate-700/60">
+                <div className="text-slate-400 flex items-center gap-1 mb-0.5">
+                  <Clock className="w-3.5 h-3.5 text-purple-400" />
+                  <span>Hours</span>
+                </div>
+                <div className="font-bold text-white text-xs truncate">
+                  {selectedRouteInternal.operatingHours}
+                </div>
+              </div>
+            </div>
+
+            {/* Stop Sequence */}
+            <div>
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                Stops ({selectedRouteInternal.stops.length})
+              </h4>
+              <div className="space-y-1 max-h-72 overflow-y-auto pr-1">
+                {selectedRouteInternal.stops.map((stopId, sIdx) => {
+                  const stop = STOPS[stopId];
+                  if (!stop) return null;
+                  return (
+                    <div
+                      key={stopId}
+                      className="p-1.5 rounded-lg bg-slate-800/60 border border-slate-700/50 flex items-center justify-between text-xs hover:border-slate-600 transition"
+                    >
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <span className="w-4 h-4 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0">
+                          {sIdx + 1}
+                        </span>
+                        <div className="truncate">
+                          <span className="font-medium text-white text-xs">
+                            {lang === 'ur' ? stop.urduName : stop.name}
+                          </span>
+                          <span className="text-[10px] text-slate-400 ml-1">({stop.area})</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                          onClick={() => onSetAsOrigin(stop.id)}
+                          className="px-1.5 py-0.5 rounded bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 font-medium text-[9px] transition cursor-pointer"
+                        >
+                          From
+                        </button>
+                        <button
+                          onClick={() => onSetAsDestination(stop.id)}
+                          className="px-1.5 py-0.5 rounded bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white font-medium text-[9px] transition cursor-pointer"
+                        >
+                          To
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Route List View */
+        <div className="space-y-1.5 max-h-[calc(100vh-280px)] overflow-y-auto pr-1">
           {filteredRoutes.map((route) => {
             const isSelected = selectedRouteInternal?.id === route.id;
             return (
               <div
                 key={route.id}
                 onClick={() => handleRouteClick(route)}
-                className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
                   isSelected
                     ? 'bg-slate-800 border-emerald-500 shadow-md ring-1 ring-emerald-500/30'
                     : 'bg-slate-800/60 border-slate-700/80 hover:bg-slate-800/90'
@@ -220,147 +354,16 @@ export const RouteExplorer: React.FC<RouteExplorerProps> = ({
 
                 <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1">
                   <span>{route.stops.length} stops</span>
-                  <span className="flex items-center gap-1 text-emerald-400 font-medium">
+                  <span className="flex items-center gap-1 text-emerald-400 font-medium text-[11px]">
                     <Eye className="w-3 h-3" />
-                    <span>View on map</span>
+                    <span>Plot on map</span>
                   </span>
                 </div>
               </div>
             );
           })}
         </div>
-
-        {/* Right Side: Selected Route Detail & Stop List */}
-        <div className="md:col-span-7">
-          {selectedRouteInternal ? (
-            <div className="bg-slate-800/90 rounded-2xl p-4 sm:p-5 border border-slate-700 shadow-xl space-y-4">
-              {/* Route Heading */}
-              <div className="flex items-start justify-between gap-3 border-b border-slate-700 pb-3">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span
-                      className="px-2.5 py-0.5 rounded text-xs font-extrabold text-white"
-                      style={{ backgroundColor: selectedRouteInternal.color }}
-                    >
-                      {selectedRouteInternal.code}
-                    </span>
-                    <span className="text-xs font-semibold text-slate-300">
-                      {getModeLabel(selectedRouteInternal.category)}
-                    </span>
-                  </div>
-                  <h3 className="text-base sm:text-lg font-bold text-white">
-                    {lang === 'ur' ? selectedRouteInternal.urduName : selectedRouteInternal.name}
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-1">
-                    {lang === 'ur'
-                      ? selectedRouteInternal.urduDescription
-                      : selectedRouteInternal.description}
-                  </p>
-                </div>
-              </div>
-
-              {/* Route Attributes */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
-                  <div className="text-slate-400 flex items-center gap-1 mb-1">
-                    <Banknote className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Fare (PKR)</span>
-                  </div>
-                  <div className="font-bold text-white">
-                    Rs. {typeof selectedRouteInternal.fare === 'number'
-                      ? selectedRouteInternal.fare
-                      : `${selectedRouteInternal.fare.min} - ${selectedRouteInternal.fare.max}`}
-                  </div>
-                </div>
-
-                <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
-                  <div className="text-slate-400 flex items-center gap-1 mb-1">
-                    <Clock className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Headway</span>
-                  </div>
-                  <div className="font-bold text-white">
-                    {typeof selectedRouteInternal.intervalMinutes === 'number'
-                      ? `${selectedRouteInternal.intervalMinutes} mins`
-                      : `${selectedRouteInternal.intervalMinutes.min}-${selectedRouteInternal.intervalMinutes.max} mins`}
-                  </div>
-                </div>
-
-                <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
-                  <div className="text-slate-400 flex items-center gap-1 mb-1">
-                    <Shield className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Comfort</span>
-                  </div>
-                  <div className="font-bold text-white">
-                    {selectedRouteInternal.comfort === 'AC' ? 'Air-Conditioned' : 'Non-AC / Open Air'}
-                  </div>
-                </div>
-
-                <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
-                  <div className="text-slate-400 flex items-center gap-1 mb-1">
-                    <Clock className="w-3.5 h-3.5 text-purple-400" />
-                    <span>Hours</span>
-                  </div>
-                  <div className="font-bold text-white truncate">
-                    {selectedRouteInternal.operatingHours}
-                  </div>
-                </div>
-              </div>
-
-              {/* Stop Sequence with Plan Journey buttons */}
-              <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                  Complete Stop Sequence ({selectedRouteInternal.stops.length} Stops)
-                </h4>
-                <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
-                  {selectedRouteInternal.stops.map((stopId, sIdx) => {
-                    const stop = STOPS[stopId];
-                    if (!stop) return null;
-                    return (
-                      <div
-                        key={stopId}
-                        className="p-2 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between text-xs hover:border-slate-700 transition"
-                      >
-                        <div className="flex items-center gap-2 overflow-hidden">
-                          <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-mono font-bold text-[10px] flex-shrink-0">
-                            {sIdx + 1}
-                          </span>
-                          <div className="truncate">
-                            <span className="font-semibold text-white">
-                              {lang === 'ur' ? stop.urduName : stop.name}
-                            </span>
-                            <span className="text-[11px] text-slate-400 ml-2">({stop.area})</span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          <button
-                            onClick={() => onSetAsOrigin(stop.id)}
-                            className="px-2 py-0.5 rounded bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 font-medium text-[10px] transition cursor-pointer"
-                            title="Set as Journey Origin"
-                          >
-                            Set Origin
-                          </button>
-                          <button
-                            onClick={() => onSetAsDestination(stop.id)}
-                            className="px-2 py-0.5 rounded bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white font-medium text-[10px] transition cursor-pointer"
-                            title="Set as Journey Destination"
-                          >
-                            Set Dest
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="p-8 text-center text-slate-500 bg-slate-800/40 rounded-2xl border border-slate-700">
-              Select a route to inspect its complete Karachi stop sequence
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 };
