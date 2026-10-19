@@ -76,24 +76,24 @@ export const MapView: React.FC<MapViewProps> = ({
     baseGroup.clearLayers();
 
     if (mapStyle === 'DARK') {
+      // CartoDB Dark Matter: free, no API key, English labels worldwide
       const darkBase = L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
         {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          subdomains: ['a', 'b', 'c'],
-          maxZoom: 19,
-          className: 'map-tiles-dark',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: ['a', 'b', 'c', 'd'],
+          maxZoom: 20,
         }
       );
       baseGroup.addLayer(darkBase);
     } else {
-      // 100% Free Public OpenStreetMap: NO API KEY EVER REQUIRED, full street-level coverage across Karachi
+      // CartoDB Positron: free, no API key, English labels worldwide, clean white style
       const street = L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
         {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          subdomains: ['a', 'b', 'c'],
-          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: ['a', 'b', 'c', 'd'],
+          maxZoom: 20,
           className: 'map-tiles-clean-white',
         }
       );
