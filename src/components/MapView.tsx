@@ -15,6 +15,26 @@ interface MapViewProps {
   className?: string;
 }
 
+// Snap a coordinate onto the nearest point of a polyline so markers sit on the road
+function snapToPolyline(lat: number, lng: number, poly?: [number, number][]): [number, number] {
+  if (!poly || poly.length < 2) return [lat, lng];
+  let bestLat = lat, bestLng = lng, bestDist = Infinity;
+  for (let i = 0; i < poly.length - 1; i++) {
+    const [ax, ay] = poly[i];
+    const [bx, by] = poly[i + 1];
+    const dx = bx - ax, dy = by - ay;
+    let t = 0;
+    if (dx !== 0 || dy !== 0) {
+      t = ((lat - ax) * dx + (lng - ay) * dy) / (dx * dx + dy * dy);
+      t = Math.max(0, Math.min(1, t));
+    }
+    const cLat = ax + t * dx, cLng = ay + t * dy;
+    const d = Math.hypot(lat - cLat, lng - cLng);
+    if (d < bestDist) { bestDist = d; bestLat = cLat; bestLng = cLng; }
+  }
+  return [bestLat, bestLng];
+}
+
 export const MapView: React.FC<MapViewProps> = ({
   selectedPlan,
   selectedRoute,
@@ -208,7 +228,9 @@ export const MapView: React.FC<MapViewProps> = ({
           }).addTo(layerGroup);
 
           // Start Stop Marker
-          const from = leg.fromStop;
+          const rawFrom = leg.fromStop;
+          const [fromLat, fromLng] = snapToPolyline(rawFrom.lat, rawFrom.lng, latLngs);
+          const from = { ...rawFrom, lat: fromLat, lng: fromLng };
           const isOrigin = legIdx === 0;
           const isDest = legIdx === selectedPlan.legs.length - 1;
 
@@ -238,7 +260,9 @@ export const MapView: React.FC<MapViewProps> = ({
 
           // If last leg, mark final destination
           if (isDest) {
-            const to = leg.toStop;
+            const rawTo = leg.toStop;
+            const [toLat, toLng] = snapToPolyline(rawTo.lat, rawTo.lng, latLngs);
+            const to = { ...rawTo, lat: toLat, lng: toLng };
             const destIcon = L.divIcon({
               className: 'custom-stop-marker',
               html: `<div style="background-color: #dc2626; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: white; box-shadow: 0 2px 8px rgba(220,38,38,0.5)">🏁</div>`,
