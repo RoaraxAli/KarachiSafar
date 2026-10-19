@@ -75,23 +75,29 @@ export const MapView: React.FC<MapViewProps> = ({
     if (!baseGroup) return;
     baseGroup.clearLayers();
 
+    // MapTiler: Google-like vector/raster map with full POIs, shop names, area
+    // names and road labels (English). Key via VITE_MAPTILER_KEY.
+    const MAPTILER_KEY = (import.meta.env.VITE_MAPTILER_KEY as string) || 'AOvhgXtMBXhIC38VrZSe';
+
     if (mapStyle === 'DARK') {
-      // Esri World Dark Gray Canvas: free, no API key, English labels
       const darkBase = L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+        `https://api.maptiler.com/maps/dataviz-dark/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`,
         {
-          attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, DeLorme, NAVTEQ',
-          maxZoom: 16,
+          attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          tileSize: 512,
+          zoomOffset: -1,
+          maxZoom: 20,
         }
       );
       baseGroup.addLayer(darkBase);
     } else {
-      // Esri World Street Map: free, no API key, English labels, full street detail
       const street = L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        `https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`,
         {
-          attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, DeLorme, NAVTEQ',
-          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          tileSize: 512,
+          zoomOffset: -1,
+          maxZoom: 20,
           className: 'map-tiles-clean-white',
         }
       );
