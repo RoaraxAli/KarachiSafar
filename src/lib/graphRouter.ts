@@ -75,6 +75,37 @@ export function findClosestStop(lat: number, lng: number): { stop: TransitStop; 
 // BIDIRECTIONAL ROUTE LEG BUILDER
 // Supports both forward (0 -> n) and reverse (n -> 0) travel
 // ==========================================
+// Project a lat/lng point onto a road polyline, returning the closest point
+// and the cumulative distance (in degrees) along the polyline to that point.
+function projectOnPolyline(
+  lat: number,
+  lng: number,
+  poly: [number, number][]
+): { point: [number, number]; along: number; offset: number } {
+  let cum = 0;
+  let best = { point: [lat, lng] as [number, number], along: 0, offset: Infinity };
+  for (let i = 0; i < poly.length - 1; i++) {
+    const a = poly[i];
+    const b = poly[i + 1];
+    const ax = a[0], ay = a[1], bx = b[0], by = b[1];
+    const dx = bx - ax, dy = by - ay;
+    const segLen = Math.hypot(dx, dy);
+    let t = 0;
+    if (dx !== 0 || dy !== 0) {
+      t = ((lat - ax) * dx + (lng - ay) * dy) / (dx * dx + dy * dy);
+      t = Math.max(0, Math.min(1, t));
+    }
+    const cpLat = ax + t * dx;
+    const cpLng = ay + t * dy;
+    const offset = Math.hypot(lat - cpLat, lng - cpLng);
+    if (offset < best.offset) {
+      best = { point: [cpLat, cpLng], along: cum + t * segLen, offset };
+    }
+    cum += segLen;
+  }
+  return best;
+}
+
 function buildTransitLeg(
   route: TransitRoute,
   fromStop: TransitStop,
@@ -101,38 +132,50 @@ function buildTransitLeg(
     }
   }
 
-  // Extract exact street-level road polyline from pre-computed road network
+  // Extract street-level road polyline by projecting the from/to stops onto the
+  // pre-computed OSRM road network and cutting between those cumulative positions.
   let polyline: [number, number][] = [];
   const fullRoadPolyline = ROAD_POLYLINES[route.id];
 
   if (fullRoadPolyline && fullRoadPolyline.length > 1) {
-    let minD1 = Infinity;
-    let idx1 = 0;
-    let minD2 = Infinity;
-    let idx2 = 0;
+    const p1 = projectOnPolyline(fromStop.lat, fromStop.lng, fullRoadPolyline);
+    const p2 = projectOnPolyline(toStop.lat, toStop.lng, fullRoadPolyline);
+    const along1 = p1.along;
+    const along2 = p2.along;
 
-    for (let p = 0; p < fullRoadPolyline.length; p++) {
-      const pt = fullRoadPolyline[p];
-      const d1 = Math.abs(pt[0] - fromStop.lat) + Math.abs(pt[1] - fromStop.lng);
-      if (d1 < minD1) {
-        minD1 = d1;
-        idx1 = p;
-      }
-      const d2 = Math.abs(pt[0] - toStop.lat) + Math.abs(pt[1] - toStop.lng);
-      if (d2 < minD2) {
-        minD2 = d2;
-        idx2 = p;
-      }
+    // cumulative distance for each vertex
+    const cd: number[] = [0];
+    for (let i = 0; i < fullRoadPolyline.length - 1; i++) {
+      cd.push(cd[i] + Math.hypot(
+        fullRoadPolyline[i + 1][0] - fullRoadPolyline[i][0],
+        fullRoadPolyline[i + 1][1] - fullRoadPolyline[i][1]
+      ));
     }
 
-    if (idx1 <= idx2) {
-      polyline = fullRoadPolyline.slice(idx1, idx2 + 1);
+    const lo = Math.min(along1, along2);
+    const hi = Math.max(along1, along2);
+
+    const pts: [number, number][] = [p1.point];
+    for (let i = 0; i < fullRoadPolyline.length; i++) {
+      if (cd[i] > lo && cd[i] < hi) {
+        pts.push(fullRoadPolyline[i]);
+      }
+    }
+    pts.push(p2.point);
+
+    if (along1 > along2) {
+      polyline = pts.slice().reverse();
     } else {
-      polyline = fullRoadPolyline.slice(idx2, idx1 + 1).slice().reverse();
+      polyline = pts;
+    }
+
+    // Guard: if the cut is degenerate, keep the snapped endpoints only
+    if (polyline.length < 2) {
+      polyline = [p1.point, p2.point];
     }
   }
 
-  // Fallback to stop dots if slice is empty
+  // Fallback to stop dots if no road geometry exists for this route
   if (polyline.length < 2) {
     polyline = [[fromStop.lat, fromStop.lng], ...intermediateStops.map((s) => [s.lat, s.lng] as [number, number]), [toStop.lat, toStop.lng]];
   }
