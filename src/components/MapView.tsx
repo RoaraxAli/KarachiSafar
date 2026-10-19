@@ -15,6 +15,26 @@ interface MapViewProps {
   className?: string;
 }
 
+// Snap a coordinate onto the nearest point of a polyline so markers sit on the road
+function snapToPolyline(lat: number, lng: number, poly?: [number, number][]): [number, number] {
+  if (!poly || poly.length < 2) return [lat, lng];
+  let bestLat = lat, bestLng = lng, bestDist = Infinity;
+  for (let i = 0; i < poly.length - 1; i++) {
+    const [ax, ay] = poly[i];
+    const [bx, by] = poly[i + 1];
+    const dx = bx - ax, dy = by - ay;
+    let t = 0;
+    if (dx !== 0 || dy !== 0) {
+      t = ((lat - ax) * dx + (lng - ay) * dy) / (dx * dx + dy * dy);
+      t = Math.max(0, Math.min(1, t));
+    }
+    const cLat = ax + t * dx, cLng = ay + t * dy;
+    const d = Math.hypot(lat - cLat, lng - cLng);
+    if (d < bestDist) { bestDist = d; bestLat = cLat; bestLng = cLng; }
+  }
+  return [bestLat, bestLng];
+}
+
 export const MapView: React.FC<MapViewProps> = ({
   selectedPlan,
   selectedRoute,
@@ -75,24 +95,28 @@ export const MapView: React.FC<MapViewProps> = ({
     if (!baseGroup) return;
     baseGroup.clearLayers();
 
+    // MapTiler: Google-like vector/raster map with full POIs, shop names, area
+    // names and road labels (English). Key via VITE_MAPTILER_KEY.
+    const MAPTILER_KEY = (import.meta.env.VITE_MAPTILER_KEY as string) || 'AOvhgXtMBXhIC38VrZSe';
+
     if (mapStyle === 'DARK') {
-      // CartoDB Dark Matter: free, no API key, English labels worldwide
       const darkBase = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        `https://api.maptiler.com/maps/dataviz-dark/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`,
         {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          subdomains: ['a', 'b', 'c', 'd'],
+          attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          tileSize: 512,
+          zoomOffset: -1,
           maxZoom: 20,
         }
       );
       baseGroup.addLayer(darkBase);
     } else {
-      // CartoDB Positron: free, no API key, English labels worldwide, clean white style
       const street = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        `https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`,
         {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          subdomains: ['a', 'b', 'c', 'd'],
+          attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          tileSize: 512,
+          zoomOffset: -1,
           maxZoom: 20,
           className: 'map-tiles-clean-white',
         }
@@ -204,7 +228,9 @@ export const MapView: React.FC<MapViewProps> = ({
           }).addTo(layerGroup);
 
           // Start Stop Marker
-          const from = leg.fromStop;
+          const rawFrom = leg.fromStop;
+          const [fromLat, fromLng] = snapToPolyline(rawFrom.lat, rawFrom.lng, latLngs);
+          const from = { ...rawFrom, lat: fromLat, lng: fromLng };
           const isOrigin = legIdx === 0;
           const isDest = legIdx === selectedPlan.legs.length - 1;
 
@@ -234,7 +260,9 @@ export const MapView: React.FC<MapViewProps> = ({
 
           // If last leg, mark final destination
           if (isDest) {
-            const to = leg.toStop;
+            const rawTo = leg.toStop;
+            const [toLat, toLng] = snapToPolyline(rawTo.lat, rawTo.lng, latLngs);
+            const to = { ...rawTo, lat: toLat, lng: toLng };
             const destIcon = L.divIcon({
               className: 'custom-stop-marker',
               html: `<div style="background-color: #dc2626; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: white; box-shadow: 0 2px 8px rgba(220,38,38,0.5)">🏁</div>`,
