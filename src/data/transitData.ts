@@ -2166,6 +2166,188 @@ const BASE_STOPS: Record<string, TransitStop> = {
     lng: 67.1750,
     area: 'Malir Cantt',
   },
+
+  // Official route stops (added 2026-10-19 from verified route data)
+  'kda-flats': {
+    id: 'kda-flats',
+    name: 'KDA Flats (Surjani)',
+    urduName: 'کےڈی اے فلیٹس سرجانی',
+    lat: 25.0290,
+    lng: 67.0460,
+    area: 'Surjani Town',
+    isBRTStation: true,
+  },
+  'road-2400': {
+    id: 'road-2400',
+    name: 'Road 2400 (Aisha Complex)',
+    urduName: 'روڈ 2400 (عائشہ کمپلیکس)',
+    lat: 24.9890,
+    lng: 67.0620,
+    area: 'North Karachi',
+    isBRTStation: true,
+  },
+  'road-4200': {
+    id: 'road-4200',
+    name: 'Road 4200 (Saleem Centre)',
+    urduName: 'روڈ 4200 (سلیم سینٹر)',
+    lat: 24.9870,
+    lng: 67.0625,
+    area: 'North Karachi',
+    isBRTStation: true,
+  },
+  'annu-bhai-park': {
+    id: 'annu-bhai-park',
+    name: 'Annu Bhai Park',
+    urduName: 'انو بھائی پارک',
+    lat: 24.9185,
+    lng: 67.0305,
+    area: 'Nazimabad',
+    isBRTStation: true,
+  },
+  'press-club': {
+    id: 'press-club',
+    name: 'Karachi Press Club',
+    urduName: 'کراچی پریس کلب',
+    lat: 24.8490,
+    lng: 67.0225,
+    area: 'Civil Lines',
+  },
+  'sindh-high-court': {
+    id: 'sindh-high-court',
+    name: 'Sindh High Court',
+    urduName: 'سندھ ہائی کورٹ',
+    lat: 24.8558,
+    lng: 67.0215,
+    area: 'Saddar',
+  },
+  'essa-nagri': {
+    id: 'essa-nagri',
+    name: 'Essa Nagri',
+    urduName: 'عیسیٰ نگری',
+    lat: 24.9150,
+    lng: 67.0550,
+    area: 'Nazimabad',
+  },
+  'zaibunisa-street': {
+    id: 'zaibunisa-street',
+    name: 'Zaibunisa Street',
+    urduName: 'زیب النساء اسٹریٹ',
+    lat: 24.8562,
+    lng: 67.0272,
+    area: 'Saddar',
+  },
+  'gold-mart': {
+    id: 'gold-mart',
+    name: 'Gold Mart',
+    urduName: 'گولڈ مارٹ',
+    lat: 24.8440,
+    lng: 67.0610,
+    area: 'Korangi Link',
+  },
+  'bahria-university': {
+    id: 'bahria-university',
+    name: 'Bahria University (Rashid Minhas)',
+    urduName: 'بحریہ یونیورسٹی',
+    lat: 24.8980,
+    lng: 67.1100,
+    area: 'Rashid Minhas Road',
+  },
+  '89-chowrangi': {
+    id: '89-chowrangi',
+    name: '89 Chowrangi (Landhi)',
+    urduName: '89 چورنگی لانڈھی',
+    lat: 24.8490,
+    lng: 67.1920,
+    area: 'Landhi',
+  },
+  'old-sabzi-mandi': {
+    id: 'old-sabzi-mandi',
+    name: 'Old Sabzi Mandi (M-9)',
+    urduName: 'پرانی سبزی منڈی',
+    lat: 24.9680,
+    lng: 67.1400,
+    area: 'M-9 Super Highway',
+  },
+  'malir-link-road': {
+    id: 'malir-link-road',
+    name: 'Malir Link Road (M-9)',
+    urduName: 'ملیر لنک روڈ',
+    lat: 24.9780,
+    lng: 67.1600,
+    area: 'M-9 Super Highway',
+  },
+  'kpt-hq': {
+    id: 'kpt-hq',
+    name: 'KPT Head Office',
+    urduName: 'کے پی ٹی ہیڈ آفس',
+    lat: 24.8450,
+    lng: 66.9880,
+    area: 'Keamari / Port',
+  },
+  'bahria-complex-3': {
+    id: 'bahria-complex-3',
+    name: 'Bahria Complex 3',
+    urduName: 'بحریہ کمپلیکس 3',
+    lat: 24.8430,
+    lng: 67.0175,
+    area: 'PIDC',
+  },
+  'punjabi-chowrangi': {
+    id: 'punjabi-chowrangi',
+    name: 'Punjabi Chowrangi',
+    urduName: 'پنجابی چورنگی',
+    lat: 24.8370,
+    lng: 67.0220,
+    area: 'Clifton',
+  },
+  'gizri': {
+    id: 'gizri',
+    name: 'Gizri',
+    urduName: 'گزری',
+    lat: 24.8310,
+    lng: 67.0250,
+    area: 'Clifton',
+  },
+  'khayaban-e-shamsheer': {
+    id: 'khayaban-e-shamsheer',
+    name: 'Khayaban-e-Shamsheer',
+    urduName: 'خیابانِ شمشیر',
+    lat: 24.8260,
+    lng: 67.0280,
+    area: 'Clifton',
+  },
+  'quaid-e-azam-square': {
+    id: 'quaid-e-azam-square',
+    name: 'Quaid-e-Azam Square (Malir Cantt)',
+    urduName: 'قائدِ اعظم چوک',
+    lat: 24.8750,
+    lng: 67.0790,
+    area: 'Malir Cantt',
+  },
+  'x-20': {
+    id: 'x-20',
+    name: 'X-20 (Malir Cantt)',
+    urduName: 'ایکس-20',
+    lat: 24.8800,
+    lng: 67.0850,
+    area: 'Malir Cantt',
+  },
+  'phase-2': {
+    id: 'phase-2',
+    name: 'Phase 2 (Malir Cantt)',
+    urduName: 'پھیز 2',
+    lat: 24.8850,
+    lng: 67.0950,
+    area: 'Malir Cantt',
+  },
+  'allahwala-chowk': {
+    id: 'allahwala-chowk',
+    name: 'Allahwala Chowk',
+    urduName: 'اللہ والا چوک',
+    lat: 24.8930,
+    lng: 67.1020,
+    area: 'Rashid Minhas Road',
+  },
 };
 
 export const STOPS: Record<string, TransitStop> = BASE_STOPS;
@@ -2525,10 +2707,9 @@ const BASE_ROUTES: TransitRoute[] = [
     urduDescription: 'مکمل ائیر کنڈیشنڈ الیکٹرک بس۔ ملیر کینٹ سے ائیرپورٹ، شاہراہِ فیصل، نرسری، ڈی ایچ اے، کلاک ٹاور اور ڈولمن مال کلفٹن۔',
     stops: [
       'cmh-malir', 'cantt-bazar', 'checkpost-2', 'tank-chowk', 'model-colony-mor',
-      'jinnah-avenue', 'star-gate', 'colony-gate', 'nata-khan', 'drigh-road-station',
-      'paf-base-faisal', 'laal-kothi', 'karsaz', 'baloch-colony-flyover', 'nursery',
-      'ftc', 'kala-pull', 'akhtar-colony', 'dha-phase-1', 'masjid-e-ayesha',
-      'sea-view-clock-tower', 'dolmen-mall-clifton'
+      'malir-halt', 'colony-gate', 'nata-khan', 'paf-base-faisal', 'karsaz',
+      'nursery', 'ftc', 'kala-pull', 'gold-mart', 'akhtar-colony',
+      'khayaban-e-ittehad', 'sea-view-clock-tower', 'dolmen-mall-clifton'
     ],
   },
   {
@@ -2546,16 +2727,16 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Clean electric bus service shuttling Bahria Town residents via M-9 Toll Plaza into Malir Cantt and Malir Halt transit hub.',
     urduDescription: 'بحریہ ٹاؤن کارنیول سے ایم-9 ٹول پلازہ، بقائی یونیورسٹی، ملیر کینٹ گیٹ 5 و 6، ٹینک چوک اور ملیر ہالٹ۔',
     stops: [
-      'bahria-precinct-21', 'bahria-precinct-11a', 'bahria-hospital', 'bahria-ali-flyover', 'bahria-town-gate',
-      'dumba-goth', 'malir-cantt-gate-5', 'malir-cantt-gate-6',
-      'tank-chowk', 'model-colony-mor', 'jinnah-avenue', 'malir-halt'
+      'bahria-precinct-21', 'bahria-precinct-11a', 'bahria-hospital', 'bahria-ali-flyover',
+      'bahria-town-gate', 'usmania', 'dumba-goth', 'toll-plaza-m9',
+      'malir-cantt-gate-5', 'malir-cantt-gate-6', 'tank-chowk', 'model-colony-mor', 'malir-halt'
     ],
   },
   {
     id: 'EV-3',
     code: 'EV-3',
-    name: 'EV-3: Malir Cantt (CP 5) to Numaish Chowrangi',
-    urduName: 'ای وی-3: ملیر کینٹ (چیک پوسٹ 5) تا نمائش چورنگی',
+    name: 'EV-3: Quaid-e-Azam Square (Malir Cantt) to Numaish',
+    urduName: 'ای وی-3: قائدِ اعظم چوک (ملیر کینٹ) تا نمائش',
     category: 'EV_BUS',
     vehicleType: 'Zero-Emission Electric Bus (AC)',
     color: '#0d9488',
@@ -2566,10 +2747,10 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Electric corridor from Malir Cantt & Safoora through Johar, Millennium Mall, National Stadium, AKUH, and Jail Road to Numaish BRT.',
     urduDescription: 'ملیر کینٹ چیک پوسٹ 5 سے صفورہ، جوہر چورنگی، ملینیم مال، اسٹیڈیم، آغا خان ہسپتال، نیو ٹاؤن، جیل چورنگی اور نمائش۔',
     stops: [
-      'malir-cantt-cp5', 'askari-5', 'rim-jhim', 'safoora-chowrangi', 'mausamiyat',
-      'kamran-chowrangi', 'darul-sehat', 'johar-chowrangi', 'johar-mor', 'millennium-mall',
-      'dalmia-road', 'national-stadium', 'akuh', 'liaquat-national', 'new-town',
-      'jail-chowrangi', 'dawood-eng-uni', 'islamia-college', 'numaish-chowrangi'
+      'quaid-e-azam-square', 'x-20', 'phase-2', 'askari-5', 'allahwala-chowk',
+      'malir-cantt-cp5', 'safoora-chowrangi', 'mausamiyat', 'kamran-chowrangi',
+      'johar-chowrangi', 'millennium-mall', 'bahria-university', 'akuh',
+      'liaquat-national', 'new-town', 'islamia-college', 'numaish-chowrangi'
     ],
   },
   {
@@ -2587,9 +2768,9 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Electric bus bringing Bahria Town commuters down the M-9 Motorway through Sohrab Goth and Water Pump to Ayesha Manzil.',
     urduDescription: 'بحریہ ٹاؤن مین گیٹ سے ٹول پلازہ، سبزی منڈی، سہراب گوٹھ، واٹر پمپ اور عائشہ منزل۔',
     stops: [
-      'bahria-town-gate', 'bahria-junction', 'toll-plaza-m9', 'baqai-university',
-      'maymar-mor', 'new-sabzi-mandi', 'jamali-pull', 'al-asif-square', 'sohrab-goth', 'shafiq-mor',
-      'water-pump', 'ayesha-manzil'
+      'bahria-town-gate', 'usmania', 'dumba-goth', 'toll-plaza-m9',
+      'malir-link-road', 'old-sabzi-mandi', 'maymar-mor', 'al-asif-square',
+      'sohrab-goth', 'ayesha-manzil'
     ],
   },
   {
@@ -2607,9 +2788,8 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Long-range electric express from DHA City along M-9 Motorway into Sohrab Goth terminal hub.',
     urduDescription: 'ڈی ایچ اے سٹی ٹرمینل سے کاٹھوڑ، بحریہ جنکشن، ٹول پلازہ، گلشنِ معمار موڑ اور سہراب گوٹھ انٹرچینج۔',
     stops: [
-      'dha-city', 'kathore-interchange', 'usmania', 'bahria-junction',
-      'toll-plaza-m9', 'baqai-university', 'maymar-mor', 'new-sabzi-mandi', 'jamali-pull',
-      'al-asif-square', 'sohrab-goth'
+      'dha-city', 'kathore-interchange', 'usmania', 'dumba-goth', 'toll-plaza-m9',
+      'malir-link-road', 'old-sabzi-mandi', 'maymar-mor', 'al-asif-square', 'sohrab-goth'
     ],
   },
 
@@ -2631,11 +2811,10 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Premier Red Bus corridor along Shahrah-e-Pakistan through Sohrab Goth, Liaquatabad, Numaish, Capri, and Tower down to Keamari.',
     urduDescription: 'ریڈ بس روٹ: پاور ہاؤس، ناگن، سہراب گوٹھ، واٹر پمپ، کریم آباد، لیاقت آباد، گرو مندر، نمائش، کیپری، جامع کلاتھ، ٹاور اور کیماڑی۔',
     stops: [
-      'power-house', 'up-mor', 'nagan-chowrangi', 'shafiq-mor', 'sohrab-goth',
-      'water-pump', 'ayesha-manzil', 'karimabad', 'liaquatabad-10', 'lalookhet-dak-khana',
-      'teen-hatti', 'jehangir-road', 'guru-mandir', 'numaish-chowrangi', 'capri-cinema',
-      'saddar-mobile', 'jama-cloth', 'civil-hospital', 'city-courts', 'light-house',
-      'bolton-market', 'merewether-tower', 'jackson-market', 'keamari-docks'
+      'power-house', 'nagan-chowrangi', 'shafiq-mor', 'sohrab-goth',
+      'ayesha-manzil', 'lalookhet-dak-khana', 'teen-hatti', 'jehangir-road',
+      'guru-mandir', 'numaish-chowrangi', 'taj-complex', 'sindh-high-court',
+      'merewether-tower', 'jackson-market', 'keamari-docks'
     ],
   },
   {
@@ -2653,11 +2832,10 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Flagship East-to-West route down Shahrah-e-Faisal through Airport, Karsaz, Metropole, and I.I. Chundrigar to Fish Harbour.',
     urduDescription: 'ماڈل کالونی، ملیر ہالٹ، ڈرگ روڈ، کارساز، نرسری، ایف ٹی سی، میٹروپول، شاہین کمپلیکس، چندریگر روڈ، ٹاور اور ڈاکیارڈ۔',
     stops: [
-      'model-colony', 'saudabad', 'rcd-ground', 'kala-board', 'malir-halt',
-      'colony-gate', 'nata-khan', 'drigh-road-station', 'paf-base-faisal', 'laal-kothi',
-      'karsaz', 'baloch-colony-flyover', 'nursery', 'ftc', 'regent-plaza',
-      'metropole', 'fawwara-chowk', 'shaheen-complex', 'chundrigar-road', 'merewether-tower',
-      'fish-harbour', 'dockyard'
+      'khokhrapar', 'saudabad', 'model-colony', 'malir-halt', 'colony-gate',
+      'nata-khan', 'paf-base-faisal', 'karsaz', 'nursery', 'ftc',
+      'regent-plaza', 'metropole', 'press-club', 'chundrigar-road',
+      'merewether-tower', 'ici-flyover', 'dockyard'
     ],
   },
   {
@@ -2675,9 +2853,9 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Spans Northern Karachi through NIPA and Shah Faisal Colony across to Korangi industrial zone and Indus Hospital.',
     urduDescription: 'پاور ہاؤس، ناگن، سہراب گوٹھ، گلشن چورنگی، نیپا، جوہر موڑ، ڈرگ روڈ، شاہ فیصل کالونی، سنگر چورنگی اور انڈس ہسپتال۔',
     stops: [
-      'power-house', 'up-mor', 'nagan-chowrangi', 'shafiq-mor', 'sohrab-goth',
-      'gulshan-chowrangi', 'nipa-chowrangi', 'johar-mor', 'cod', 'drigh-road-station',
-      'colony-gate', 'shah-faisal-colony', 'singer-chowrangi', 'korangi-5', 'khaddi-stop',
+      'power-house', 'nagan-chowrangi', 'shafiq-mor', 'sohrab-goth',
+      'gulshan-chowrangi', 'nipa-chowrangi', 'johar-mor', 'cod', 'nata-khan',
+      'colony-gate', 'shah-faisal-colony', 'singer-chowrangi', 'korangi-5',
       'nasir-jump', 'indus-hospital', 'korangi-crossing'
     ],
   },
@@ -2696,10 +2874,9 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Crosses from Power House down through Nazimabad, Civic Centre, Stadium, Karsaz, and KPT Interchange to Nasir Jump.',
     urduDescription: 'پاور ہاؤس، ناگن، سخی حسن، حیدری، بورڈ آفس، ناظم آباد، لیاقت آباد، سوک سینٹر، اسٹیڈیم، کارساز، نرسری، کالا پل اور شان چورنگی۔',
     stops: [
-      'power-house', 'up-mor', 'nagan-chowrangi', 'sakhi-hassan', 'five-star',
-      'kda-hyderi', 'board-office', 'nazimabad-7', 'liaquatabad-10', 'hassan-square',
-      'national-stadium', 'karsaz', 'nursery', 'ftc', 'kala-pull',
-      'akhtar-colony', 'kpt-interchange', 'shan-chowrangi', 'nasir-jump'
+      'power-house', 'nagan-chowrangi', 'five-star', 'board-office',
+      'nazimabad-7', 'essa-nagri', 'national-stadium', 'karsaz',
+      'nursery', 'ftc', 'kala-pull', 'akhtar-colony', 'shan-chowrangi', 'nasir-jump'
     ],
   },
   {
@@ -2719,7 +2896,7 @@ const BASE_ROUTES: TransitRoute[] = [
     stops: [
       'yousuf-goth', 'saeedabad', 'baldia-town', 'ittehad-town', 'naval-colony',
       'moach-goth', 'sher-shah', 'gulbai', 'agra-taj', 'dua-restaurant',
-      'ici-flyover', 'jinnah-bridge', 'merewether-tower'
+      'ici-flyover', 'merewether-tower'
     ],
   },
   {
@@ -2737,10 +2914,10 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'High-speed long corridor connecting eastern Bin Qasim Steel Town via National Highway and Shahrah-e-Faisal to Tower.',
     urduDescription: 'گلشنِ حدید، اسٹیل مل موڑ، پورٹ قاسم، فاسٹ یونیورسٹی، قائدآباد، ملیر، ڈرگ روڈ، نرسری، میٹروپول، چندریگر روڈ اور ٹاور۔',
     stops: [
-      'gulshan-e-hadeed', 'steel-mill-mor', 'port-qasim-mor', 'razzakabad', 'fast-university',
-      'manzil-pump', 'quaidabad', 'malir-15', 'kala-board', 'malir-halt',
-      'drigh-road-station', 'karsaz', 'nursery', 'ftc', 'metropole',
-      'shaheen-complex', 'chundrigar-road', 'merewether-tower'
+      'gulshan-e-hadeed', 'port-qasim-mor', 'manzil-pump', 'quaidabad',
+      'malir-15', 'malir-halt', 'colony-gate', 'nata-khan', 'paf-base-faisal',
+      'karsaz', 'nursery', 'ftc', 'regent-plaza', 'metropole', 'press-club',
+      'chundrigar-road', 'merewether-tower'
     ],
   },
   {
@@ -2758,10 +2935,10 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Scenic Southern artery connecting Numaish BRT through Saddar, Teen Talwar, Dolmen Mall, Sea View, and DHA into Ibrahim Hyderi.',
     urduDescription: 'نمائش، صدر، فوارہ چوک، میٹروپول، تین تلوار، دو تلوار، ڈولمن مال کلفٹن، سی ویو، خیابانِ اتحاد، قیوم آباد، سی بی ایم اور ابراہیم حیدری۔',
     stops: [
-      'numaish-chowrangi', 'capri-cinema', 'saddar-mobile', 'regal-chowk', 'zainab-market',
-      'fawwara-chowk', 'metropole', 'frere-hall', 'teen-talwar', 'ocean-mall',
-      'do-talwar', 'abdullah-shah-ghazi', 'dolmen-mall-clifton', 'sea-view-clock-tower', '26th-street',
-      'khayaban-e-ittehad', 'masjid-e-ayesha', 'qayyumabad', 'iobm', 'ibrahim-hyderi'
+      'numaish-chowrangi', 'taj-complex', 'zaibunisa-street', 'zainab-market',
+      'metropole', 'frere-hall', 'teen-talwar', 'do-talwar', 'abdullah-shah-ghazi',
+      'dolmen-mall-clifton', 'sea-view-clock-tower', 'khayaban-e-ittehad',
+      'akhtar-colony', 'korangi-crossing', 'ibrahim-hyderi'
     ],
   },
   {
@@ -2779,16 +2956,16 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Connects Clifton coastline through PIDC and M.T. Khan Road over Jinnah Bridge into Lyari heartland.',
     urduDescription: 'شیریں جناح کالونی سے ضیاء الدین کلفٹن، بلاول چورنگی، عبداللہ شاہ غازی، پی آئی ڈی سی، جناح برج اور میراں ناکہ لیاری۔',
     stops: [
-      'shireen-jinnah', 'ziauddin-clifton', 'bilawal-chowrangi', 'abdullah-shah-ghazi', 'khadda-market',
-      'submarine-chowk', 'pidc-chowk', 'us-consulate', 'mt-khan-road', 'jinnah-bridge',
-      'mauripur-road', 'agra-taj', 'bihar-colony', 'miran-nakka'
+      'miran-nakka', 'mauripur-road', 'agra-taj', 'kpt-hq', 'bahria-complex-3',
+      'pidc-chowk', 'punjabi-chowrangi', 'gizri', 'khayaban-e-shamsheer',
+      'abdullah-shah-ghazi', 'bilawal-chowrangi', 'ziauddin-clifton', 'shireen-jinnah'
     ],
   },
   {
     id: 'R-12',
     code: 'R-12',
-    name: 'R-12: Khokhrapar / Memon Goth to Lucky Star (Saddar)',
-    urduName: 'آر-12 ریڈ بس: کھوکھراپار / میمن گوٹھ تا لکی اسٹار صدر',
+    name: 'R-12: Memon Goth to Lucky Star (Saddar)',
+    urduName: 'آر-12 ریڈ بس: میمن گوٹھ تا لکی اسٹار صدر',
     category: 'RED_BUS',
     vehicleType: 'Peoples Bus Service (AC)',
     color: '#dc2626',
@@ -2799,9 +2976,9 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Links rural Malir and Landhi industrial zones across Korangi Crossing and FTC to Saddar Lucky Star.',
     urduDescription: 'میمن گوٹھ، کھوکھراپار، ملیر 15، قائدآباد، داؤد چورنگی، بابر مارکیٹ، انڈس ہسپتال، کورنگی کراسنگ، قیوم آباد، ایف ٹی سی اور لکی اسٹار۔',
     stops: [
-      'memon-goth', 'khokhrapar', 'saudabad', 'kala-board', 'malir-15',
-      'quaidabad', 'dawood-chowrangi', 'babar-market', 'korangi-5', 'indus-hospital',
-      'nasir-jump', 'korangi-crossing', 'qayyumabad', 'ftc', 'lucky-star'
+      'saudabad', 'memon-goth', 'rcd-ground', 'kala-board', 'malir-15',
+      'quaidabad', 'dawood-chowrangi', '89-chowrangi', 'babar-market',
+      'korangi-5', 'korangi-crossing', 'qayyumabad', 'kala-pull', 'ftc', 'lucky-star'
     ],
   },
   {
@@ -2820,7 +2997,7 @@ const BASE_ROUTES: TransitRoute[] = [
     urduDescription: 'ہاکس بے بیچ، ماری پور، پاکستان میرین اکیڈمی، ٹرک اڈا، گلبائی، جناح برج اور ٹاور۔',
     stops: [
       'hawksbay', 'pma', 'truck-adda', 'mauripur-road', 'gulbai',
-      'agra-taj', 'jinnah-bridge', 'merewether-tower'
+      'agra-taj', 'dua-restaurant', 'ici-flyover', 'merewether-tower'
     ],
   },
 
@@ -2843,27 +3020,26 @@ const BASE_ROUTES: TransitRoute[] = [
     urduDescription: 'کراچی کا سب سے تیز ترین پبلک ٹرانسپورٹ۔ سرجانی عبداللہ چورنگی سے ناگن، سخی حسن، حیدری، بورڈ آفس، لسبیلہ، گرو مندر، نمائش اور کیپری سنیما۔',
     stops: [
       'abdullah-chowrangi',
-      '2k-chowrangi',
-      '4k-chowrangi',
+      'kda-flats',
       'karimi-chowrangi',
-      'nagan-chowrangi',
+      '4k-chowrangi',
+      'two-minute-chowrangi',
+      'road-2400',
+      'power-house',
+      'road-4200',
       'up-mor',
+      'nagan-chowrangi',
       'erum-shopping',
-      'sakhi-hassan',
-      'kda-hyderi',
-      'five-star',
       'jumma-bazar',
+      'five-star',
+      'kda-hyderi',
       'board-office',
-      'nazimabad-7',
+      'annu-bhai-park',
       'nazimabad-1',
       'sanitary-market',
       'lasbela',
-      'garden-makki',
       'patel-para',
-      'guru-mandir',
-      'numaish-chowrangi',
-      'taj-complex',
-      'capri-cinema'
+      'numaish-chowrangi'
     ],
   },
 ];
