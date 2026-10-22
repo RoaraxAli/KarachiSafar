@@ -1,11 +1,11 @@
 {
-  "version": "1.0.1",
-  "buildNumber": "2",
+  "version": "1.0.2",
+  "buildNumber": "3",
   "apkUrl": "https://karachi-safar.vercel.app/apk/karachi-safar-arm64-v8a.apk",
   "apkUrls": {
     "arm64-v8a": "https://karachi-safar.vercel.app/apk/karachi-safar-arm64-v8a.apk",
     "armeabi-v7a": "https://karachi-safar.vercel.app/apk/karachi-safar-armeabi-v7a.apk",
     "x86_64": "https://karachi-safar.vercel.app/apk/karachi-safar-x86_64.apk"
   },
-  "releaseNotes": "Fixed map tiles (switched to Esri World Street Map)"
+  "releaseNotes": "Updated app icon and improved update flow"
 }
