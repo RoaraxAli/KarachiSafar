@@ -64,13 +64,13 @@ class _MapHomePageState extends State<MapHomePage> {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
       _currentVersion = packageInfo.version;
-      final response = await http.get(Uri.parse('https://karachi-safar.vercel.app/version.json'));
+      setState(() {});
+      final response = await http.get(Uri.parse('https://karachi-safar.vercel.app/version.json?t=${DateTime.now().millisecondsSinceEpoch}'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['version'] != _currentVersion) {
           setState(() {
             _updateAvailable = true;
-            // Try to pick architecture-appropriate APK
             _updateUrl = data['apkUrl'] ?? 'https://karachi-safar.vercel.app/apk/karachi-safar-arm64-v8a.apk';
           });
         }
