@@ -296,7 +296,7 @@ class _MapHomePageState extends State<MapHomePage> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+                urlTemplate: 'https://a.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.karachisafar.app',
                 maxZoom: 19,
                 tileProvider: NetworkTileProvider(),

@@ -1,11 +1,11 @@
 {
-  "version": "1.0.5",
-  "buildNumber": "6",
+  "version": "1.0.6",
+  "buildNumber": "7",
   "apkUrl": "https://karachi-safar.vercel.app/apk/karachi-safar-arm64-v8a.apk",
   "apkUrls": {
     "arm64-v8a": "https://karachi-safar.vercel.app/apk/karachi-safar-arm64-v8a.apk",
     "armeabi-v7a": "https://karachi-safar.vercel.app/apk/karachi-safar-armeabi-v7a.apk",
     "x86_64": "https://karachi-safar.vercel.app/apk/karachi-safar-x86_64.apk"
   },
-  "releaseNotes": "Added sidebar menu with update button, in-app updates"
+  "releaseNotes": "English map labels (OSM French tiles)"
 }
