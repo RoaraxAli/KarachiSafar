@@ -25,9 +25,12 @@ class KarachiSafarApp extends StatelessWidget {
     return MaterialApp(
       title: 'Karachi Safar',
       debugShowCheckedModeBanner: false,
+      locale: const Locale('en', 'US'),
+      supportedLocales: const [Locale('en', 'US')],
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue.shade700),
         useMaterial3: true,
+        fontFamily: 'Roboto',
       ),
       home: const MapHomePage(),
     );
@@ -250,7 +253,9 @@ class _MapHomePageState extends State<MapHomePage> {
               title: const Text('Plan Route'),
               onTap: () {
                 Navigator.pop(context);
-                _openWebApp();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Route planning coming soon')),
+                );
               },
             ),
             const Divider(),
@@ -306,25 +311,25 @@ class _MapHomePageState extends State<MapHomePage> {
                   if (_locationEnabled)
                     Marker(
                       point: _currentLocation,
-                      width: 40,
-                      height: 40,
+                      width: 32,
+                      height: 32,
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.blue,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
+                          border: Border.all(color: Colors.white, width: 2),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.3),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1),
                             ),
                           ],
                         ),
                         child: const Icon(
                           Icons.my_location,
                           color: Colors.white,
-                          size: 20,
+                          size: 16,
                         ),
                       ),
                     ),
@@ -338,13 +343,34 @@ class _MapHomePageState extends State<MapHomePage> {
             child: FloatingActionButton(
               onPressed: _isLoadingLocation ? null : _getCurrentLocation,
               backgroundColor: Colors.white,
+              mini: true,
               child: _isLoadingLocation
                   ? const SizedBox(
-                      width: 20,
-                      height: 20,
+                      width: 16,
+                      height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.my_location, color: Colors.blue),
+                  : const Icon(Icons.my_location, color: Colors.blue, size: 20),
+            ),
+          ),
+          Positioned(
+            bottom: 30,
+            left: 16,
+            right: 16,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.route),
+                  label: const Text('Plan Route'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade700,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 48),
+                  ),
+                ),
+              ),
             ),
           ),
           if (_updateAvailable)
