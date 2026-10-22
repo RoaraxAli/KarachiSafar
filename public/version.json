@@ -1,11 +1,11 @@
 {
-  "version": "1.0.4",
-  "buildNumber": "5",
+  "version": "1.0.5",
+  "buildNumber": "6",
   "apkUrl": "https://karachi-safar.vercel.app/apk/karachi-safar-arm64-v8a.apk",
   "apkUrls": {
     "arm64-v8a": "https://karachi-safar.vercel.app/apk/karachi-safar-arm64-v8a.apk",
     "armeabi-v7a": "https://karachi-safar.vercel.app/apk/karachi-safar-armeabi-v7a.apk",
     "x86_64": "https://karachi-safar.vercel.app/apk/karachi-safar-x86_64.apk"
   },
-  "releaseNotes": "In-app download and install"
+  "releaseNotes": "Added sidebar menu with update button, in-app updates"
 }
