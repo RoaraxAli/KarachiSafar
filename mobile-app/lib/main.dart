@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -7,8 +8,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'dart:io';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -51,6 +50,7 @@ class _MapHomePageState extends State<MapHomePage> {
   String _currentVersion = '';
   bool _updateAvailable = false;
   String _updateUrl = '';
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -63,12 +63,13 @@ class _MapHomePageState extends State<MapHomePage> {
   Future<void> _checkForAppUpdate() async {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
-      _currentVersion = packageInfo.version;
-      setState(() {});
+      setState(() {
+        _currentVersion = packageInfo.version;
+      });
       final response = await http.get(Uri.parse('https://karachi-safar.vercel.app/version.json?t=${DateTime.now().millisecondsSinceEpoch}'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['version'] != _currentVersion) {
+        if (data['version'] != null && data['version'] != _currentVersion) {
           setState(() {
             _updateAvailable = true;
             _updateUrl = data['apkUrl'] ?? 'https://karachi-safar.vercel.app/apk/karachi-safar-arm64-v8a.apk';
@@ -146,37 +147,7 @@ class _MapHomePageState extends State<MapHomePage> {
     }
     
     if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        setState(() {
-          _isLoadingLocation = false;
-          _locationEnabled = false;
-        });
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please enable location services')),
-          );
-        }
-        return;
-      }
-      
-      try {
-        Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-          timeLimit: const Duration(seconds: 10),
-        );
-        setState(() {
-          _currentLocation = LatLng(position.latitude, position.longitude);
-          _locationEnabled = true;
-          _isLoadingLocation = false;
-        });
-        _mapController.move(_currentLocation, 15.0);
-      } catch (e) {
-        setState(() {
-          _isLoadingLocation = false;
-          _locationEnabled = false;
-        });
-      }
+      _getCurrentLocation();
     } else {
       setState(() {
         _isLoadingLocation = false;
@@ -217,17 +188,103 @@ class _MapHomePageState extends State<MapHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text('Karachi Safar'),
         backgroundColor: Colors.blue.shade700,
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.web),
-            onPressed: _openWebApp,
-            tooltip: 'Open Web App',
+            icon: const Icon(Icons.my_location),
+            onPressed: _isLoadingLocation ? null : _getCurrentLocation,
+            tooltip: 'My Location',
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue.shade700,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const Icon(Icons.directions_bus, color: Colors.white, size: 48),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Karachi Safar',
+                    style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'v$_currentVersion',
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.map),
+              title: const Text('Map'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.my_location),
+              title: const Text('My Location'),
+              onTap: () {
+                Navigator.pop(context);
+                _getCurrentLocation();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.route),
+              title: const Text('Plan Route'),
+              onTap: () {
+                Navigator.pop(context);
+                _openWebApp();
+              },
+            ),
+            const Divider(),
+            if (_updateAvailable)
+              ListTile(
+                leading: const Icon(Icons.system_update, color: Colors.green),
+                title: const Text('Update Available', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                subtitle: Text(_updateStatus.isEmpty ? 'Tap to download & install' : _updateStatus),
+                onTap: () {
+                  Navigator.pop(context);
+                  _downloadUpdate();
+                },
+              )
+            else
+              ListTile(
+                leading: const Icon(Icons.system_update_alt),
+                title: const Text('Check for Updates'),
+                subtitle: Text(_updateStatus.isEmpty ? 'Up to date' : _updateStatus),
+                onTap: () {
+                  Navigator.pop(context);
+                  _checkForAppUpdate();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Checking for updates...')),
+                  );
+                },
+              ),
+            const Divider(),
+            const ListTile(
+              leading: Icon(Icons.info_outline),
+              title: Text('About'),
+              subtitle: Text('Karachi Public Transit Navigator'),
+            ),
+          ],
+        ),
       ),
       body: Stack(
         children: [
@@ -236,13 +293,10 @@ class _MapHomePageState extends State<MapHomePage> {
             options: MapOptions(
               initialCenter: _currentLocation,
               initialZoom: 12.0,
-              minZoom: 10.0,
-              maxZoom: 18.0,
             ),
             children: [
               TileLayer(
-                urlTemplate:
-                    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+                urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
                 userAgentPackageName: 'com.karachisafar.app',
                 maxZoom: 19,
                 tileProvider: NetworkTileProvider(),
@@ -293,59 +347,34 @@ class _MapHomePageState extends State<MapHomePage> {
                   : const Icon(Icons.my_location, color: Colors.blue),
             ),
           ),
-          Positioned(
-            bottom: 30,
-            left: 16,
-            right: 16,
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Karachi Safar',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Navigate Karachi by public transit',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'v$_currentVersion',
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                    const SizedBox(height: 8),
-                    if (_updateAvailable)
-                      ElevatedButton.icon(
-                        onPressed: _downloadUpdate,
-                        icon: const Icon(Icons.system_update),
-                        label: const Text('Update Available - Download from Site'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green.shade700,
-                          foregroundColor: Colors.white,
+          if (_updateAvailable)
+            Positioned(
+              top: 16,
+              left: 16,
+              right: 16,
+              child: Card(
+                color: Colors.green.shade700,
+                child: InkWell(
+                  onTap: _downloadUpdate,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.system_update, color: Colors.white),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _updateStatus.isEmpty ? 'Update Available - Tap to install' : _updateStatus,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
                         ),
-                      )
-                    else
-                      ElevatedButton.icon(
-                        onPressed: _openWebApp,
-                        icon: const Icon(Icons.directions_bus),
-                        label: const Text('Plan Route'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue.shade700,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                  ],
+                        const Icon(Icons.download, color: Colors.white),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
