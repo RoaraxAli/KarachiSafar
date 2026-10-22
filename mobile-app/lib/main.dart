@@ -6,6 +6,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 
 void main() {
   runApp(const KarachiSafarApp());
@@ -41,12 +48,53 @@ class _MapHomePageState extends State<MapHomePage> {
   bool _locationEnabled = false;
   bool _isLoadingLocation = false;
   String _updateStatus = '';
+  String _currentVersion = '';
+  bool _updateAvailable = false;
+  String _updateUrl = '';
 
   @override
   void initState() {
     super.initState();
     _checkLocationPermission();
     _checkForUpdate();
+    _checkForAppUpdate();
+  }
+
+  Future<void> _checkForAppUpdate() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      _currentVersion = packageInfo.version;
+      setState(() {});
+      final response = await http.get(Uri.parse('https://karachi-safar.vercel.app/version.json?t=${DateTime.now().millisecondsSinceEpoch}'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['version'] != _currentVersion) {
+          setState(() {
+            _updateAvailable = true;
+            _updateUrl = data['apkUrl'] ?? 'https://karachi-safar.vercel.app/apk/karachi-safar-arm64-v8a.apk';
+          });
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  Future<void> _downloadUpdate() async {
+    if (_updateUrl.isEmpty) return;
+    setState(() => _updateStatus = 'Downloading update...');
+    try {
+      final dir = await getExternalStorageDirectory() ?? await getApplicationDocumentsDirectory();
+      final filePath = '${dir.path}/karachi_safar_update.apk';
+      final dio = Dio();
+      await dio.download(_updateUrl, filePath);
+      setState(() => _updateStatus = 'Opening installer...');
+      await OpenFilex.open(filePath);
+    } catch (e) {
+      setState(() => _updateStatus = 'Download failed, opening browser...');
+      final Uri url = Uri.parse(_updateUrl);
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
   }
 
   Future<void> _checkForUpdate() async {
@@ -267,16 +315,32 @@ class _MapHomePageState extends State<MapHomePage> {
                       'Navigate Karachi by public transit',
                       style: TextStyle(color: Colors.grey),
                     ),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      onPressed: _openWebApp,
-                      icon: const Icon(Icons.directions_bus),
-                      label: const Text('Plan Route'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue.shade700,
-                        foregroundColor: Colors.white,
-                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'v$_currentVersion',
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
+                    const SizedBox(height: 8),
+                    if (_updateAvailable)
+                      ElevatedButton.icon(
+                        onPressed: _downloadUpdate,
+                        icon: const Icon(Icons.system_update),
+                        label: const Text('Update Available - Download from Site'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green.shade700,
+                          foregroundColor: Colors.white,
+                        ),
+                      )
+                    else
+                      ElevatedButton.icon(
+                        onPressed: _openWebApp,
+                        icon: const Icon(Icons.directions_bus),
+                        label: const Text('Plan Route'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue.shade700,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
                   ],
                 ),
               ),
