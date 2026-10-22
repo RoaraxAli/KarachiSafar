@@ -27,6 +27,7 @@ class KarachiSafarApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       locale: const Locale('en', 'US'),
       supportedLocales: const [Locale('en', 'US')],
+      localizationsDelegates: const [],
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue.shade700),
         useMaterial3: true,
