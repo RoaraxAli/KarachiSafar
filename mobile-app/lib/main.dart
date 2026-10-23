@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
+import 'transit_data.dart';
 
 void main() {
   runApp(const KarachiSafarApp());
@@ -56,13 +57,18 @@ class _MapHomePageState extends State<MapHomePage> {
   String _updateUrl = '';
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   
+  // Route display state
+  TransitRoute? _selectedRoute;
+  List<LatLng> _routePoints = [];
+  List<Marker> _routeMarkers = [];
+  
   void _showRoutePlanner() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
+        height: MediaQuery.of(context).size.height * 0.75,
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -85,7 +91,7 @@ class _MapHomePageState extends State<MapHomePage> {
                   const Icon(Icons.route, color: Colors.blue),
                   const SizedBox(width: 8),
                   const Text(
-                    'Plan Route',
+                    'Transit Routes',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
@@ -98,59 +104,95 @@ class _MapHomePageState extends State<MapHomePage> {
             ),
             const Divider(),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'From',
-                        hintText: 'Enter starting location',
-                        prefixIcon: const Icon(Icons.location_on, color: Colors.green),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              child: ListView.builder(
+                itemCount: transitRoutes.length,
+                itemBuilder: (context, index) {
+                  final route = transitRoutes[index];
+                  return ListTile(
+                    leading: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: Color(int.parse(route.color.replace('#', '0xFF'))),
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'To',
-                        hintText: 'Enter destination',
-                        prefixIcon: const Icon(Icons.location_on, color: Colors.red),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Route search coming soon')),
-                          );
-                        },
-                        icon: const Icon(Icons.search),
-                        label: const Text('Find Route'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue.shade700,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Transit routes available for Karachi',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
+                    title: Text(route.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                    subtitle: Text('${route.stops.length} stops', style: const TextStyle(fontSize: 12)),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _selectRoute(route);
+                    },
+                  );
+                },
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _selectRoute(TransitRoute route) {
+    setState(() {
+      _selectedRoute = route;
+      _routePoints = [];
+      _routeMarkers = [];
+      
+      // Build route points from stops
+      for (final stopId in route.stops) {
+        final stop = findStop(stopId);
+        if (stop != null) {
+          _routePoints.add(LatLng(stop.lat, stop.lng));
+        }
+      }
+      
+      // Add start and end markers
+      if (_routePoints.isNotEmpty) {
+        _routeMarkers.add(Marker(
+          point: _routePoints.first,
+          width: 32,
+          height: 32,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.green,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2),
+            ),
+            child: const Icon(Icons.location_on, color: Colors.white, size: 16),
+          ),
+        ));
+        if (_routePoints.length > 1) {
+          _routeMarkers.add(Marker(
+            point: _routePoints.last,
+            width: 32,
+            height: 32,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: const Icon(Icons.location_on, color: Colors.white, size: 16),
+            ),
+          ));
+        }
+      }
+    });
+    
+    // Fit map to route bounds
+    if (_routePoints.isNotEmpty) {
+      final bounds = LatLngBounds.fromPoints(_routePoints);
+      _mapController.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)));
+    }
+  }
+
+  void _clearRoute() {
+    setState(() {
+      _selectedRoute = null;
+      _routePoints = [];
+      _routeMarkers = [];
+    });
   }
 
   @override
@@ -351,9 +393,7 @@ class _MapHomePageState extends State<MapHomePage> {
               title: const Text('Plan Route'),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Route planning coming soon')),
-                );
+                _showRoutePlanner();
               },
             ),
             const Divider(),
@@ -404,6 +444,16 @@ class _MapHomePageState extends State<MapHomePage> {
                 maxZoom: 19,
                 tileProvider: NetworkTileProvider(),
               ),
+              PolylineLayer(
+                polylines: [
+                  if (_routePoints.isNotEmpty)
+                    Polyline(
+                      points: _routePoints,
+                      strokeWidth: 4.0,
+                      color: Color(int.parse(_selectedRoute!.color.replace('#', '0xFF'))),
+                    ),
+                ],
+              ),
               MarkerLayer(
                 markers: [
                   if (_locationEnabled)
@@ -431,6 +481,7 @@ class _MapHomePageState extends State<MapHomePage> {
                         ),
                       ),
                     ),
+                  ..._routeMarkers,
                 ],
               ),
             ],
@@ -458,15 +509,48 @@ class _MapHomePageState extends State<MapHomePage> {
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton.icon(
-                  onPressed: _showRoutePlanner,
-                  icon: const Icon(Icons.route),
-                  label: const Text('Plan Route'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade700,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 48),
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_selectedRoute != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: Color(int.parse(_selectedRoute!.color.replace('#', '0xFF'))),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _selectedRoute!.name,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close, size: 20),
+                              onPressed: _clearRoute,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ElevatedButton.icon(
+                      onPressed: _showRoutePlanner,
+                      icon: const Icon(Icons.route),
+                      label: Text(_selectedRoute == null ? 'Plan Route' : 'Change Route'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue.shade700,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 48),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
