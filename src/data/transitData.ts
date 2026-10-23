@@ -2630,10 +2630,8 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Electric corridor from Malir Cantt & Safoora through Johar, Millennium Mall, National Stadium, AKUH, and Jail Road to Numaish BRT.',
     urduDescription: 'ملیر کینٹ چیک پوسٹ 5 سے صفورہ، جوہر چورنگی، ملینیم مال، اسٹیڈیم، آغا خان ہسپتال، نیو ٹاؤن، جیل چورنگی اور نمائش۔',
     stops: [
-      'malir-cantt-cp5', 'askari-5', 'rim-jhim', 'safoora-chowrangi', 'mausamiyat',
-      'kamran-chowrangi', 'darul-sehat', 'johar-chowrangi', 'johar-mor', 'millennium-mall',
-      'dalmia-road', 'national-stadium', 'akuh', 'liaquat-national', 'new-town',
-      'jail-chowrangi', 'dawood-eng-uni', 'islamia-college', 'numaish-chowrangi'
+      'malir-cantt-cp5', 'rim-jhim', 'safoora-chowrangi', 'johar-mor', 'national-stadium',
+      'dawood-eng-uni', 'jehangir-road', 'numaish-chowrangi'
     ],
   },
   {
@@ -2717,7 +2715,7 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Flagship East-to-West route down Shahrah-e-Faisal through Airport, Karsaz, Metropole, and I.I. Chundrigar to Fish Harbour.',
     urduDescription: 'ماڈل کالونی، ملیر ہالٹ، ڈرگ روڈ، کارساز، نرسری، ایف ٹی سی، میٹروپول، شاہین کمپلیکس، چندریگر روڈ، ٹاور اور ڈاکیارڈ۔',
     stops: [
-      'model-colony', 'saudabad', 'rcd-ground', 'kala-board', 'malir-halt',
+      'khokhrapar', 'model-colony', 'saudabad', 'rcd-ground', 'kala-board', 'malir-halt',
       'colony-gate', 'nata-khan', 'drigh-road-station', 'paf-base-faisal', 'laal-kothi',
       'karsaz', 'baloch-colony-flyover', 'nursery', 'ftc', 'regent-plaza',
       'metropole', 'fawwara-chowk', 'shaheen-complex', 'chundrigar-road', 'merewether-tower',
@@ -2740,9 +2738,7 @@ const BASE_ROUTES: TransitRoute[] = [
     urduDescription: 'پاور ہاؤس، ناگن، سہراب گوٹھ، گلشن چورنگی، نیپا، جوہر موڑ، ڈرگ روڈ، شاہ فیصل کالونی، سنگر چورنگی اور انڈس ہسپتال۔',
     stops: [
       'power-house', 'up-mor', 'nagan-chowrangi', 'shafiq-mor', 'sohrab-goth',
-      'gulshan-chowrangi', 'nipa-chowrangi', 'johar-mor', 'cod', 'drigh-road-station',
-      'colony-gate', 'shah-faisal-colony', 'singer-chowrangi', 'korangi-5', 'khaddi-stop',
-      'nasir-jump', 'indus-hospital', 'korangi-crossing'
+      'nipa-chowrangi', 'korangi-5', 'indus-hospital', 'korangi-crossing'
     ],
   },
   {
@@ -2760,10 +2756,9 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Crosses from Power House down through Nazimabad, Civic Centre, Stadium, Karsaz, and KPT Interchange to Nasir Jump.',
     urduDescription: 'پاور ہاؤس، ناگن، سخی حسن، حیدری، بورڈ آفس، ناظم آباد، لیاقت آباد، سوک سینٹر، اسٹیڈیم، کارساز، نرسری، کالا پل اور شان چورنگی۔',
     stops: [
-      'power-house', 'up-mor', 'nagan-chowrangi', 'sakhi-hassan', 'five-star',
-      'kda-hyderi', 'board-office', 'nazimabad-7', 'liaquatabad-10', 'hassan-square',
-      'national-stadium', 'karsaz', 'nursery', 'ftc', 'kala-pull',
-      'akhtar-colony', 'kpt-interchange', 'shan-chowrangi', 'nasir-jump'
+      'power-house', 'up-mor', 'nagan-chowrangi', 'board-office', 'nazimabad-7',
+      'liaquatabad-10', 'lalookhet-dak-khana', 'karsaz', 'laal-kothi', 'nursery',
+      'kala-pull', 'kpt-interchange', 'shan-chowrangi', 'nasir-jump'
     ],
   },
   {
@@ -2843,9 +2838,8 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Connects Clifton coastline through PIDC and M.T. Khan Road over Jinnah Bridge into Lyari heartland.',
     urduDescription: 'شیریں جناح کالونی سے ضیاء الدین کلفٹن، بلاول چورنگی، عبداللہ شاہ غازی، پی آئی ڈی سی، جناح برج اور میراں ناکہ لیاری۔',
     stops: [
-      'shireen-jinnah', 'ziauddin-clifton', 'bilawal-chowrangi', 'abdullah-shah-ghazi', 'khadda-market',
-      'submarine-chowk', 'pidc-chowk', 'us-consulate', 'mt-khan-road', 'jinnah-bridge',
-      'mauripur-road', 'agra-taj', 'bihar-colony', 'miran-nakka'
+      'shireen-jinnah', 'ziauddin-clifton', 'chundrigar-road', 'pidc-chowk', 'gulbai',
+      'sher-shah', 'baldia-town', 'miran-nakka'
     ],
   },
   {
@@ -2863,9 +2857,8 @@ const BASE_ROUTES: TransitRoute[] = [
     description: 'Links rural Malir and Landhi industrial zones across Korangi Crossing and FTC to Saddar Lucky Star.',
     urduDescription: 'میمن گوٹھ، کھوکھراپار، ملیر 15، قائدآباد، داؤد چورنگی، بابر مارکیٹ، انڈس ہسپتال، کورنگی کراسنگ، قیوم آباد، ایف ٹی سی اور لکی اسٹار۔',
     stops: [
-      'memon-goth', 'khokhrapar', 'saudabad', 'kala-board', 'malir-15',
-      'quaidabad', 'dawood-chowrangi', 'babar-market', 'korangi-5', 'indus-hospital',
-      'nasir-jump', 'korangi-crossing', 'qayyumabad', 'ftc', 'lucky-star'
+      'memon-goth', 'khokhrapar', 'saudabad', 'rcd-ground', 'malir-halt', 'malir-15',
+      'kala-board', 'khaddi-stop', 'korangi-5', 'ftc', 'mazar-e-quaid', 'lucky-star'
     ],
   },
   {

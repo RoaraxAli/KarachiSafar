@@ -1,5 +1,5 @@
 import { STOPS, ROUTES, getStop } from '../data/transitData';
-import { ROAD_POLYLINES } from '../data/roadPolylines';
+import { ROAD_POLYLINES, ROUTE_STOP_OFFSETS } from '../data/roadPolylines';
 import type { TransitStop, TransitRoute, TripPlan, TripLeg, TransitMode } from '../types/transit';
 
 // ==========================================
@@ -102,31 +102,47 @@ function buildTransitLeg(
   }
 
   // Extract the street-level road polyline for this leg from the pre-computed
-  // per-route road network. We locate the nearest vertex to each endpoint and
-  // keep the continuous run of road vertices between them, so the drawn line
-  // always follows the road (never a straight stop-to-stop chord).
+  // per-route road network. ROUTE_STOP_OFFSETS stores the exact vertex index of
+  // every stop, so we slice that continuous run instead of guessing with a
+  // nearest-coordinate search (which used to pick the wrong branch whenever a
+  // corridor doubled back near a station).
   let polyline: [number, number][] = [];
   const fullRoadPolyline = ROAD_POLYLINES[route.id];
+  const stopOffsets = ROUTE_STOP_OFFSETS[route.id];
 
   if (fullRoadPolyline && fullRoadPolyline.length > 1) {
-    const d2 = (lat: number, lng: number, p: [number, number]) =>
-      (p[0] - lat) * (p[0] - lat) + (p[1] - lng) * (p[1] - lng);
-
-    let idx1 = 0;
-    let idx2 = 0;
-    let minD1 = Infinity;
-    let minD2 = Infinity;
-    for (let p = 0; p < fullRoadPolyline.length; p++) {
-      const e1 = d2(fromStop.lat, fromStop.lng, fullRoadPolyline[p]);
-      if (e1 < minD1) { minD1 = e1; idx1 = p; }
-      const e2 = d2(toStop.lat, toStop.lng, fullRoadPolyline[p]);
-      if (e2 < minD2) { minD2 = e2; idx2 = p; }
+    if (stopOffsets && stopOffsets.length === route.stops.length) {
+      const startVertex = stopOffsets[startIndex];
+      const endVertex = stopOffsets[endIndex];
+      if (Number.isInteger(startVertex) && Number.isInteger(endVertex) && startVertex !== endVertex) {
+        polyline =
+          startVertex < endVertex
+            ? fullRoadPolyline.slice(startVertex, endVertex + 1)
+            : fullRoadPolyline.slice(endVertex, startVertex + 1).slice().reverse();
+      }
     }
 
-    if (idx1 <= idx2) {
-      polyline = fullRoadPolyline.slice(idx1, idx2 + 1);
-    } else {
-      polyline = fullRoadPolyline.slice(idx2, idx1 + 1).slice().reverse();
+    // Legacy fallback for any route whose offsets are unavailable.
+    if (polyline.length < 2) {
+      const d2 = (lat: number, lng: number, p: [number, number]) =>
+        (p[0] - lat) * (p[0] - lat) + (p[1] - lng) * (p[1] - lng);
+
+      let idx1 = 0;
+      let idx2 = 0;
+      let minD1 = Infinity;
+      let minD2 = Infinity;
+      for (let p = 0; p < fullRoadPolyline.length; p++) {
+        const e1 = d2(fromStop.lat, fromStop.lng, fullRoadPolyline[p]);
+        if (e1 < minD1) { minD1 = e1; idx1 = p; }
+        const e2 = d2(toStop.lat, toStop.lng, fullRoadPolyline[p]);
+        if (e2 < minD2) { minD2 = e2; idx2 = p; }
+      }
+
+      if (idx1 <= idx2) {
+        polyline = fullRoadPolyline.slice(idx1, idx2 + 1);
+      } else {
+        polyline = fullRoadPolyline.slice(idx2, idx1 + 1).slice().reverse();
+      }
     }
   }
 

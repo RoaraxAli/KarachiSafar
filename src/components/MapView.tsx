@@ -3,7 +3,7 @@ import L from 'leaflet';
 import { Layers, Maximize2, Minimize2 } from 'lucide-react';
 import type { TripPlan, TransitRoute } from '../types/transit';
 import { STOPS, ROUTES } from '../data/transitData';
-import { ROAD_POLYLINES } from '../data/roadPolylines';
+import { ROAD_POLYLINES, ROUTE_STOP_OFFSETS } from '../data/roadPolylines';
 
 interface MapViewProps {
   selectedPlan: TripPlan | null;
@@ -13,6 +13,27 @@ interface MapViewProps {
   onSelectOrigin?: (stopId: string) => void;
   onSelectDest?: (stopId: string) => void;
   className?: string;
+}
+
+// Return the exact road path for a route, trimmed to its first/last stop.
+// ROUTE_STOP_OFFSETS is generated together with ROAD_POLYLINES, so the line and
+// the stop markers always refer to the same corridor.
+function getRoutePath(routeId: string, stopIds: string[]): [number, number][] {
+  const full = ROAD_POLYLINES[routeId];
+  if (full && full.length > 1) {
+    const offsets = ROUTE_STOP_OFFSETS[routeId];
+    if (offsets && offsets.length === stopIds.length) {
+      const first = offsets[0];
+      const last = offsets[offsets.length - 1];
+      return first <= last
+        ? full.slice(first, last + 1)
+        : full.slice(last, first + 1).slice().reverse();
+    }
+    return full;
+  }
+  return stopIds
+    .map((sId) => (STOPS[sId] ? [STOPS[sId].lat, STOPS[sId].lng] : null))
+    .filter(Boolean) as [number, number][];
 }
 
 // Snap a coordinate onto the nearest point of a polyline so markers sit on the road
@@ -138,11 +159,7 @@ export const MapView: React.FC<MapViewProps> = ({
     // 1. If showAllCorridors is enabled and no specific trip plan is active, render background network along ACTUAL ROADS
     if (showAllCorridors && !selectedPlan) {
       ROUTES.forEach((route) => {
-        const roadPoly = ROAD_POLYLINES[route.id];
-        const latLngs: [number, number][] =
-          roadPoly && roadPoly.length > 1
-            ? roadPoly
-            : (route.stops.map((sId) => (STOPS[sId] ? [STOPS[sId].lat, STOPS[sId].lng] : null)).filter(Boolean) as [number, number][]);
+        const latLngs = getRoutePath(route.id, route.stops);
 
         if (latLngs.length > 1) {
           L.polyline(latLngs, {
@@ -164,37 +181,36 @@ export const MapView: React.FC<MapViewProps> = ({
         }
       });
 
-      // Show clean Start and Terminus pins only (no dots on every stop)
+      const routeLatLngs = getRoutePath(selectedRoute.id, selectedRoute.stops);
+
+      // Show clean Start and Terminus pins only (no dots on every stop).
+      // Snap both pins onto the generated road path so they never sit off-road.
       const firstStop = STOPS[selectedRoute.stops[0]];
       const lastStop = STOPS[selectedRoute.stops[selectedRoute.stops.length - 1]];
       if (firstStop) {
+        const [firstLat, firstLng] = snapToPolyline(firstStop.lat, firstStop.lng, routeLatLngs);
         const startIcon = L.divIcon({
           className: 'custom-stop-marker',
           html: `<div style="background-color: #059669; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.4)">A</div>`,
           iconSize: [24, 24],
           iconAnchor: [12, 12],
         });
-        L.marker([firstStop.lat, firstStop.lng], { icon: startIcon })
+        L.marker([firstLat, firstLng], { icon: startIcon })
           .bindPopup(`<div style="font-weight: 700; font-size: 12px; color: #0f172a;">${selectedRoute.code} Origin: ${firstStop.name}</div>`)
           .addTo(layerGroup);
       }
       if (lastStop && lastStop.id !== firstStop?.id) {
+        const [lastLat, lastLng] = snapToPolyline(lastStop.lat, lastStop.lng, routeLatLngs);
         const endIcon = L.divIcon({
           className: 'custom-stop-marker',
           html: `<div style="background-color: #dc2626; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: white; box-shadow: 0 2px 8px rgba(220,38,38,0.5)">🏁</div>`,
           iconSize: [24, 24],
           iconAnchor: [12, 12],
         });
-        L.marker([lastStop.lat, lastStop.lng], { icon: endIcon })
+        L.marker([lastLat, lastLng], { icon: endIcon })
           .bindPopup(`<div style="font-weight: 700; font-size: 12px; color: #0f172a;">${selectedRoute.code} Terminus: ${lastStop.name}</div>`)
           .addTo(layerGroup);
       }
-
-      const roadPoly = ROAD_POLYLINES[selectedRoute.id];
-      const routeLatLngs: [number, number][] =
-        roadPoly && roadPoly.length > 1
-          ? roadPoly
-          : (selectedRoute.stops.map((sId) => (STOPS[sId] ? [STOPS[sId].lat, STOPS[sId].lng] : null)).filter(Boolean) as [number, number][]);
 
       if (routeLatLngs.length > 1) {
         L.polyline(routeLatLngs, {
