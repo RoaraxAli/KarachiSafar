@@ -1,0 +1,23 @@
+# Flutter/Dart build artifacts
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+*.lock.tmp
+
+# Gradle
+.gradle/
+
+# Platform locals
+android/local.properties
+android/app/src/main/java/io/flutter/plugins/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+
+# pub
+pubspec.lock
+
+# Misc
+build_output.txt

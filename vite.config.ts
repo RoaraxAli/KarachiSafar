@@ -14,4 +14,10 @@ export default defineConfig({
       '@': path.resolve(import.meta.dirname, './src'),
     },
   },
+  server: {
+    watch: {
+      // ignore flutter/mobile build churn
+      ignored: ['**/mobile-app/build/**', '**/mobile-app/.dart_tool/**', '**/mobile-app/android/.gradle/**'],
+    },
+  },
 })
