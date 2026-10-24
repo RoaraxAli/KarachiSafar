@@ -1,5 +1,6 @@
 // Official route polylines: Google My Maps KML for PBS routes, OSRM for others.
 // Stop-less excursion spurs collapsed; stop-served out-and-backs kept.
+// GREEN-LINE-BRT monotone-snapped onto the official OSM busway.
 export const ROAD_POLYLINES: Record<string, [number, number][]> = {
   "W-11": [
     [24.996019, 67.055999],
@@ -24377,7 +24378,7 @@ export const ROAD_POLYLINES: Record<string, [number, number][]> = {
     [25.023149, 67.063696],
     [25.023875, 67.06365],
     [25.024092, 67.063637],
-    [25.020866, 67.063839],
+    [25.020937, 67.063834],
     [25.01943, 67.063923],
     [25.019352, 67.063255],
     [25.018985, 67.063279],
