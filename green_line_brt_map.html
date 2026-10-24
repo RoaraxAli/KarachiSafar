@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Green Line BRT Karachi - Extracted Road Route Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #090d16;
+      color: #f8fafc;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 1000;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .badge-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+      font-size: 22px;
+    }
+    .titles h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .titles h1 span.tag {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-weight: 700;
+    }
+    .titles p {
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .stat-pill {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 6px 14px;
+      text-align: right;
+    }
+    .stat-pill .num {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #10b981;
+    }
+    .stat-pill .lbl {
+      font-size: 0.65rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    #map-wrapper {
+      position: relative;
+      flex: 1;
+      width: 100%;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+      background: #090d16;
+    }
+    .floating-card {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 1000;
+      width: 340px;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
+    }
+    .floating-card h2 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .floating-card p {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+    .route-segment-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 250px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .route-segment-list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .route-segment-list::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    .segment-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .segment-item:hover {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+    .segment-info {
+      flex: 1;
+    }
+    .segment-name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+    .segment-sub {
+      font-size: 0.68rem;
+      color: #64748b;
+    }
+    .btn-group {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .btn {
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+    .btn-primary {
+      background: #10b981;
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: #059669;
+    }
+    .btn-secondary {
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .btn-secondary:hover {
+      background: #334155;
+    }
+    .custom-popup .leaflet-popup-content-wrapper {
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    }
+    .custom-popup .leaflet-popup-tip {
+      background: #0f172a;
+    }
+    .custom-popup h3 {
+      font-size: 0.9rem;
+      color: #34d399;
+      margin-bottom: 4px;
+    }
+    .custom-popup p {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      line-height: 1.35;
+    }
+    .custom-popup .tag-label {
+      display: inline-block;
+      margin-top: 6px;
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      font-family: monospace;
+    }
+    .legend-box {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .legend-line {
+      width: 22px;
+      height: 4px;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="badge-icon">🚌</div>
+      <div class="titles">
+        <h1>Green Line BRT <span class="tag">Exact Road Alignment</span></h1>
+        <p>Extracted directly from road ways labeled <strong>&ldquo;Green Line BRT&rdquo;</strong> (highway=busway)</p>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-pill">
+        <div class="num">19.2 km</div>
+        <div class="lbl">Dedicated Busway</div>
+      </div>
+      <div class="stat-pill">
+        <div class="num">42</div>
+        <div class="lbl">OSM Road Ways</div>
+      </div>
+      <div class="stat-pill">
+        <div class="num">183</div>
+        <div class="lbl">Route Coordinates</div>
+      </div>
+    </div>
+  </header>
+
+  <div id="map-wrapper">
+    <div class="floating-card">
+      <h2>
+        <span>Green Line Road Alignment</span>
+        <span style="color: #10b981; font-size: 0.75rem;">● Verified</span>
+      </h2>
+      <p>This map visualizes the exact coordinates extracted from the road sections titled <strong>&ldquo;Green Line BRT&rdquo;</strong> in Karachi, showing the full route from start to end.</p>
+      
+      <div class="route-segment-list">
+        <div class="segment-item" onclick="zoomToCoord(25.0247, 67.0637, 17)">
+          <div class="dot" style="background: #10b981;"></div>
+          <div class="segment-info">
+            <div class="segment-name">Surjani Town Terminal (Start)</div>
+            <div class="segment-sub">Abdullah Chowk Loop (25.0247&deg;, 67.0637&deg;)</div>
+          </div>
+        </div>
+        <div class="segment-item" onclick="zoomToCoord(24.9785, 67.0664, 16)">
+          <div class="dot"></div>
+          <div class="segment-info">
+            <div class="segment-name">Nagan Chowrangi Elevated Way</div>
+            <div class="segment-sub">Flyover BRT Busway (24.9785&deg;, 67.0664&deg;)</div>
+          </div>
+        </div>
+        <div class="segment-item" onclick="zoomToCoord(24.9366, 67.0379, 16)">
+          <div class="dot"></div>
+          <div class="segment-info">
+            <div class="segment-name">Board Office &amp; Nazimabad</div>
+            <div class="segment-sub">Central Dedicated Busway (24.9366&deg;, 67.0379&deg;)</div>
+          </div>
+        </div>
+        <div class="segment-item" onclick="zoomToCoord(24.8911, 67.0307, 16)">
+          <div class="dot"></div>
+          <div class="segment-info">
+            <div class="segment-name">Lasbela &amp; Gurumandir</div>
+            <div class="segment-sub">M.A. Jinnah Corridor (24.8911&deg;, 67.0307&deg;)</div>
+          </div>
+        </div>
+        <div class="segment-item" onclick="zoomToCoord(24.8688, 67.0308, 17)">
+          <div class="dot" style="background: #ef4444;"></div>
+          <div class="segment-info">
+            <div class="segment-name">Numaish / Taj Complex (End)</div>
+            <div class="segment-sub">Southern End (24.8688&deg;, 67.0308&deg;)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="fitFullRoute()">Fit Entire Route</button>
+        <button class="btn btn-secondary" onclick="toggleMapType()">Toggle Satellite</button>
+      </div>
+    </div>
+
+    <div class="legend-box">
+      <div class="legend-row">
+        <div class="legend-line" style="background: #10b981;"></div>
+        <span>Green Line BRT Road Route</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-line" style="background: #38bdf8;"></div>
+        <span>Station Way Splits / Loops</span>
+      </div>
+    </div>
+
+    <div id="map"></div>
+  </div>
+
+  <script>
+    const mainLineCoords = [[24.8688469,67.0308536],[24.8702326,67.0330399],[24.871344,67.0347299],[24.8714313,67.0348707],[24.8715373,67.0350384],[24.8716148,67.0351492],[24.871672,67.0352193],[24.8717338,67.0352752],[24.8717955,67.0353189],[24.8724253,67.0357254],[24.8731659,67.0361857],[24.8736167,67.0364532],[24.8737338,67.0365212],[24.8743202,67.0368089],[24.8746983,67.0369837],[24.8768693,67.0380004],[24.8771699,67.0381315],[24.8778014,67.0384067],[24.878583,67.038764],[24.879066,67.0389905],[24.8792116,67.0390495],[24.8793641,67.0390991],[24.8794958,67.0391248],[24.8795472,67.0391327],[24.8796025,67.0391363],[24.8797054,67.0391275],[24.8798495,67.0391116],[24.8799386,67.0390882],[24.8800164,67.0390612],[24.8801039,67.0390196],[24.8801477,67.038993],[24.880191,67.0389634],[24.8804976,67.0387165],[24.8816046,67.0378267],[24.8850198,67.0350866],[24.8867365,67.0337308],[24.886802,67.0336759],[24.8868877,67.0335946],[24.8869615,67.0335224],[24.8870758,67.0333933],[24.8871154,67.0333405],[24.8874455,67.0328679],[24.8875008,67.0327815],[24.887546,67.0327154],[24.8876013,67.0326382],[24.8876585,67.032565],[24.8877175,67.0324999],[24.8878696,67.0323465],[24.8879406,67.0322794],[24.8880079,67.0322225],[24.8880863,67.0321615],[24.8881785,67.0320934],[24.8882854,67.0320263],[24.8883933,67.0319653],[24.8885547,67.031885],[24.8887344,67.0318119],[24.888846,67.0317753],[24.8896573,67.0315534],[24.889752,67.0315269],[24.8907986,67.0312278],[24.89094,67.0311925],[24.8911267,67.0311402],[24.8921363,67.0308575],[24.8921655,67.0308528],[24.8922232,67.0308487],[24.892282,67.0308452],[24.8945134,67.0307648],[24.896896,67.0306087],[24.9001335,67.0304386],[24.9015794,67.0302973],[24.9017646,67.0302812],[24.9018366,67.0302836],[24.9019372,67.0302952],[24.9020452,67.0303151],[24.9022295,67.0303641],[24.9029919,67.0305778],[24.9034738,67.0307132],[24.9036055,67.0307494],[24.9036369,67.0307564],[24.9037808,67.0307887],[24.9039911,67.0308257],[24.9044967,67.030895],[24.9046714,67.0309058],[24.9049617,67.0309209],[24.905445,67.0309909],[24.906128,67.0310057],[24.9067837,67.0309712],[24.9133034,67.0312189],[24.9151364,67.0312861],[24.9165124,67.0313465],[24.9172784,67.031375],[24.9181397,67.0313608],[24.9192251,67.0314416],[24.9240496,67.0316223],[24.9241522,67.0316289],[24.9243056,67.0316415],[24.9243896,67.0316586],[24.9245317,67.0316915],[24.9246412,67.0317247],[24.9247573,67.0317717],[24.9248877,67.0318236],[24.9249889,67.0318746],[24.9250822,67.0319263],[24.9251707,67.0319858],[24.9252526,67.032044],[24.9253161,67.0320981],[24.925419,67.0321847],[24.9261773,67.0328632],[24.9263358,67.0330827],[24.9269969,67.0336579],[24.9272012,67.0338356],[24.9273673,67.0339033],[24.9293101,67.035654],[24.9293336,67.0356751],[24.9333486,67.0392467],[24.9366838,67.0422201],[24.9368789,67.0424601],[24.9377096,67.0432046],[24.9379447,67.0433308],[24.9406679,67.0457745],[24.9444394,67.0491156],[24.9450362,67.0496454],[24.9453172,67.0497911],[24.946088,67.0504771],[24.946282,67.0507494],[24.9463383,67.0508033],[24.9497868,67.0538759],[24.9500994,67.0540471],[24.9506756,67.0545749],[24.9509166,67.054796],[24.9510666,67.0550045],[24.9518753,67.0557324],[24.9559374,67.0593072],[24.9579343,67.061053],[24.9581863,67.0613137],[24.958987,67.0620073],[24.959195,67.0621329],[24.9636217,67.0660507],[24.964282,67.0666348],[24.9644045,67.066742],[24.9644787,67.0668083],[24.9645899,67.0668834],[24.9646775,67.0669335],[24.9647167,67.0669517],[24.9648386,67.0670111],[24.9649281,67.0670446],[24.9650162,67.0670661],[24.9651257,67.0670842],[24.9652402,67.0670842],[24.9653693,67.0670789],[24.9655268,67.0670711],[24.9685232,67.0668474],[24.9689914,67.0668121],[24.9694223,67.066782],[24.9696758,67.0667631],[24.9699408,67.0667693],[24.9700166,67.0667727],[24.9701297,67.0667849],[24.9705676,67.0668776],[24.9706896,67.0669038],[24.9708074,67.0669191],[24.9709098,67.0669275],[24.9710422,67.0669232],[24.9751573,67.0666704],[24.9798879,67.0663765],[24.9861965,67.065967],[24.9882464,67.0658305],[24.9992645,67.0651354],[25.0056563,67.0647424],[25.0069821,67.0646604],[25.0118409,67.0643704],[25.0171739,67.0640515],[25.018561,67.0639686],[25.0200098,67.0638926],[25.0231491,67.0636957],[25.0242372,67.0636275],[25.0245402,67.0636001],[25.0246141,67.0635941],[25.0246537,67.0635985],[25.0246832,67.0636111],[25.0246998,67.063637],[25.0247133,67.0636714],[25.0247196,67.0637125]];
+    const buswayWays = [{"idx":0,"id":910152880,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"yes","oneway":"no","coords":[[24.8911267,67.0311402],[24.8921363,67.0308575],[24.8921655,67.0308528],[24.8922232,67.0308487],[24.892282,67.0308452],[24.8945134,67.0307648],[24.896896,67.0306087],[24.9001335,67.0304386],[24.9015794,67.0302973],[24.9017646,67.0302812],[24.9018366,67.0302836],[24.9019372,67.0302952],[24.9020452,67.0303151],[24.9022295,67.0303641],[24.9029919,67.0305778],[24.9034738,67.0307132],[24.9036055,67.0307494],[24.9036369,67.0307564]]},{"idx":1,"id":910152881,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.8731659,67.0361857],[24.8736167,67.0364532],[24.8737338,67.0365212],[24.8743202,67.0368089],[24.8746983,67.0369837],[24.8768693,67.0380004]]},{"idx":2,"id":910152882,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"yes","oneway":"no","coords":[[24.8771699,67.0381315],[24.8778014,67.0384067],[24.878583,67.038764],[24.879066,67.0389905],[24.8792116,67.0390495],[24.8793641,67.0390991],[24.8794958,67.0391248],[24.8795472,67.0391327],[24.8796025,67.0391363],[24.8797054,67.0391275],[24.8798495,67.0391116],[24.8799386,67.0390882],[24.8800164,67.0390612],[24.8801039,67.0390196],[24.8801477,67.038993],[24.880191,67.0389634],[24.8804976,67.0387165],[24.8816046,67.0378267],[24.8850198,67.0350866],[24.8867365,67.0337308],[24.886802,67.0336759],[24.8868877,67.0335946],[24.8869615,67.0335224],[24.8870758,67.0333933],[24.8871154,67.0333405],[24.8874455,67.0328679],[24.8875008,67.0327815],[24.887546,67.0327154],[24.8876013,67.0326382],[24.8876585,67.032565],[24.8877175,67.0324999],[24.8878696,67.0323465],[24.8879406,67.0322794],[24.8880079,67.0322225],[24.8880863,67.0321615],[24.8881785,67.0320934],[24.8882854,67.0320263],[24.8883933,67.0319653]]},{"idx":3,"id":912291746,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.9247573,67.0317717],[24.9248877,67.0318236],[24.9249889,67.0318746],[24.9250822,67.0319263],[24.9251707,67.0319858],[24.9252526,67.032044],[24.9253161,67.0320981],[24.925419,67.0321847],[24.9261773,67.0328632]]},{"idx":4,"id":912291747,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.9273673,67.0339033],[24.9272012,67.0338356],[24.9269969,67.0336579],[24.9263358,67.0330827],[24.9261773,67.0328632]]},{"idx":5,"id":912291748,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"yes","oneway":"no","coords":[[24.9293336,67.0356751],[24.9333486,67.0392467]]},{"idx":6,"id":912291749,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.9333486,67.0392467],[24.9366838,67.0422201]]},{"idx":7,"id":912291750,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.9379447,67.0433308],[24.9377096,67.0432046],[24.9368789,67.0424601],[24.9366838,67.0422201]]},{"idx":8,"id":912291751,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.9379447,67.0433308],[24.9406679,67.0457745]]},{"idx":9,"id":912291752,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"yes","oneway":"no","coords":[[24.9406679,67.0457745],[24.9444394,67.0491156]]},{"idx":10,"id":912291753,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.9444394,67.0491156],[24.9450362,67.0496454]]},{"idx":11,"id":912291754,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.9273673,67.0339033],[24.9293101,67.035654],[24.9293336,67.0356751]]},{"idx":12,"id":912291755,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.9450362,67.0496454],[24.9453172,67.0497911],[24.946088,67.0504771],[24.946282,67.0507494]]},{"idx":13,"id":912291756,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.946282,67.0507494],[24.9463383,67.0508033],[24.9497868,67.0538759]]},{"idx":14,"id":912291757,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.9497868,67.0538759],[24.9500994,67.0540471],[24.9506756,67.0545749],[24.9509166,67.054796],[24.9510666,67.0550045]]},{"idx":15,"id":912291758,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.9510666,67.0550045],[24.9518753,67.0557324]]},{"idx":16,"id":912291759,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"yes","oneway":"no","coords":[[24.9518753,67.0557324],[24.9559374,67.0593072]]},{"idx":17,"id":912291760,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.9559374,67.0593072],[24.9579343,67.061053]]},{"idx":18,"id":912291761,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.959195,67.0621329],[24.958987,67.0620073],[24.9581863,67.0613137],[24.9579343,67.061053]]},{"idx":19,"id":912291762,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.959195,67.0621329],[24.9636217,67.0660507]]},{"idx":20,"id":912291763,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.9636217,67.0660507],[24.964282,67.0666348],[24.9644045,67.066742],[24.9644787,67.0668083],[24.9645899,67.0668834],[24.9646775,67.0669335],[24.9647167,67.0669517],[24.9648386,67.0670111],[24.9649281,67.0670446],[24.9650162,67.0670661],[24.9651257,67.0670842],[24.9652402,67.0670842],[24.9653693,67.0670789],[24.9655268,67.0670711]]},{"idx":21,"id":912291764,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.9247573,67.0317717],[24.9246412,67.0317247],[24.9245317,67.0316915],[24.9243896,67.0316586],[24.9243056,67.0316415],[24.9241522,67.0316289],[24.9240496,67.0316223],[24.9192251,67.0314416],[24.9181397,67.0313608]]},{"idx":22,"id":912291765,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.9181397,67.0313608],[24.9172784,67.031375],[24.9165124,67.0313465],[24.9151364,67.0312861]]},{"idx":23,"id":912291766,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"yes","oneway":"no","coords":[[24.9133034,67.0312189],[24.9067837,67.0309712]]},{"idx":24,"id":912291767,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.9067837,67.0309712],[24.906128,67.0310057],[24.905445,67.0309909],[24.9049617,67.0309209]]},{"idx":25,"id":912296387,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"yes","oneway":"no","coords":[[25.0200098,67.0638926],[25.018561,67.0639686],[25.0171739,67.0640515],[25.0118409,67.0643704],[25.0069821,67.0646604],[25.0056563,67.0647424],[24.9992645,67.0651354],[24.9882464,67.0658305],[24.9861965,67.065967],[24.9798879,67.0663765],[24.9751573,67.0666704],[24.9710422,67.0669232],[24.9709098,67.0669275],[24.9708074,67.0669191],[24.9706896,67.0669038],[24.9705676,67.0668776],[24.9701297,67.0667849],[24.9700166,67.0667727],[24.9699408,67.0667693],[24.9696758,67.0667631],[24.9694223,67.066782],[24.9689914,67.0668121],[24.9685232,67.0668474]]},{"idx":26,"id":912296388,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.9685232,67.0668474],[24.9655268,67.0670711]]},{"idx":27,"id":912298299,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.9151364,67.0312861],[24.9133034,67.0312189]]},{"idx":28,"id":912298300,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.9036369,67.0307564],[24.9037808,67.0307887],[24.9039911,67.0308257],[24.9044967,67.030895],[24.9046714,67.0309058],[24.9049617,67.0309209]]},{"idx":29,"id":912298301,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"yes","oneway":"no","coords":[[24.8883933,67.0319653],[24.8885547,67.031885],[24.8887344,67.0318119],[24.888846,67.0317753],[24.8896573,67.0315534],[24.889752,67.0315269],[24.8907986,67.0312278],[24.89094,67.0311925],[24.8911267,67.0311402]]},{"idx":30,"id":931648252,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.8702326,67.0330399],[24.871344,67.0347299],[24.8714313,67.0348707],[24.8715373,67.0350384],[24.8716148,67.0351492],[24.871672,67.0352193],[24.8717338,67.0352752],[24.8717955,67.0353189],[24.8724253,67.0357254],[24.8731659,67.0361857]]},{"idx":31,"id":931648253,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.8768693,67.0380004],[24.8771699,67.0381315]]},{"idx":32,"id":931648254,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[24.8702326,67.0330399],[24.8688469,67.0308536]]},{"idx":33,"id":931648966,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"no","coords":[[25.0242372,67.0636275],[25.0231491,67.0636957],[25.0200098,67.0638926]]},{"idx":34,"id":931648967,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[25.0242372,67.0636275],[25.0245402,67.0636001],[25.0246141,67.0635941],[25.0246537,67.0635985],[25.0246832,67.0636111],[25.0246998,67.063637],[25.0247133,67.0636714],[25.0247196,67.0637125],[25.0247153,67.0637514],[25.0246997,67.0637812],[25.0246687,67.0638056],[25.0246389,67.0638179],[25.024607,67.0638209],[25.0245651,67.0638161],[25.0245414,67.0638025],[25.0244374,67.0637155],[25.0243726,67.0636651],[25.0243376,67.0636503],[25.0243095,67.0636436],[25.0242703,67.0636346],[25.0242372,67.0636275]]},{"idx":35,"id":1324657270,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.9579343,67.061053],[24.9582495,67.0612199],[24.9590382,67.0619158],[24.959195,67.0621329]]},{"idx":36,"id":1324657271,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.9510666,67.0550045],[24.9508574,67.0548801],[24.9506103,67.0546628],[24.9501704,67.0542749],[24.9500335,67.0541554],[24.9497868,67.0538759]]},{"idx":37,"id":1324657272,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.946282,67.0507494],[24.9460132,67.0506024],[24.9452369,67.0499062],[24.9450362,67.0496454]]},{"idx":38,"id":1324657273,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.9366838,67.0422201],[24.9369513,67.0423689],[24.9377672,67.0431121],[24.9379447,67.0433308]]},{"idx":39,"id":1324657274,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.9261773,67.0328632],[24.9264375,67.0329839],[24.9270568,67.0335567],[24.9272683,67.0337523],[24.9273673,67.0339033]]},{"idx":40,"id":1324657275,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.9151364,67.0312861],[24.9165173,67.0312214],[24.9172842,67.0312501],[24.9181397,67.0313608]]},{"idx":41,"id":1324657276,"nameEn":"Green Line BRT","nameUr":"Ú¯Ø±ÛÙ ÙØ§Ø¦Ù Ø¨Û Ø¢Ø± Ù¹Û","highway":"busway","bridge":"no","oneway":"yes","coords":[[24.9049617,67.0309209],[24.9054476,67.0308805],[24.9061238,67.0308985],[24.9067837,67.0309712]]}];
+
+    const map = L.map('map', {
+      zoomControl: false
+    }).setView([24.9467, 67.0450], 12);
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    const baseStreet = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap, &copy; CARTO',
+      maxZoom: 19
+    }).addTo(map);
+
+    const baseSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: '&copy; Esri, Maxar',
+      maxZoom: 19
+    });
+
+    let isSatellite = false;
+    function toggleMapType() {
+      if (isSatellite) {
+        map.removeLayer(baseSatellite);
+        baseStreet.addTo(map);
+        isSatellite = false;
+      } else {
+        map.removeLayer(baseStreet);
+        baseSatellite.addTo(map);
+        isSatellite = true;
+      }
+    }
+
+    // Outer glow
+    L.polyline(mainLineCoords, {
+      color: '#059669',
+      weight: 10,
+      opacity: 0.35,
+      lineCap: 'round',
+      lineJoin: 'round'
+    }).addTo(map);
+
+    // Continuous main BRT line
+    const mainPoly = L.polyline(mainLineCoords, {
+      color: '#10b981',
+      weight: 5,
+      opacity: 0.95,
+      lineCap: 'round',
+      lineJoin: 'round'
+    }).addTo(map);
+
+    // Individual road ways labeled "Green Line BRT"
+    buswayWays.forEach((way) => {
+      const segPoly = L.polyline(way.coords, {
+        color: '#34d399',
+        weight: 6,
+        opacity: 0.65
+      }).addTo(map);
+
+      segPoly.bindPopup(`
+        <div class="custom-popup">
+          <h3>${way.nameEn}</h3>
+          <p><strong>Urdu:</strong> ${way.nameUr}</p>
+          <p><strong>OSM Way ID:</strong> #${way.id}</p>
+          <p><strong>Highway Tag:</strong> highway=${way.highway}</p>
+          <p><strong>Bridge:</strong> ${way.bridge}</p>
+          <span class="tag-label">Road name: "${way.nameEn}"</span>
+        </div>
+      `, { className: 'custom-popup' });
+
+      segPoly.on('mouseover', function() {
+        this.setStyle({ color: '#f59e0b', weight: 9, opacity: 1 });
+      });
+      segPoly.on('mouseout', function() {
+        this.setStyle({ color: '#34d399', weight: 6, opacity: 0.65 });
+      });
+    });
+
+    // Start marker (Surjani Town / Abdullah Chowk)
+    const northPt = mainLineCoords[mainLineCoords.length - 1];
+    const startMarker = L.circleMarker(northPt, {
+      radius: 9,
+      fillColor: '#10b981',
+      color: '#ffffff',
+      weight: 3,
+      fillOpacity: 1
+    }).addTo(map);
+
+    startMarker.bindPopup(`
+      <div class="custom-popup">
+        <h3>Surjani Town (Abdullah Chowk)</h3>
+        <p><strong>Position:</strong> ${northPt[0].toFixed(6)}, ${northPt[1].toFixed(6)}</p>
+        <p>Northern terminus &amp; turnaround loop of the Green Line BRT road.</p>
+      </div>
+    `, { className: 'custom-popup' });
+
+    // End marker (Numaish Chowrangi / Taj Complex)
+    const southPt = mainLineCoords[0];
+    const endMarker = L.circleMarker(southPt, {
+      radius: 9,
+      fillColor: '#ef4444',
+      color: '#ffffff',
+      weight: 3,
+      fillOpacity: 1
+    }).addTo(map);
+
+    endMarker.bindPopup(`
+      <div class="custom-popup">
+        <h3>Numaish Chowrangi / Taj Complex</h3>
+        <p><strong>Position:</strong> ${southPt[0].toFixed(6)}, ${southPt[1].toFixed(6)}</p>
+        <p>Southern terminus of the dedicated Green Line BRT road corridor.</p>
+      </div>
+    `, { className: 'custom-popup' });
+
+    function fitFullRoute() {
+      map.fitBounds(mainPoly.getBounds(), { padding: [50, 50] });
+    }
+
+    function zoomToCoord(lat, lng, zoom) {
+      map.flyTo([lat, lng], zoom, { duration: 1.2 });
+    }
+
+    fitFullRoute();
+  </script>
+</body>
+</html>
