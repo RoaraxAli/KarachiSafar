@@ -1,11 +1,11 @@
 {
-  "version": "1.0.11",
-  "buildNumber": "12",
+  "version": "1.0.12",
+  "buildNumber": "13",
   "apkUrl": "https://karachi-safar.vercel.app/apk/karachi-safar-arm64-v8a.apk",
   "apkUrls": {
     "arm64-v8a": "https://karachi-safar.vercel.app/apk/karachi-safar-arm64-v8a.apk",
     "armeabi-v7a": "https://karachi-safar.vercel.app/apk/karachi-safar-armeabi-v7a.apk",
     "x86_64": "https://karachi-safar.vercel.app/apk/karachi-safar-x86_64.apk"
   },
-  "releaseNotes": "Routes now follow real roads exactly like the website - no more invented straight lines. 'From My Location' route finder, search, and fixed icons."
+  "releaseNotes": "Properly signed build - reinstall once, then all future updates install directly from the app (no browser needed). Routes follow official corridors - stop offsets rebuilt, Green Line on BRT busway."
 }
